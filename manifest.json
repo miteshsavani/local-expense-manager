@@ -1,7 +1,7 @@
 {
-  "name": "Local expense Manager - Splitwise lite",
+  "name": "Local expense Manager",
   "short_name": "Local expense Manager",
-  "start_url": ".",
+  "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4CAF50",
