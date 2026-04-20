@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Local expense Manager - Splitwise lite</title>
+<link rel="manifest" href="/manifest.json">
 <style>
   /* ===== CSS VARIABLES & RESET ===== */
   :root {
@@ -69,6 +70,18 @@
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+
+  /* ===== MOBILE OPTIMIZATION ===== */
+  /* Disable zoom */
+  html, body {
+    touch-action: manipulation;
+  }
+
+  /* Fix font size */
+  input, select, textarea {
+    font-size: 16px;
+  }
 
   /* ===== LAYOUT ===== */
   .app { display: flex; flex-direction: column; min-height: 100vh; }
@@ -665,6 +678,20 @@
 
 <!-- MODALS (rendered dynamically) -->
 <div id="modal-container"></div>
+
+
+<script>
+// ============================================================
+//  SERVICE WORKER
+// ============================================================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(reg => console.log('Service Worker registered', reg))
+      .catch(err => console.error('Service Worker registration failed', err));
+  });
+}
+</script>
 
 <script>
 // ============================================================
