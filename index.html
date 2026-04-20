@@ -3,76 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Local expense Manager - Splitwise lite</title>
+<title>SplitEase — Expense Sharing</title>
 <link rel="manifest" href="/manifest.json">
+<!--
+  Google APIs are loaded DYNAMICALLY (only when user connects Drive).
+  This keeps the app fully offline-capable without blocking on external scripts.
+-->
 <style>
-  /* ===== CSS VARIABLES & RESET ===== */
-  :root {
-    --bg: #f5f3ef;
-    --surface: #ffffff;
-    --surface2: #faf9f7;
-    --border: #e8e4dc;
-    --border2: #d4cfc4;
-    --text: #1a1714;
-    --text2: #5c564e;
-    --text3: #9c948a;
-    --accent: #c84b31;
-    --accent2: #e85d43;
-    --accent-bg: #fdf0ed;
-    --green: #2d7a5e;
-    --green-bg: #edf7f3;
-    --yellow: #c4860a;
-    --yellow-bg: #fef7e6;
-    --blue: #2563a8;
-    --blue-bg: #eef4fb;
-    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
-    --shadow2: 0 2px 8px rgba(0,0,0,0.12), 0 8px 32px rgba(0,0,0,0.08);
-    --radius: 12px;
-    --radius2: 8px;
-    --font-display: 'Playfair Display', 'Georgia', serif;
-    --font-body: 'DM Sans', 'Segoe UI', sans-serif;
-    --font-mono: 'DM Mono', 'Courier New', monospace;
-    --transition: 0.18s ease;
-  }
-  .dark {
-    --bg: #121110;
-    --surface: #1e1c1a;
-    --surface2: #252320;
-    --border: #2e2b27;
-    --border2: #3d3930;
-    --text: #f0ece4;
-    --text2: #b8b0a6;
-    --text3: #7a7268;
-    --accent: #e05f43;
-    --accent2: #f07055;
-    --accent-bg: #2a1a16;
-    --green: #3d9a74;
-    --green-bg: #0f2b1f;
-    --yellow: #d4960a;
-    --yellow-bg: #251c06;
-    --blue: #3d7bc4;
-    --blue-bg: #0e1e36;
-    --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
-    --shadow2: 0 2px 8px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: var(--font-body);
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    transition: background var(--transition), color var(--transition);
-    line-height: 1.5;
-  }
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
-
-  /* ===== SCROLLBAR ===== */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-
-
-  /* ===== MOBILE OPTIMIZATION ===== */
+/* ===== MOBILE OPTIMIZATION ===== */
   /* Disable zoom */
   html, body {
     touch-action: manipulation;
@@ -82,517 +20,297 @@
   input, select, textarea {
     font-size: 16px;
   }
+/* ===== CSS VARIABLES ===== */
+:root {
+  --bg: #f5f3ef; --surface: #ffffff; --surface2: #faf9f7;
+  --border: #e8e4dc; --border2: #d4cfc4;
+  --text: #1a1714; --text2: #5c564e; --text3: #9c948a;
+  --accent: #c84b31; --accent2: #e85d43; --accent-bg: #fdf0ed;
+  --green: #2d7a5e; --green-bg: #edf7f3;
+  --yellow: #c4860a; --yellow-bg: #fef7e6;
+  --blue: #2563a8; --blue-bg: #eef4fb;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow2: 0 2px 8px rgba(0,0,0,0.12), 0 8px 32px rgba(0,0,0,0.08);
+  --radius: 12px; --radius2: 8px;
+  --font-display: 'Playfair Display','Georgia',serif;
+  --font-body: 'DM Sans','Segoe UI',sans-serif;
+  --font-mono: 'DM Mono','Courier New',monospace;
+  --transition: 0.18s ease;
+}
+.dark {
+  --bg: #121110; --surface: #1e1c1a; --surface2: #252320;
+  --border: #2e2b27; --border2: #3d3930;
+  --text: #f0ece4; --text2: #b8b0a6; --text3: #7a7268;
+  --accent: #e05f43; --accent2: #f07055; --accent-bg: #2a1a16;
+  --green: #3d9a74; --green-bg: #0f2b1f;
+  --yellow: #d4960a; --yellow-bg: #251c06;
+  --blue: #3d7bc4; --blue-bg: #0e1e36;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+  --shadow2: 0 2px 8px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; transition: background var(--transition), color var(--transition); line-height: 1.5; }
+::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
-  /* ===== LAYOUT ===== */
-  .app { display: flex; flex-direction: column; min-height: 100vh; }
-  .header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 32px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .logo {
-    font-family: var(--font-display);
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: -0.5px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .logo-icon {
-    width: 32px; height: 32px;
-    background: var(--accent);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff;
-    font-size: 16px;
-  }
-  .header-actions { display: flex; gap: 8px; align-items: center; }
-  .main { flex: 1; padding: 32px; max-width: 1100px; margin: 0 auto; width: 100%; }
+/* ===== LAYOUT ===== */
+.app { display: flex; flex-direction: column; min-height: 100vh; }
+.header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; }
+.header-actions { display: flex; gap: 8px; align-items: center; }
+.main { flex: 1; padding: 32px; max-width: 1100px; margin: 0 auto; width: 100%; }
 
-  /* ===== BUTTONS ===== */
-  .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 16px; border-radius: var(--radius2);
-    font-family: var(--font-body); font-size: 14px; font-weight: 500;
-    cursor: pointer; border: none; transition: all var(--transition);
-    white-space: nowrap;
-  }
-  .btn-primary {
-    background: var(--accent); color: #fff;
-  }
-  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(200,75,49,0.3); }
-  .btn-secondary {
-    background: var(--surface2); color: var(--text2);
-    border: 1px solid var(--border);
-  }
-  .btn-secondary:hover { background: var(--border); color: var(--text); }
-  .btn-ghost {
-    background: transparent; color: var(--text2);
-  }
-  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
-  .btn-danger { background: #fee2e2; color: #dc2626; }
-  .btn-danger:hover { background: #dc2626; color: #fff; }
-  .btn-sm { padding: 5px 10px; font-size: 12px; }
-  .btn-icon {
-    width: 36px; height: 36px; padding: 0;
-    display: inline-flex; align-items: center; justify-content: center;
-    border-radius: var(--radius2);
-  }
+/* ===== SYNC STATUS PILL ===== */
+.sync-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all var(--transition); white-space: nowrap; }
+.sync-pill:hover { filter: brightness(0.95); }
+.sync-pill.synced  { background: var(--green-bg);  color: var(--green);  border-color: #b6e4d2; }
+.sync-pill.pending { background: var(--yellow-bg); color: var(--yellow); border-color: #f5d87a; }
+.sync-pill.offline { background: var(--surface2);  color: var(--text3);  border-color: var(--border); }
+.sync-pill.syncing { background: var(--blue-bg);   color: var(--blue);   border-color: #a7c8f5; }
+.sync-pill.error   { background: var(--accent-bg); color: var(--accent); border-color: #f5b9ae; }
+.sync-pill.local   { background: var(--surface2);  color: var(--text2);  border-color: var(--border); }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.sync-pill.syncing .sync-dot { animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-  /* ===== CARDS ===== */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    box-shadow: var(--shadow);
-  }
-  .card-hover {
-    transition: all var(--transition);
-    cursor: pointer;
-  }
-  .card-hover:hover {
-    border-color: var(--accent);
-    box-shadow: var(--shadow2);
-    transform: translateY(-2px);
-  }
+/* ===== BANNERS ===== */
+.warning-banner { display: flex; align-items: center; gap: 10px; padding: 10px 32px; background: var(--yellow-bg); border-bottom: 1px solid #f5d87a; font-size: 13px; color: var(--yellow); flex-wrap: wrap; }
+.dark .warning-banner { border-color: #5a3e00; }
+.warning-banner.hidden { display: none !important; }
+.warning-banner a { color: var(--yellow); font-weight: 700; cursor: pointer; text-decoration: underline; }
+.warning-banner .dismiss-btn { margin-left: auto; cursor: pointer; background: none; border: none; color: var(--yellow); font-size: 20px; line-height: 1; padding: 0; }
+.offline-banner { display: flex; align-items: center; gap: 8px; padding: 8px 32px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text3); }
+.offline-banner.hidden { display: none !important; }
 
-  /* ===== INPUTS ===== */
-  .input, .select, .textarea {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius2);
-    padding: 10px 14px;
-    font-family: var(--font-body);
-    font-size: 14px;
-    color: var(--text);
-    transition: border-color var(--transition);
-    outline: none;
-  }
-  .input:focus, .select:focus, .textarea:focus {
-    border-color: var(--accent);
-    background: var(--surface);
-  }
-  .input::placeholder { color: var(--text3); }
-  label {
-    display: block;
-    font-size: 12px; font-weight: 600;
-    color: var(--text2);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-  }
-  .form-group { margin-bottom: 16px; }
+/* ===== SYNC PROGRESS BAR ===== */
+.sync-bar { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: var(--blue); transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease; z-index: 999; pointer-events: none; }
+.sync-bar.active { transform: scaleX(1); }
 
-  /* ===== MODAL ===== */
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(4px);
-    z-index: 1000;
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-    animation: fadeIn 0.15s ease;
-  }
-  .modal {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 28px;
-    width: 100%; max-width: 520px;
-    max-height: 90vh; overflow-y: auto;
-    box-shadow: var(--shadow2);
-    animation: slideUp 0.2s ease;
-  }
-  .modal-wide { max-width: 680px; }
-  .modal-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 24px;
-  }
-  .modal-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; }
-  .modal-footer {
-    display: flex; gap: 10px; justify-content: flex-end;
-    margin-top: 24px; padding-top: 20px;
-    border-top: 1px solid var(--border);
-  }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+/* ===== BUTTONS ===== */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--radius2); font-family: var(--font-body); font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all var(--transition); white-space: nowrap; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(200,75,49,0.3); }
+.btn-secondary { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--border); color: var(--text); }
+.btn-ghost { background: transparent; color: var(--text2); }
+.btn-ghost:hover { background: var(--surface2); color: var(--text); }
+.btn-danger { background: #fee2e2; color: #dc2626; }
+.btn-danger:hover { background: #dc2626; color: #fff; }
+.btn-google { background: #fff; color: #3c4043; border: 1px solid #dadce0; font-weight: 500; }
+.btn-google:hover { background: #f8f9fa; box-shadow: var(--shadow); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-icon { width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius2); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
-  /* ===== TOAST ===== */
-  .toast-container {
-    position: fixed; bottom: 24px; right: 24px;
-    display: flex; flex-direction: column; gap: 8px;
-    z-index: 2000;
-  }
-  .toast {
-    background: var(--text);
-    color: var(--bg);
-    padding: 12px 18px;
-    border-radius: var(--radius2);
-    font-size: 13px; font-weight: 500;
-    box-shadow: var(--shadow2);
-    display: flex; align-items: center; gap: 10px;
-    animation: toastIn 0.25s ease;
-    max-width: 320px;
-  }
-  .toast.success { background: var(--green); color: #fff; }
-  .toast.error { background: #dc2626; color: #fff; }
-  .toast.warning { background: var(--yellow); color: #fff; }
-  @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-  @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateX(100%); } }
+/* ===== CARDS ===== */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+.card-hover { transition: all var(--transition); cursor: pointer; }
+.card-hover:hover { border-color: var(--accent); box-shadow: var(--shadow2); transform: translateY(-2px); }
 
-  /* ===== BADGE ===== */
-  .badge {
-    display: inline-flex; align-items: center;
-    padding: 2px 8px; border-radius: 99px;
-    font-size: 11px; font-weight: 600;
-  }
-  .badge-green { background: var(--green-bg); color: var(--green); }
-  .badge-red { background: var(--accent-bg); color: var(--accent); }
-  .badge-yellow { background: var(--yellow-bg); color: var(--yellow); }
-  .badge-blue { background: var(--blue-bg); color: var(--blue); }
-  .badge-gray { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+/* ===== INPUTS ===== */
+.input, .select, .textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius2); padding: 10px 14px; font-family: var(--font-body); font-size: 14px; color: var(--text); transition: border-color var(--transition); outline: none; }
+.input:focus, .select:focus, .textarea:focus { border-color: var(--accent); background: var(--surface); }
+.input::placeholder { color: var(--text3); }
+label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.form-group { margin-bottom: 16px; }
 
-  /* ===== TABS ===== */
-  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
-  .tab {
-    padding: 10px 18px;
-    font-size: 14px; font-weight: 500;
-    color: var(--text2);
-    cursor: pointer;
-    border: none; background: none;
-    border-bottom: 2px solid transparent;
-    transition: all var(--transition);
-    font-family: var(--font-body);
-    margin-bottom: -1px;
-  }
-  .tab:hover { color: var(--text); }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+/* ===== MODAL ===== */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.15s ease; }
+.modal { background: var(--surface); border-radius: var(--radius); padding: 28px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow2); animation: slideUp 0.2s ease; }
+.modal-wide { max-width: 680px; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.modal-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; }
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
 
-  /* ===== VIEWS ===== */
-  .view { display: none; }
-  .view.active { display: block; }
+/* ===== TOAST ===== */
+.toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 2000; }
+.toast { background: var(--text); color: var(--bg); padding: 12px 18px; border-radius: var(--radius2); font-size: 13px; font-weight: 500; box-shadow: var(--shadow2); display: flex; align-items: center; gap: 10px; animation: toastIn 0.25s ease; max-width: 340px; }
+.toast.success { background: var(--green); color: #fff; }
+.toast.error   { background: #dc2626; color: #fff; }
+.toast.warning { background: var(--yellow); color: #fff; }
+.toast.info    { background: var(--blue); color: #fff; }
+@keyframes toastIn  { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+@keyframes toastOut { from{opacity:1} to{opacity:0;transform:translateX(100%)} }
 
-  /* ===== DASHBOARD ===== */
-  .page-header {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    margin-bottom: 28px;
-  }
-  .page-title {
-    font-family: var(--font-display);
-    font-size: 28px; font-weight: 700;
-    letter-spacing: -0.5px;
-  }
-  .page-subtitle { font-size: 14px; color: var(--text2); margin-top: 4px; }
-  .groups-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 16px;
-  }
-  .group-card {
-    padding: 24px;
-    display: flex; flex-direction: column; gap: 16px;
-  }
-  .group-card-header { display: flex; align-items: flex-start; justify-content: space-between; }
-  .group-avatar {
-    width: 48px; height: 48px;
-    border-radius: 12px;
-    background: var(--accent-bg);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-  }
-  .group-name { font-size: 17px; font-weight: 600; margin-bottom: 2px; }
-  .group-meta { font-size: 12px; color: var(--text3); }
-  .group-stats {
-    display: flex; gap: 16px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-  }
-  .group-stat { flex: 1; }
-  .group-stat-val { font-size: 18px; font-weight: 700; color: var(--accent); font-family: var(--font-mono); }
-  .group-stat-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
-  .group-card-actions { display: flex; gap: 6px; }
-  .empty-state {
-    text-align: center; padding: 80px 20px;
-    color: var(--text3);
-  }
-  .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
-  .empty-state-title { font-size: 18px; font-weight: 600; color: var(--text2); margin-bottom: 8px; }
+/* ===== BADGE ===== */
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+.badge-green  { background: var(--green-bg);  color: var(--green); }
+.badge-red    { background: var(--accent-bg); color: var(--accent); }
+.badge-yellow { background: var(--yellow-bg); color: var(--yellow); }
+.badge-blue   { background: var(--blue-bg);   color: var(--blue); }
+.badge-gray   { background: var(--surface2);  color: var(--text2); border: 1px solid var(--border); }
 
-  /* ===== GROUP VIEW ===== */
-  .breadcrumb {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 13px; color: var(--text3);
-    margin-bottom: 8px;
-  }
-  .breadcrumb a { color: var(--accent); cursor: pointer; text-decoration: none; }
-  .breadcrumb a:hover { text-decoration: underline; }
-  .group-header {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    margin-bottom: 24px;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  .group-header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-  .summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-  .summary-card {
-    padding: 16px 20px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius2);
-  }
-  .summary-card-val { font-size: 22px; font-weight: 700; font-family: var(--font-mono); }
-  .summary-card-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
-  .section-title {
-    font-size: 14px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 1px;
-    color: var(--text2);
-    margin-bottom: 12px;
-  }
-  .search-row {
-    display: flex; gap: 10px; align-items: center;
-    margin-bottom: 16px;
-  }
-  .search-input-wrap { position: relative; flex: 1; }
-  .search-input-wrap .input { padding-left: 36px; }
-  .search-icon {
-    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-    color: var(--text3); font-size: 14px; pointer-events: none;
-  }
-  .sort-select { width: 160px; }
+/* ===== TABS ===== */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.tab { padding: 10px 18px; font-size: 14px; font-weight: 500; color: var(--text2); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; transition: all var(--transition); font-family: var(--font-body); margin-bottom: -1px; }
+.tab:hover { color: var(--text); } .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-  /* ===== TRANSACTIONS ===== */
-  .transactions-list { display: flex; flex-direction: column; gap: 10px; }
-  .transaction-card {
-    padding: 16px 20px;
-    display: flex; align-items: center; gap: 16px;
-    cursor: default;
-  }
-  .tx-icon {
-    width: 40px; height: 40px; min-width: 40px;
-    border-radius: 10px;
-    background: var(--surface2);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-  }
-  .tx-body { flex: 1; min-width: 0; }
-  .tx-desc { font-size: 15px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .tx-meta { font-size: 12px; color: var(--text3); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-  .tx-meta span { display: flex; align-items: center; gap: 3px; }
-  .tx-amount { text-align: right; }
-  .tx-amount-val { font-size: 18px; font-weight: 700; font-family: var(--font-mono); color: var(--text); }
-  .tx-per-person { font-size: 11px; color: var(--text3); margin-top: 2px; }
-  .tx-actions { display: flex; gap: 4px; }
+/* ===== VIEWS ===== */
+.view { display: none; } .view.active { display: block; }
 
-  /* ===== BALANCES ===== */
-  .balance-list { display: flex; flex-direction: column; gap: 8px; }
-  .balance-row {
-    padding: 12px 16px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius2);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .balance-member { font-weight: 600; font-size: 14px; }
-  .balance-amount { font-family: var(--font-mono); font-size: 15px; font-weight: 700; }
-  .positive { color: var(--green); }
-  .negative { color: var(--accent); }
-  .neutral { color: var(--text3); }
+/* ===== DASHBOARD ===== */
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; }
+.page-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+.page-subtitle { font-size: 14px; color: var(--text2); margin-top: 4px; }
+.groups-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.group-card { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.group-card-header { display: flex; align-items: flex-start; justify-content: space-between; }
+.group-avatar { width: 48px; height: 48px; border-radius: 12px; background: var(--accent-bg); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.group-name { font-size: 17px; font-weight: 600; margin-bottom: 2px; }
+.group-meta { font-size: 12px; color: var(--text3); }
+.group-stats { display: flex; gap: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+.group-stat { flex: 1; }
+.group-stat-val { font-size: 18px; font-weight: 700; color: var(--accent); font-family: var(--font-mono); }
+.group-stat-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.empty-state { text-align: center; padding: 80px 20px; color: var(--text3); }
+.empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+.empty-state-title { font-size: 18px; font-weight: 600; color: var(--text2); margin-bottom: 8px; }
 
-  /* ===== SETTLEMENT ===== */
-  .settlement-list { display: flex; flex-direction: column; gap: 8px; }
-  .settlement-row {
-    padding: 12px 16px;
-    background: var(--green-bg);
-    border: 1px solid #b6e4d2;
-    border-radius: var(--radius2);
-    display: flex; align-items: center; gap: 10px;
-    font-size: 14px; font-weight: 500;
-  }
-  .dark .settlement-row { border-color: #1a4a36; }
-  .settlement-arrow { color: var(--green); font-size: 18px; }
+/* ===== GROUP VIEW ===== */
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text3); margin-bottom: 8px; }
+.breadcrumb a { color: var(--accent); cursor: pointer; text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.group-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; gap: 16px; flex-wrap: wrap; }
+.group-header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.summary-card { padding: 16px 20px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius2); }
+.summary-card-val { font-size: 22px; font-weight: 700; font-family: var(--font-mono); }
+.summary-card-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+.section-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); margin-bottom: 12px; }
+.search-row { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; }
+.search-wrap { position: relative; flex: 1; }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text3); pointer-events: none; }
+.sort-select { width: 160px; }
 
-  /* ===== MEMBER CHIPS ===== */
-  .member-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-  .member-chip {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 99px;
-    padding: 4px 12px;
-    font-size: 13px;
-  }
-  .member-chip-remove {
-    cursor: pointer; color: var(--text3);
-    padding: 0 2px;
-    font-size: 16px; line-height: 1;
-  }
-  .member-chip-remove:hover { color: var(--accent); }
-  .chip-avatar {
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    font-size: 10px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-  }
+/* ===== TRANSACTIONS ===== */
+.transactions-list { display: flex; flex-direction: column; gap: 10px; }
+.transaction-card { padding: 16px 20px; display: flex; align-items: center; gap: 16px; }
+.tx-icon { width: 40px; height: 40px; min-width: 40px; border-radius: 10px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.tx-body { flex: 1; min-width: 0; }
+.tx-desc { font-size: 15px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tx-meta { font-size: 12px; color: var(--text3); display: flex; gap: 8px; flex-wrap: wrap; }
+.tx-amount { text-align: right; }
+.tx-amount-val { font-size: 18px; font-weight: 700; font-family: var(--font-mono); }
+.tx-per-person { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.tx-actions { display: flex; gap: 4px; }
 
-  /* ===== CHECKBOXES ===== */
-  .checkbox-label {
-    display: flex; align-items: center; gap: 8px;
-    cursor: pointer; font-size: 14px;
-    padding: 6px 0; text-transform: none; letter-spacing: 0;
-  }
-  .checkbox-label input[type="checkbox"] {
-    width: 16px; height: 16px;
-    accent-color: var(--accent);
-    cursor: pointer;
-  }
+/* ===== BALANCES ===== */
+.balance-list { display: flex; flex-direction: column; gap: 8px; }
+.balance-row { padding: 12px 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius2); display: flex; align-items: center; justify-content: space-between; }
+.balance-amount { font-family: var(--font-mono); font-size: 15px; font-weight: 700; }
+.positive { color: var(--green); } .negative { color: var(--accent); } .neutral { color: var(--text3); }
 
-  /* ===== DIVIDER ===== */
-  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+/* ===== SETTLEMENT ===== */
+.settlement-list { display: flex; flex-direction: column; gap: 8px; }
+.settlement-row { padding: 12px 16px; background: var(--green-bg); border: 1px solid #b6e4d2; border-radius: var(--radius2); display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; }
+.dark .settlement-row { border-color: #1a4a36; }
 
-  /* ===== ANALYTICS ===== */
-  .analytics-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  .bar-chart { display: flex; flex-direction: column; gap: 8px; }
-  .bar-row { display: flex; flex-direction: column; gap: 4px; }
-  .bar-label { font-size: 13px; font-weight: 500; display: flex; justify-content: space-between; }
-  .bar-track { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
-  .bar-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.6s ease; }
+/* ===== MEMBER CHIPS ===== */
+.member-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.member-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 99px; padding: 4px 12px; font-size: 13px; }
+.chip-remove { cursor: pointer; color: var(--text3); padding: 0 2px; font-size: 16px; line-height: 1; }
+.chip-remove:hover { color: var(--accent); }
+.chip-avatar { width: 20px; height: 20px; border-radius: 50%; color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
-  /* ===== DARK TOGGLE ===== */
-  .dark-toggle {
-    width: 44px; height: 24px;
-    background: var(--border2);
-    border-radius: 12px;
-    position: relative;
-    cursor: pointer;
-    border: none;
-    transition: background var(--transition);
-  }
-  .dark-toggle::after {
-    content: '';
-    position: absolute;
-    top: 3px; left: 3px;
-    width: 18px; height: 18px;
-    background: #fff;
-    border-radius: 50%;
-    transition: transform var(--transition);
-  }
-  .dark .dark-toggle { background: var(--accent); }
-  .dark .dark-toggle::after { transform: translateX(20px); }
+/* ===== CHECKBOXES ===== */
+.check-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; padding: 6px 0; text-transform: none; letter-spacing: 0; }
+.check-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
 
-  /* ===== RESPONSIVE ===== */
-  @media (max-width: 768px) {
-    .header { padding: 0 16px; }
-    .main { padding: 16px; }
-    .groups-grid { grid-template-columns: 1fr; }
-    .analytics-grid { grid-template-columns: 1fr; }
-    .summary-grid { grid-template-columns: 1fr 1fr; }
-    .group-header { flex-direction: column; }
-    .page-header { flex-direction: column; gap: 12px; }
-    .logo span { display: none; }
-  }
+/* ===== ANALYTICS ===== */
+.analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.bar-chart { display: flex; flex-direction: column; gap: 8px; }
+.bar-row { display: flex; flex-direction: column; gap: 4px; }
+.bar-label { font-size: 13px; font-weight: 500; display: flex; justify-content: space-between; }
+.bar-track { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
 
-  /* ===== MISC ===== */
-  .flex { display: flex; }
-  .flex-col { flex-direction: column; }
-  .gap-8 { gap: 8px; }
-  .gap-12 { gap: 12px; }
-  .items-center { align-items: center; }
-  .justify-between { justify-content: space-between; }
-  .mt-8 { margin-top: 8px; }
-  .mt-12 { margin-top: 12px; }
-  .mt-16 { margin-top: 16px; }
-  .text-sm { font-size: 13px; }
-  .text-muted { color: var(--text3); }
-  .font-mono { font-family: var(--font-mono); }
-  .w-full { width: 100%; }
-  .hidden { display: none !important; }
-  .select-all-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+/* ===== DARK TOGGLE ===== */
+.dark-toggle { width: 44px; height: 24px; background: var(--border2); border-radius: 12px; position: relative; cursor: pointer; border: none; transition: background var(--transition); }
+.dark-toggle::after { content:''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: transform var(--transition); }
+.dark .dark-toggle { background: var(--accent); }
+.dark .dark-toggle::after { transform: translateX(20px); }
 
-  /* Confirm modal */
-  .confirm-msg { font-size: 14px; color: var(--text2); line-height: 1.6; }
-  .confirm-highlight { font-weight: 600; color: var(--text); }
+/* ===== SETTINGS ===== */
+.settings-section { margin-bottom: 24px; }
+.settings-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); margin-bottom: 10px; }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 16px; }
+.settings-row:last-child { border-bottom: none; }
+.settings-label { font-size: 14px; font-weight: 500; }
+.settings-desc { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.drive-user-info { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.drive-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--blue-bg); border: 2px solid var(--blue); display: flex; align-items: center; justify-content: center; color: var(--blue); font-size: 13px; font-weight: 700; }
+.google-logo { display: inline-flex; width: 16px; height: 16px; }
 
-  /* Tag-like members display */
-  .split-preview {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: var(--radius2); padding: 12px;
-    font-size: 13px; color: var(--text2);
-    margin-top: 8px;
-  }
-  .split-preview strong { color: var(--text); }
+/* ===== MISC ===== */
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+.mt-8 { margin-top: 8px; } .mt-12 { margin-top: 12px; } .mt-16 { margin-top: 16px; }
+.text-sm { font-size: 13px; } .text-muted { color: var(--text3); }
+.font-mono { font-family: var(--font-mono); }
+.hidden { display: none !important; }
+.select-all-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.confirm-msg { font-size: 14px; color: var(--text2); line-height: 1.6; }
+.confirm-hl { font-weight: 600; color: var(--text); }
+.split-preview { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius2); padding: 12px; font-size: 13px; color: var(--text2); margin-top: 8px; }
+.split-preview strong { color: var(--text); }
+.info-text { font-size: 12px; color: var(--text3); margin-top: 6px; }
+.member-avatar-sm { width: 26px; height: 26px; border-radius: 50%; color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid var(--surface); margin-right: -6px; flex-shrink: 0; }
+.member-avatar-sm:last-child { margin-right: 0; }
 
-  /* Loading shimmer */
-  .skeleton {
-    background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 4px;
-    height: 16px;
-  }
-  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-  /* Members in group card */
-  .member-avatars { display: flex; gap: -4px; }
-  .member-avatar-sm {
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    font-size: 10px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    border: 2px solid var(--surface);
-    margin-right: -6px;
-  }
-  .member-avatar-sm:last-child { margin-right: 0; }
-
-  /* Info text */
-  .info-text { font-size: 12px; color: var(--text3); margin-top: 6px; }
-
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-
-  /* Amount colors on cards */
-  .amount-green { color: var(--green); }
-  .amount-red { color: var(--accent); }
+@media (max-width: 768px) {
+  .header { padding: 0 16px; } .main { padding: 16px; }
+  .groups-grid { grid-template-columns: 1fr; }
+  .analytics-grid { grid-template-columns: 1fr; }
+  .summary-grid { grid-template-columns: 1fr 1fr; }
+  .group-header, .page-header { flex-direction: column; gap: 12px; }
+  .logo span { display: none; }
+  .warning-banner, .offline-banner { padding: 10px 16px; }
+  .sync-pill span:last-child { display: none; }
+}
 </style>
 </head>
 <body>
 
 <div class="app">
+  <!-- SYNC PROGRESS BAR (top of page) -->
+  <div class="sync-bar" id="sync-bar"></div>
+
+  <!-- DATA LOSS WARNING BANNER -->
+  <div class="warning-banner" id="warning-banner">
+    <span>⚠️</span>
+    <span id="warning-text">
+      <strong>Data is stored locally.</strong>
+      Clearing browser data may cause data loss.
+      <a onclick="openSettingsModal()">Connect Google Drive</a> or
+      <a onclick="exportJSON('all')">download a backup</a>.
+    </span>
+    <button class="dismiss-btn" onclick="dismissBanner()" title="Dismiss">×</button>
+  </div>
+
+  <!-- OFFLINE BANNER -->
+  <div class="offline-banner hidden" id="offline-banner">
+    📡 You're offline — changes are saved locally and will sync when reconnected.
+  </div>
 
   <!-- HEADER -->
   <header class="header">
-    <div class="logo" onclick="showDashboard()" style="cursor:pointer">
+    <div class="logo" onclick="showDashboard()">
       <div class="logo-icon">₹</div>
       <span>SplitEase</span>
     </div>
     <div class="header-actions">
+      <button class="sync-pill local" id="sync-pill" onclick="openSettingsModal()" title="Sync status">
+        <span class="sync-dot"></span>
+        <span id="sync-label">Local only</span>
+      </button>
       <button class="btn btn-ghost btn-icon" onclick="openImportExportModal()" title="Import / Export">⇅</button>
+      <button class="btn btn-ghost btn-icon" onclick="openSettingsModal()" title="Settings">⚙</button>
       <button class="dark-toggle" onclick="toggleDark()" title="Toggle dark mode"></button>
     </div>
   </header>
 
-  <!-- MAIN -->
+  <!-- MAIN CONTENT -->
   <main class="main">
 
     <!-- DASHBOARD VIEW -->
@@ -607,42 +325,36 @@
       <div id="groups-container"></div>
     </div>
 
-    <!-- GROUP VIEW -->
+    <!-- GROUP DETAIL VIEW -->
     <div id="view-group" class="view">
       <div class="breadcrumb">
         <a onclick="showDashboard()">← Dashboard</a>
         <span>/</span>
-        <span id="group-breadcrumb-name"></span>
+        <span id="group-breadcrumb"></span>
       </div>
       <div class="group-header">
         <div>
-          <div class="page-title" id="group-view-name"></div>
-          <div class="page-subtitle" id="group-view-meta"></div>
+          <div class="page-title" id="group-title"></div>
+          <div class="page-subtitle" id="group-subtitle"></div>
         </div>
         <div class="group-header-actions">
           <button class="btn btn-secondary btn-sm" onclick="openManageMembersModal()">👥 Members</button>
           <button class="btn btn-secondary btn-sm" onclick="downloadPDF()">⬇ PDF</button>
-          <button class="btn btn-primary btn-sm" onclick="openAddTransactionModal()">＋ Add Expense</button>
+          <button class="btn btn-primary btn-sm" onclick="openAddTransactionModal(null)">＋ Add Expense</button>
         </div>
       </div>
-
-      <!-- Summary Cards -->
       <div class="summary-grid" id="summary-cards"></div>
-
-      <!-- Tabs -->
       <div class="tabs">
-        <button class="tab active" onclick="switchTab('transactions')">Transactions</button>
-        <button class="tab" onclick="switchTab('balances')">Balances</button>
-        <button class="tab" onclick="switchTab('settle')">Settle Up</button>
-        <button class="tab" onclick="switchTab('analytics')">Analytics</button>
+        <button class="tab active" data-tab="transactions" onclick="switchTab(this)">Transactions</button>
+        <button class="tab" data-tab="balances"     onclick="switchTab(this)">Balances</button>
+        <button class="tab" data-tab="settle"       onclick="switchTab(this)">Settle Up</button>
+        <button class="tab" data-tab="analytics"    onclick="switchTab(this)">Analytics</button>
       </div>
-
-      <!-- Tab Content: Transactions -->
       <div id="tab-transactions">
         <div class="search-row">
-          <div class="search-input-wrap" style="flex:1">
+          <div class="search-wrap" style="flex:1">
             <span class="search-icon">🔍</span>
-            <input class="input" placeholder="Search transactions…" oninput="renderTransactions()" id="tx-search" style="padding-left:36px">
+            <input class="input" id="tx-search" placeholder="Search transactions…" oninput="renderTransactions()" style="padding-left:36px">
           </div>
           <select class="input sort-select" id="tx-sort" onchange="renderTransactions()">
             <option value="date-desc">Latest First</option>
@@ -653,32 +365,16 @@
         </div>
         <div id="transactions-list"></div>
       </div>
-
-      <!-- Tab Content: Balances -->
-      <div id="tab-balances" class="hidden">
-        <div id="balances-content"></div>
-      </div>
-
-      <!-- Tab Content: Settle -->
-      <div id="tab-settle" class="hidden">
-        <div id="settle-content"></div>
-      </div>
-
-      <!-- Tab Content: Analytics -->
-      <div id="tab-analytics" class="hidden">
-        <div id="analytics-content"></div>
-      </div>
+      <div id="tab-balances"   class="hidden"><div id="balances-content"></div></div>
+      <div id="tab-settle"     class="hidden"><div id="settle-content"></div></div>
+      <div id="tab-analytics"  class="hidden"><div id="analytics-content"></div></div>
     </div>
 
   </main>
 </div>
 
-<!-- Toast Container -->
 <div class="toast-container" id="toast-container"></div>
-
-<!-- MODALS (rendered dynamically) -->
-<div id="modal-container"></div>
-
+<div id="modal-root"></div>
 
 <script>
 // ============================================================
@@ -694,202 +390,562 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <script>
+'use strict';
+
 // ============================================================
-//  STATE MANAGEMENT
+//  GOOGLE OAUTH CONFIGURATION
+//  Set your OAuth 2.0 Client ID here.
+//  Create one at: https://console.cloud.google.com/apis/credentials
+//  Authorized JS origins: your hosting domain (or http://localhost for dev)
+// ============================================================
+const GOOGLE_CONFIG = {
+  CLIENT_ID: '216046383239-qta0mgar9mt71bm65epkciar8tj5jrsu.apps.googleusercontent.com', // <-- REPLACE THIS
+  SCOPE: 'https://www.googleapis.com/auth/drive.file',
+  FILE_NAME: 'splitease-data.json'
+};
+
+// ============================================================
+//  APPLICATION STATE
 // ============================================================
 const STATE = {
-  groups: [],       // Array of group objects
+  groups: [],
   activeGroupId: null,
   darkMode: false,
-  activeTab: 'transactions'
+  activeTab: 'transactions',
+  lastSync: null,        // ISO string of last successful Drive sync
+  version: 2,            // data schema version
+  pendingChanges: false  // local changes not yet pushed to Drive
 };
 
-// Group structure: { id, name, members[], transactions[], createdAt }
-// Transaction structure: { id, desc, amount, paidBy, splitBetween[], date, updatedAt, emoji }
-
 // ============================================================
-//  STORAGE
+//  STORAGE MANAGER
+//  Owns all LocalStorage I/O + incognito detection.
 // ============================================================
-const Storage = {
-  KEYS: { groups: 'splitease_groups', dark: 'splitease_dark' },
+const storageManager = (() => {
+  const KEYS = {
+    groups:    'se_groups',
+    dark:      'se_dark',
+    lastSync:  'se_last_sync',
+    driveId:   'se_drive_file_id',
+    dismissed: 'se_banner_dismissed'
+  };
 
-  load() {
+  function load() {
     try {
-      const raw = localStorage.getItem(this.KEYS.groups);
-      STATE.groups = raw ? JSON.parse(raw) : [];
-      STATE.darkMode = localStorage.getItem(this.KEYS.dark) === '1';
+      const raw = localStorage.getItem(KEYS.groups);
+      STATE.groups   = raw ? JSON.parse(raw) : [];
+      STATE.darkMode = localStorage.getItem(KEYS.dark) === '1';
+      STATE.lastSync = localStorage.getItem(KEYS.lastSync) || null;
       if (STATE.darkMode) document.documentElement.classList.add('dark');
-    } catch (e) {
-      STATE.groups = [];
-    }
-  },
+    } catch { STATE.groups = []; }
+  }
 
-  save() {
+  function save() {
     try {
-      localStorage.setItem(this.KEYS.groups, JSON.stringify(STATE.groups));
-      localStorage.setItem(this.KEYS.dark, STATE.darkMode ? '1' : '0');
-    } catch (e) {
-      showToast('Storage error', 'error');
+      localStorage.setItem(KEYS.groups,   JSON.stringify(STATE.groups));
+      localStorage.setItem(KEYS.dark,     STATE.darkMode ? '1' : '0');
+      if (STATE.lastSync) localStorage.setItem(KEYS.lastSync, STATE.lastSync);
+    } catch (e) { showToast('Storage full or unavailable', 'error'); }
+  }
+
+  function saveDriveFileId(id) {
+    try { id ? localStorage.setItem(KEYS.driveId, id) : localStorage.removeItem(KEYS.driveId); } catch {}
+  }
+  function loadDriveFileId() {
+    try { return localStorage.getItem(KEYS.driveId); } catch { return null; }
+  }
+
+  function isBannerDismissed() {
+    try { return localStorage.getItem(KEYS.dismissed) === '1'; } catch { return false; }
+  }
+  function dismissBanner() {
+    try { localStorage.setItem(KEYS.dismissed, '1'); } catch {}
+  }
+
+  // Best-effort incognito detection via IndexedDB
+  function detectIncognito() {
+    return new Promise(resolve => {
+      try {
+        const r = indexedDB.open('_se_test_');
+        r.onerror   = () => resolve(true);
+        r.onsuccess = () => { r.result.close(); indexedDB.deleteDatabase('_se_test_'); resolve(false); };
+      } catch { resolve(true); }
+    });
+  }
+
+  return { load, save, saveDriveFileId, loadDriveFileId, isBannerDismissed, dismissBanner, detectIncognito };
+})();
+
+// ============================================================
+//  DRIVE SERVICE
+//  Handles all Google Drive API interactions.
+//  SECURITY: Access tokens are stored IN MEMORY ONLY — never in localStorage.
+// ============================================================
+const driveService = (() => {
+  // Private — in-memory only
+  let _token     = null; // OAuth access token (never persisted)
+  let _expiry    = 0;    // timestamp when token expires
+  let _userInfo  = null; // { email, name }
+  let _gisClient = null; // Google Identity Services token client
+  let _loaded    = false; // whether Google scripts are loaded
+
+  const isConnected = () => !!_token && Date.now() < _expiry;
+  const userEmail   = () => _userInfo?.email || null;
+  const userName    = () => _userInfo?.name  || null;
+
+  // Load GIS + GAPI scripts on demand
+  async function loadScripts() {
+    if (_loaded) return;
+    await new Promise((res, rej) => {
+      const gis = Object.assign(document.createElement('script'), {
+        src: 'https://accounts.google.com/gsi/client',
+        onload: res, onerror: rej
+      });
+      document.head.appendChild(gis);
+    });
+    await new Promise((res, rej) => {
+      const gapi = Object.assign(document.createElement('script'), {
+        src: 'https://apis.google.com/js/api.js',
+        onload: () => window.gapi.load('client', res),
+        onerror: rej
+      });
+      document.head.appendChild(gapi);
+    });
+    _loaded = true;
+  }
+
+  // Initiate OAuth popup/redirect via GIS
+  async function connect() {
+    try { await loadScripts(); }
+    catch { showToast('Could not load Google APIs. Check connection.', 'error'); return false; }
+
+    return new Promise(resolve => {
+      _gisClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CONFIG.CLIENT_ID,
+        scope: GOOGLE_CONFIG.SCOPE,
+        callback: async response => {
+          if (response.error) {
+            showToast('Google sign-in cancelled or failed', 'warning');
+            resolve(false); return;
+          }
+          // Store token in memory ONLY
+          _token  = response.access_token;
+          _expiry = Date.now() + response.expires_in * 1000 - 60_000;
+
+          // Fetch user profile
+          try {
+            const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+              headers: { Authorization: 'Bearer ' + _token }
+            });
+            _userInfo = await r.json();
+          } catch { _userInfo = { email: 'Connected', name: 'Google User' }; }
+
+          showToast('Google Drive connected — ' + (_userInfo.email || ''), 'success', 4000);
+          networkManager.updateSyncPill();
+          resolve(true);
+        }
+      });
+      _gisClient.requestAccessToken({ prompt: 'consent' });
+    });
+  }
+
+  // Silent token refresh
+  async function ensureToken() {
+    if (isConnected()) return true;
+    if (!_gisClient) return false;
+    return new Promise(resolve => {
+      _gisClient.callback = r => {
+        if (r.error) { resolve(false); return; }
+        _token  = r.access_token;
+        _expiry = Date.now() + r.expires_in * 1000 - 60_000;
+        resolve(true);
+      };
+      _gisClient.requestAccessToken({ prompt: '' }); // silent
+    });
+  }
+
+  // Authenticated fetch wrapper
+  async function apiFetch(url, options = {}) {
+    if (!(await ensureToken())) throw new Error('Authentication expired. Please reconnect.');
+    const res = await fetch(url, {
+      ...options,
+      headers: { Authorization: 'Bearer ' + _token, ...(options.headers || {}) }
+    });
+    if (res.status === 401) { _token = null; throw new Error('Token expired'); }
+    if (!res.ok) throw new Error('Drive API error: ' + res.status);
+    return res;
+  }
+
+  // Find or confirm the app's JSON file on Drive
+  async function findFile() {
+    const cachedId = storageManager.loadDriveFileId();
+    if (cachedId) {
+      try {
+        const r = await apiFetch(`https://www.googleapis.com/drive/v3/files/${cachedId}?fields=id,name`);
+        const f = await r.json();
+        if (f.id) return f;
+      } catch { /* file deleted — fall through */ }
+    }
+    const q = encodeURIComponent(`name='${GOOGLE_CONFIG.FILE_NAME}' and trashed=false`);
+    const r = await apiFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)&spaces=drive`);
+    const { files } = await r.json();
+    const file = files?.[0] || null;
+    if (file) storageManager.saveDriveFileId(file.id);
+    return file;
+  }
+
+  // Upload (create or update) app data to Drive
+  async function uploadData(payload) {
+    const body = JSON.stringify(payload);
+    const existing = await findFile();
+
+    if (existing) {
+      // Update content via PATCH
+      const r = await apiFetch(
+        `https://www.googleapis.com/upload/drive/v3/files/${existing.id}?uploadType=media`,
+        { method: 'PATCH', body, headers: { 'Content-Type': 'application/json' } }
+      );
+      return r.json();
+    } else {
+      // Create new file via multipart upload
+      const meta = JSON.stringify({ name: GOOGLE_CONFIG.FILE_NAME, mimeType: 'application/json' });
+      const boundary = 'se_boundary_' + Date.now();
+      const multipart = [
+        `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}`,
+        `--${boundary}\r\nContent-Type: application/json\r\n\r\n${body}`,
+        `--${boundary}--`
+      ].join('\r\n');
+      const r = await apiFetch(
+        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name',
+        { method: 'POST', body: multipart, headers: { 'Content-Type': `multipart/related; boundary=${boundary}` } }
+      );
+      const file = await r.json();
+      storageManager.saveDriveFileId(file.id);
+      return file;
     }
   }
-};
+
+  // Download app data from Drive
+  async function downloadData() {
+    const file = await findFile();
+    if (!file) return null;
+    const r = await apiFetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`);
+    return r.json();
+  }
+
+  // Revoke token & clear session
+  async function disconnect() {
+    if (_token) {
+      try { google.accounts.oauth2.revoke(_token); } catch {}
+    }
+    _token = null; _expiry = 0; _userInfo = null;
+    storageManager.saveDriveFileId(null);
+    showToast('Disconnected from Google Drive', 'default');
+    networkManager.updateSyncPill();
+  }
+
+  return { connect, disconnect, uploadData, downloadData, isConnected, userEmail, userName };
+})();
 
 // ============================================================
-//  UTILITY FUNCTIONS
+//  SYNC MANAGER
+//  Debounced sync, merge strategy, retry logic.
+// ============================================================
+const syncManager = (() => {
+  let _timer = null;
+  let _busy  = false;
+  let _retries = 0;
+  const DEBOUNCE = 2500;
+  const MAX_RETRY = 3;
+
+  // Build Drive payload
+  function payload() {
+    return { version: STATE.version, syncedAt: new Date().toISOString(), groups: STATE.groups };
+  }
+
+  // Called after every data mutation
+  function onDataChanged() {
+    STATE.pendingChanges = true;
+    storageManager.save();           // local-first: always save immediately
+    networkManager.updateSyncPill();
+    debouncedSync();
+  }
+
+  // Debounce to reduce API calls on rapid edits
+  function debouncedSync() {
+    clearTimeout(_timer);
+    _timer = setTimeout(sync, DEBOUNCE);
+  }
+
+  async function sync() {
+    if (_busy) return;
+    if (!navigator.onLine || !driveService.isConnected()) {
+      networkManager.updateSyncPill(); return;
+    }
+    _busy = true;
+    setSyncBar(true);
+    networkManager.setSyncPillStatus('syncing');
+
+    try {
+      // Pull remote & merge (conflict resolution: last-write-wins by updatedAt)
+      let remote = null;
+      try { remote = await driveService.downloadData(); } catch {}
+      if (remote?.groups) mergeRemote(remote.groups);
+
+      await driveService.uploadData(payload());
+
+      STATE.lastSync = new Date().toISOString();
+      STATE.pendingChanges = false;
+      storageManager.save();
+      _retries = 0;
+      networkManager.updateSyncPill();
+      showToast('Synced to Google Drive ✓', 'success', 2000);
+    } catch (err) {
+      console.error('[syncManager]', err);
+      _retries++;
+      if (_retries <= MAX_RETRY) {
+        const delay = _retries * 5000;
+        setTimeout(sync, delay);
+        showToast(`Sync error — retrying in ${delay/1000}s`, 'warning');
+        networkManager.setSyncPillStatus('error');
+      } else {
+        _retries = 0;
+        showToast('Sync failed — data saved locally', 'error');
+        networkManager.setSyncPillStatus('error');
+      }
+    } finally {
+      _busy = false;
+      setSyncBar(false);
+    }
+  }
+
+  async function syncNow() {
+    clearTimeout(_timer);
+    await sync();
+  }
+
+  // Pull from Drive and merge into local state (used on first connect)
+  async function pullFromDrive() {
+    showToast('Fetching data from Drive…', 'info', 2000);
+    try {
+      const data = await driveService.downloadData();
+      if (!data) { showToast('No existing data found in Drive', 'default'); return; }
+      if (data.groups) mergeRemote(data.groups);
+      storageManager.save();
+      renderDashboard();
+      showToast('Data loaded from Google Drive!', 'success');
+    } catch (e) { showToast('Could not read Drive data: ' + e.message, 'error'); }
+  }
+
+  // Merge remote groups into local state using updatedAt for conflict resolution
+  function mergeRemote(remoteGroups) {
+    const localMap = new Map(STATE.groups.map(g => [g.id, g]));
+    remoteGroups.forEach(rg => {
+      if (!localMap.has(rg.id)) {
+        STATE.groups.push(rg); // add remote-only group
+      } else {
+        const lg = localMap.get(rg.id);
+        // Merge metadata: prefer later updatedAt
+        if (new Date(rg.updatedAt||0) > new Date(lg.updatedAt||0)) {
+          lg.name = rg.name; lg.members = rg.members;
+        }
+        // Merge transactions
+        const localTxMap = new Map(lg.transactions.map(t => [t.id, t]));
+        rg.transactions.forEach(rt => {
+          if (!localTxMap.has(rt.id)) {
+            lg.transactions.push(rt);
+          } else {
+            const lt = localTxMap.get(rt.id);
+            if (new Date(rt.updatedAt) > new Date(lt.updatedAt)) Object.assign(lt, rt);
+          }
+        });
+      }
+    });
+  }
+
+  function setSyncBar(on) { document.getElementById('sync-bar').classList.toggle('active', on); }
+
+  return { onDataChanged, syncNow, pullFromDrive };
+})();
+
+// ============================================================
+//  NETWORK MANAGER
+//  Monitors online/offline state, updates UI.
+// ============================================================
+const networkManager = (() => {
+  function init() {
+    window.addEventListener('online',  onOnline);
+    window.addEventListener('offline', onOffline);
+    updateBanners();
+    updateSyncPill();
+  }
+
+  function onOnline() {
+    document.getElementById('offline-banner').classList.add('hidden');
+    showToast('Back online — syncing…', 'info', 2000);
+    if (driveService.isConnected() && STATE.pendingChanges) syncManager.syncNow();
+    updateSyncPill();
+  }
+
+  function onOffline() {
+    document.getElementById('offline-banner').classList.remove('hidden');
+    showToast('Offline — changes saved locally', 'warning', 4000);
+    setSyncPillStatus('offline');
+  }
+
+  function updateBanners() {
+    document.getElementById('offline-banner').classList.toggle('hidden', navigator.onLine);
+  }
+
+  function setSyncPillStatus(status) {
+    const pill  = document.getElementById('sync-pill');
+    const label = document.getElementById('sync-label');
+    const labels = { synced:'✓ Synced', pending:'● Unsynced', offline:'○ Offline', syncing:'↻ Syncing…', error:'✕ Error', local:'Local only' };
+    pill.className = 'sync-pill ' + status;
+    label.textContent = labels[status] || status;
+  }
+
+  function updateSyncPill() {
+    if (!navigator.onLine)          return setSyncPillStatus('offline');
+    if (!driveService.isConnected()) return setSyncPillStatus('local');
+    if (STATE.pendingChanges)        return setSyncPillStatus('pending');
+    return setSyncPillStatus('synced');
+  }
+
+  return { init, setSyncPillStatus, updateSyncPill };
+})();
+
+// ============================================================
+//  UTILITIES
 // ============================================================
 const Utils = {
-  uid: () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36),
-
-  formatCurrency: (n) => '₹' + Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-
-  formatDate: (iso) => {
-    const d = new Date(iso);
-    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  uid() {
+    // RFC4122 v4 UUID using crypto API
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
   },
+  fmt:  n => '₹' + Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+  date: iso => new Date(iso).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }),
+  dateTime: iso => new Date(iso).toLocaleDateString('en-IN', { day:'numeric', month:'short' }) + ' ' +
+    new Date(iso).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }),
+  initials: name => name.trim().split(/\s+/).map(w => w[0]).slice(0,2).join('').toUpperCase(),
+  esc: str => String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'),
+  escXML: str => String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'),
 
-  formatDateTime: (iso) => {
-    const d = new Date(iso);
-    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) + ' ' +
-      d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-  },
-
-  initials: (name) => name.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase(),
-
-  // Returns a fun emoji for category guessing
-  guessEmoji: (desc) => {
-    desc = desc.toLowerCase();
-    if (/food|meal|lunch|dinner|breakfast|pizza|burger|eat|snack|restaurant|cafe/i.test(desc)) return '🍽️';
-    if (/transport|uber|ola|cab|taxi|auto|fuel|petrol|bus|train|flight|travel/i.test(desc)) return '🚗';
-    if (/movie|film|cinema|ticket|show|concert|event/i.test(desc)) return '🎬';
-    if (/hotel|stay|rent|accommodation/i.test(desc)) return '🏨';
-    if (/shop|grocery|mart|store|buy|purchase/i.test(desc)) return '🛍️';
-    if (/electricity|water|bill|utility|internet|wifi/i.test(desc)) return '⚡';
-    if (/drink|beer|wine|alcohol|coffee|tea/i.test(desc)) return '🍺';
-    if (/gift|birthday|party|celebrate/i.test(desc)) return '🎁';
-    if (/sport|gym|fitness|game/i.test(desc)) return '⚽';
+  emoji(desc) {
+    const d = (desc || '').toLowerCase();
+    if (/food|meal|lunch|dinner|breakfast|pizza|burger|eat|snack|restaurant|cafe/i.test(d)) return '🍽️';
+    if (/transport|uber|ola|cab|taxi|auto|fuel|petrol|bus|train|flight|travel/i.test(d))   return '🚗';
+    if (/movie|film|cinema|ticket|show|concert|event/i.test(d))  return '🎬';
+    if (/hotel|stay|rent|accommodation/i.test(d))                return '🏨';
+    if (/shop|grocery|mart|store|buy|purchase/i.test(d))         return '🛍️';
+    if (/electricity|water|bill|utility|internet|wifi/i.test(d)) return '⚡';
+    if (/drink|beer|wine|alcohol|coffee|tea/i.test(d))           return '🍺';
+    if (/gift|birthday|party|celebrat/i.test(d))                 return '🎁';
+    if (/sport|gym|fitness|game/i.test(d))                       return '⚽';
     return '💰';
   },
 
-  deepClone: (obj) => JSON.parse(JSON.stringify(obj)),
-
-  sanitize: (str) => String(str).replace(/</g, '&lt;').replace(/>/g, '&gt;'),
-
-  // Compute balances per member in a group
-  computeBalances(group) {
-    const balances = {};
-    group.members.forEach(m => balances[m] = 0);
-    group.transactions.forEach(tx => {
-      const share = tx.amount / tx.splitBetween.length;
-      // Payer gets credit
-      if (balances[tx.paidBy] !== undefined) balances[tx.paidBy] += tx.amount;
-      // Each person owes their share
-      tx.splitBetween.forEach(m => {
-        if (balances[m] !== undefined) balances[m] -= share;
-      });
-    });
-    return balances;
+  memberColor(name) {
+    const palette = ['#c84b31','#2d7a5e','#2563a8','#7c3aed','#c4860a','#0891b2','#be185d','#065f46','#9a3412','#1e40af'];
+    let h = 0; for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+    return palette[Math.abs(h) % palette.length];
   },
 
-  // Simplify debts — minimum transactions algorithm
+  groupEmoji(name) {
+    if (/trip|travel|tour|vacation|goa/i.test(name)) return '✈️';
+    if (/home|house|flat|room|rent/i.test(name))     return '🏠';
+    if (/office|work|team/i.test(name))              return '💼';
+    if (/party|birthday|celebrat/i.test(name))       return '🎉';
+    if (/food|meal|dinner|lunch/i.test(name))        return '🍽️';
+    return '👥';
+  },
+
+  computeBalances(group) {
+    const b = {};
+    group.members.forEach(m => b[m] = 0);
+    group.transactions.forEach(tx => {
+      const share = tx.amount / tx.splitBetween.length;
+      if (b[tx.paidBy] !== undefined) b[tx.paidBy] += tx.amount;
+      tx.splitBetween.forEach(m => { if (b[m] !== undefined) b[m] -= share; });
+    });
+    return b;
+  },
+
   computeSettlements(balances) {
     const credits = [], debts = [];
     Object.entries(balances).forEach(([name, amt]) => {
-      if (amt > 0.009) credits.push({ name, amt });
-      else if (amt < -0.009) debts.push({ name, amt: -amt });
+      if (amt >  0.009) credits.push({ name, amt });
+      if (amt < -0.009) debts.push({ name, amt: -amt });
     });
-    credits.sort((a, b) => b.amt - a.amt);
-    debts.sort((a, b) => b.amt - a.amt);
-    const settlements = [];
-    let i = 0, j = 0;
+    credits.sort((a,b) => b.amt - a.amt); debts.sort((a,b) => b.amt - a.amt);
+    const out = []; let i = 0, j = 0;
     while (i < credits.length && j < debts.length) {
       const min = Math.min(credits[i].amt, debts[j].amt);
-      settlements.push({ from: debts[j].name, to: credits[i].name, amount: min });
-      credits[i].amt -= min;
-      debts[j].amt -= min;
+      out.push({ from: debts[j].name, to: credits[i].name, amount: min });
+      credits[i].amt -= min; debts[j].amt -= min;
       if (credits[i].amt < 0.009) i++;
-      if (debts[j].amt < 0.009) j++;
+      if (debts[j].amt  < 0.009) j++;
     }
-    return settlements;
+    return out;
   }
 };
 
 // ============================================================
-//  GROUP CRUD
+//  GROUPS CRUD
 // ============================================================
 const Groups = {
-  getActive: () => STATE.groups.find(g => g.id === STATE.activeGroupId),
+  active:  () => STATE.groups.find(g => g.id === STATE.activeGroupId),
 
   create(name, members) {
-    const g = { id: Utils.uid(), name: name.trim(), members: members.map(m => m.trim()).filter(Boolean), transactions: [], createdAt: new Date().toISOString() };
+    const now = new Date().toISOString();
+    const g = { id: Utils.uid(), name: name.trim(), members, transactions: [], createdAt: now, updatedAt: now };
     STATE.groups.unshift(g);
-    Storage.save();
-    return g;
+    syncManager.onDataChanged(); return g;
   },
 
   delete(id) {
     STATE.groups = STATE.groups.filter(g => g.id !== id);
-    Storage.save();
+    syncManager.onDataChanged();
   },
 
-  update(id, data) {
+  update(id, patch) {
     const g = STATE.groups.find(g => g.id === id);
-    if (g) Object.assign(g, data);
-    Storage.save();
+    if (g) Object.assign(g, patch, { updatedAt: new Date().toISOString() });
+    syncManager.onDataChanged();
   }
 };
 
 // ============================================================
-//  TRANSACTION CRUD
+//  TRANSACTIONS CRUD
 // ============================================================
 const Transactions = {
   add(group, data) {
-    const tx = {
-      id: Utils.uid(),
-      desc: data.desc,
-      amount: parseFloat(data.amount),
-      paidBy: data.paidBy,
-      splitBetween: data.splitBetween,
-      date: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      emoji: Utils.guessEmoji(data.desc)
-    };
-    group.transactions.unshift(tx);
-    Storage.save();
-    return tx;
+    const now = new Date().toISOString();
+    const tx = { id: Utils.uid(), desc: data.desc, amount: +data.amount, paidBy: data.paidBy, splitBetween: data.splitBetween, date: now, updatedAt: now, emoji: Utils.emoji(data.desc) };
+    group.transactions.unshift(tx); group.updatedAt = now;
+    syncManager.onDataChanged(); return tx;
   },
 
   update(group, id, data) {
-    const tx = group.transactions.find(t => t.id === id);
-    if (!tx) return;
-    Object.assign(tx, {
-      desc: data.desc,
-      amount: parseFloat(data.amount),
-      paidBy: data.paidBy,
-      splitBetween: data.splitBetween,
-      updatedAt: new Date().toISOString(),
-      emoji: Utils.guessEmoji(data.desc)
-    });
-    Storage.save();
-    return tx;
+    const tx = group.transactions.find(t => t.id === id); if (!tx) return;
+    const now = new Date().toISOString();
+    Object.assign(tx, { desc: data.desc, amount: +data.amount, paidBy: data.paidBy, splitBetween: data.splitBetween, updatedAt: now, emoji: Utils.emoji(data.desc) });
+    group.updatedAt = now; syncManager.onDataChanged(); return tx;
   },
 
   delete(group, id) {
     group.transactions = group.transactions.filter(t => t.id !== id);
-    Storage.save();
+    group.updatedAt = new Date().toISOString(); syncManager.onDataChanged();
   },
 
-  getSorted(transactions, sort, search) {
-    let list = [...transactions];
-    if (search) {
-      const q = search.toLowerCase();
-      list = list.filter(t => t.desc.toLowerCase().includes(q) || t.paidBy.toLowerCase().includes(q));
-    }
-    switch (sort) {
-      case 'date-asc': list.sort((a, b) => new Date(a.date) - new Date(b.date)); break;
-      case 'amount-desc': list.sort((a, b) => b.amount - a.amount); break;
-      case 'amount-asc': list.sort((a, b) => a.amount - b.amount); break;
-      default: list.sort((a, b) => new Date(b.date) - new Date(a.date));
-    }
+  sorted(txns, sort, search) {
+    let list = [...txns];
+    if (search) { const q = search.toLowerCase(); list = list.filter(t => t.desc.toLowerCase().includes(q) || t.paidBy.toLowerCase().includes(q)); }
+    if (sort === 'date-asc')    list.sort((a,b) => new Date(a.date) - new Date(b.date));
+    else if (sort === 'amount-desc') list.sort((a,b) => b.amount - a.amount);
+    else if (sort === 'amount-asc')  list.sort((a,b) => a.amount - b.amount);
+    else list.sort((a,b) => new Date(b.date) - new Date(a.date));
     return list;
   }
 };
@@ -897,918 +953,800 @@ const Transactions = {
 // ============================================================
 //  TOAST NOTIFICATIONS
 // ============================================================
-function showToast(msg, type = 'default', duration = 3000) {
-  const container = document.getElementById('toast-container');
-  const icons = { success: '✓', error: '✕', warning: '⚠', default: 'ℹ' };
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `<span>${icons[type] || icons.default}</span><span>${Utils.sanitize(msg)}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => {
-    toast.style.animation = 'toastOut 0.3s ease forwards';
-    setTimeout(() => toast.remove(), 300);
-  }, duration);
+function showToast(msg, type = 'default', ms = 3200) {
+  const icons = { success:'✓', error:'✕', warning:'⚠', info:'ℹ', default:'·' };
+  const el = Object.assign(document.createElement('div'), { className: `toast ${type}`, innerHTML: `<span>${icons[type]||'·'}</span><span>${Utils.esc(msg)}</span>` });
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => { el.style.animation = 'toastOut 0.3s ease forwards'; setTimeout(() => el.remove(), 300); }, ms);
 }
 
 // ============================================================
 //  MODAL SYSTEM
 // ============================================================
-function openModal(html, onClose) {
-  const container = document.getElementById('modal-container');
-  container.innerHTML = `<div class="modal-overlay" id="active-modal">${html}</div>`;
-  const overlay = document.getElementById('active-modal');
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) closeModal();
-  });
-  document.addEventListener('keydown', escHandler);
+function openModal(html) {
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `<div class="modal-overlay" id="modal-overlay">${html}</div>`;
+  document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });
+  document.addEventListener('keydown', _escKey);
 }
+function _escKey(e) { if (e.key === 'Escape') closeModal(); }
+function closeModal() { document.getElementById('modal-root').innerHTML = ''; document.removeEventListener('keydown', _escKey); }
 
-function escHandler(e) {
-  if (e.key === 'Escape') closeModal();
-}
-
-function closeModal() {
-  document.getElementById('modal-container').innerHTML = '';
-  document.removeEventListener('keydown', escHandler);
-}
-
-function openConfirm(title, msg, onConfirm) {
-  openModal(`
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">${Utils.sanitize(title)}</div>
-      </div>
-      <p class="confirm-msg">${msg}</p>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-danger" onclick="confirmAction()">Delete</button>
-      </div>
+function openConfirm(title, body, onConfirm) {
+  openModal(`<div class="modal">
+    <div class="modal-header"><div class="modal-title">${Utils.esc(title)}</div></div>
+    <p class="confirm-msg">${body}</p>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="_doConfirm()">Delete</button>
     </div>
-  `);
-  window._confirmCb = onConfirm;
+  </div>`);
+  window._doConfirm = () => { closeModal(); onConfirm(); };
 }
-
-window.confirmAction = () => { closeModal(); if (window._confirmCb) window._confirmCb(); };
 
 // ============================================================
 //  VIEWS
 // ============================================================
-function showView(name) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById(`view-${name}`).classList.add('active');
-}
-
-function showDashboard() {
-  STATE.activeGroupId = null;
-  showView('dashboard');
-  renderDashboard();
-}
-
-function showGroup(id) {
-  STATE.activeGroupId = id;
-  STATE.activeTab = 'transactions';
-  showView('group');
-  renderGroup();
-}
+function showView(name) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); document.getElementById('view-' + name).classList.add('active'); }
+function showDashboard() { STATE.activeGroupId = null; showView('dashboard'); renderDashboard(); }
+function showGroup(id)   { STATE.activeGroupId = id; STATE.activeTab = 'transactions'; showView('group'); renderGroup(); }
 
 // ============================================================
 //  DASHBOARD RENDER
 // ============================================================
 function renderDashboard() {
-  const container = document.getElementById('groups-container');
+  const c = document.getElementById('groups-container');
   if (!STATE.groups.length) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">🗂️</div>
-        <div class="empty-state-title">No groups yet</div>
-        <p>Create your first group to start splitting expenses</p>
-        <button class="btn btn-primary mt-16" onclick="openCreateGroupModal()">＋ Create Group</button>
-      </div>
-    `;
+    c.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🗂️</div><div class="empty-state-title">No groups yet</div><p>Create your first group to start splitting expenses</p><br><button class="btn btn-primary" onclick="openCreateGroupModal()">＋ Create Group</button></div>`;
     return;
   }
-  container.innerHTML = `<div class="groups-grid">${STATE.groups.map(g => renderGroupCard(g)).join('')}</div>`;
+  c.innerHTML = `<div class="groups-grid">${STATE.groups.map(renderGroupCard).join('')}</div>`;
 }
 
 function renderGroupCard(g) {
-  const total = g.transactions.reduce((s, t) => s + t.amount, 0);
-  const avatars = g.members.slice(0, 4).map(m =>
-    `<div class="member-avatar-sm" style="background:${memberColor(m)}">${Utils.initials(m)}</div>`
-  ).join('');
-  const extra = g.members.length > 4 ? `<div class="member-avatar-sm" style="background:var(--text3)">+${g.members.length - 4}</div>` : '';
-
-  return `
-    <div class="card card-hover group-card" onclick="showGroup('${g.id}')">
-      <div class="group-card-header">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div class="group-avatar">${groupEmoji(g.name)}</div>
-          <div>
-            <div class="group-name">${Utils.sanitize(g.name)}</div>
-            <div class="group-meta">${g.members.length} member${g.members.length !== 1 ? 's' : ''} · ${g.transactions.length} expense${g.transactions.length !== 1 ? 's' : ''}</div>
-          </div>
-        </div>
-        <div class="tx-actions" onclick="event.stopPropagation()">
-          <button class="btn btn-ghost btn-icon btn-sm" onclick="openEditGroupModal('${g.id}')" title="Edit">✎</button>
-          <button class="btn btn-ghost btn-icon btn-sm" onclick="confirmDeleteGroup('${g.id}')" title="Delete">🗑</button>
-        </div>
+  const total   = g.transactions.reduce((s,t) => s + t.amount, 0);
+  const avatars = g.members.slice(0,4).map(m => `<div class="member-avatar-sm" style="background:${Utils.memberColor(m)}">${Utils.initials(m)}</div>`).join('');
+  const extra   = g.members.length > 4 ? `<div class="member-avatar-sm" style="background:var(--text3)">+${g.members.length-4}</div>` : '';
+  return `<div class="card card-hover group-card" onclick="showGroup('${g.id}')">
+    <div class="group-card-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="group-avatar">${Utils.groupEmoji(g.name)}</div>
+        <div><div class="group-name">${Utils.esc(g.name)}</div><div class="group-meta">${g.members.length} member${g.members.length!==1?'s':''} · ${g.transactions.length} expense${g.transactions.length!==1?'s':''}</div></div>
       </div>
-      <div style="display:flex;gap:4px">${avatars}${extra}</div>
-      <div class="group-stats">
-        <div class="group-stat">
-          <div class="group-stat-val">${Utils.formatCurrency(total)}</div>
-          <div class="group-stat-label">Total Spent</div>
-        </div>
-        <div class="group-stat">
-          <div class="group-stat-val">${g.members.length}</div>
-          <div class="group-stat-label">Members</div>
-        </div>
-        <div class="group-stat">
-          <div class="group-stat-val">${g.transactions.length}</div>
-          <div class="group-stat-label">Expenses</div>
-        </div>
+      <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="openEditGroupModal('${g.id}')" title="Edit">✎</button>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="confirmDeleteGroup('${g.id}')" title="Delete">🗑</button>
       </div>
     </div>
-  `;
-}
-
-function groupEmoji(name) {
-  const n = name.toLowerCase();
-  if (/trip|travel|tour|vacation|goa|trip/i.test(n)) return '✈️';
-  if (/home|house|flat|room|rent/i.test(n)) return '🏠';
-  if (/office|work|team/i.test(n)) return '💼';
-  if (/party|birthday|celebration/i.test(n)) return '🎉';
-  if (/food|meal|lunch|dinner/i.test(n)) return '🍽️';
-  return '👥';
-}
-
-function memberColor(name) {
-  const colors = ['#c84b31','#2d7a5e','#2563a8','#7c3aed','#c4860a','#0891b2','#be185d','#065f46'];
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
-  return colors[Math.abs(h) % colors.length];
+    <div style="display:flex;gap:4px">${avatars}${extra}</div>
+    <div class="group-stats">
+      <div class="group-stat"><div class="group-stat-val">${Utils.fmt(total)}</div><div class="group-stat-label">Total Spent</div></div>
+      <div class="group-stat"><div class="group-stat-val">${g.members.length}</div><div class="group-stat-label">Members</div></div>
+      <div class="group-stat"><div class="group-stat-val">${g.transactions.length}</div><div class="group-stat-label">Expenses</div></div>
+    </div>
+  </div>`;
 }
 
 // ============================================================
 //  GROUP VIEW RENDER
 // ============================================================
 function renderGroup() {
-  const g = Groups.getActive();
-  if (!g) { showDashboard(); return; }
-
-  document.getElementById('group-breadcrumb-name').textContent = g.name;
-  document.getElementById('group-view-name').textContent = g.name;
-  document.getElementById('group-view-meta').textContent =
-    `${g.members.length} member${g.members.length !== 1 ? 's' : ''} · Created ${Utils.formatDate(g.createdAt)}`;
-
+  const g = Groups.active(); if (!g) { showDashboard(); return; }
+  document.getElementById('group-breadcrumb').textContent = g.name;
+  document.getElementById('group-title').textContent    = g.name;
+  document.getElementById('group-subtitle').textContent = `${g.members.length} members · Created ${Utils.date(g.createdAt)}`;
   renderSummaryCards(g);
   renderTransactions();
-  renderBalances();
-  renderSettle();
-  renderAnalytics();
 }
 
 function renderSummaryCards(g) {
-  const total = g.transactions.reduce((s, t) => s + t.amount, 0);
-  const avg = g.members.length ? (total / g.members.length) : 0;
+  const total = g.transactions.reduce((s,t) => s+t.amount, 0);
+  const avg   = g.members.length ? total / g.members.length : 0;
   const balances = Utils.computeBalances(g);
-  const maxDebt = Math.min(...Object.values(balances));
-  const maxCredit = Math.max(...Object.values(balances));
-
+  const vals = Object.values(balances);
+  const maxDebt   = vals.length ? Math.min(...vals) : 0;
+  const maxCredit = vals.length ? Math.max(...vals) : 0;
   document.getElementById('summary-cards').innerHTML = `
-    <div class="summary-card">
-      <div class="summary-card-val">${Utils.formatCurrency(total)}</div>
-      <div class="summary-card-label">Total Spent</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-card-val">${Utils.formatCurrency(avg)}</div>
-      <div class="summary-card-label">Per Person (avg)</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-card-val" style="color:var(--accent)">${Utils.formatCurrency(Math.abs(maxDebt))}</div>
-      <div class="summary-card-label">Largest Debt</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-card-val" style="color:var(--green)">${Utils.formatCurrency(maxCredit)}</div>
-      <div class="summary-card-label">Largest Credit</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-card-val">${g.transactions.length}</div>
-      <div class="summary-card-label">Expenses</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-card-val">${g.members.length}</div>
-      <div class="summary-card-label">Members</div>
-    </div>
-  `;
+    <div class="summary-card"><div class="summary-card-val">${Utils.fmt(total)}</div><div class="summary-card-label">Total Spent</div></div>
+    <div class="summary-card"><div class="summary-card-val">${Utils.fmt(avg)}</div><div class="summary-card-label">Per Person (avg)</div></div>
+    <div class="summary-card"><div class="summary-card-val" style="color:var(--accent)">${Utils.fmt(Math.abs(maxDebt))}</div><div class="summary-card-label">Largest Debt</div></div>
+    <div class="summary-card"><div class="summary-card-val" style="color:var(--green)">${Utils.fmt(maxCredit)}</div><div class="summary-card-label">Largest Credit</div></div>
+    <div class="summary-card"><div class="summary-card-val">${g.transactions.length}</div><div class="summary-card-label">Expenses</div></div>
+    <div class="summary-card"><div class="summary-card-val">${g.members.length}</div><div class="summary-card-label">Members</div></div>`;
 }
 
 function renderTransactions() {
-  const g = Groups.getActive();
-  if (!g) return;
-  const search = document.getElementById('tx-search').value;
-  const sort = document.getElementById('tx-sort').value;
-  const list = Transactions.getSorted(g.transactions, sort, search);
-  const container = document.getElementById('transactions-list');
-
+  const g = Groups.active(); if (!g) return;
+  const search = document.getElementById('tx-search')?.value || '';
+  const sort   = document.getElementById('tx-sort')?.value || 'date-desc';
+  const list   = Transactions.sorted(g.transactions, sort, search);
+  const c      = document.getElementById('transactions-list');
   if (!list.length) {
-    container.innerHTML = `
-      <div class="empty-state" style="padding:40px">
-        <div class="empty-state-icon">📝</div>
-        <div class="empty-state-title">${search ? 'No results found' : 'No expenses yet'}</div>
-        <p>${search ? 'Try a different search term' : 'Add your first expense'}</p>
-      </div>
-    `;
+    c.innerHTML = `<div class="empty-state" style="padding:40px"><div class="empty-state-icon">📝</div><div class="empty-state-title">${search?'No results':'No expenses yet'}</div><p>${search?'Try different keywords':'Add your first expense above'}</p></div>`;
     return;
   }
-
-  container.innerHTML = `<div class="transactions-list">${list.map(tx => renderTxCard(tx, g)).join('')}</div>`;
-}
-
-function renderTxCard(tx, g) {
-  const share = (tx.amount / tx.splitBetween.length);
-  const updatedInfo = tx.updatedAt !== tx.date ? ` · Updated ${Utils.formatDateTime(tx.updatedAt)}` : '';
-  return `
-    <div class="card transaction-card">
-      <div class="tx-icon">${tx.emoji || '💰'}</div>
+  c.innerHTML = `<div class="transactions-list">${list.map(tx => {
+    const share   = tx.amount / tx.splitBetween.length;
+    const updated = tx.updatedAt !== tx.date ? ` · Updated ${Utils.dateTime(tx.updatedAt)}` : '';
+    return `<div class="card transaction-card">
+      <div class="tx-icon">${tx.emoji||'💰'}</div>
       <div class="tx-body">
-        <div class="tx-desc">${Utils.sanitize(tx.desc)}</div>
+        <div class="tx-desc">${Utils.esc(tx.desc)}</div>
         <div class="tx-meta">
-          <span>👤 ${Utils.sanitize(tx.paidBy)}</span>
-          <span>🗓 ${Utils.formatDateTime(tx.date)}${updatedInfo}</span>
-          <span>Split: ${tx.splitBetween.map(m => Utils.sanitize(m)).join(', ')}</span>
+          <span>👤 ${Utils.esc(tx.paidBy)}</span>
+          <span>🗓 ${Utils.dateTime(tx.date)}${updated}</span>
+          <span>Split: ${tx.splitBetween.map(Utils.esc).join(', ')}</span>
         </div>
       </div>
       <div class="tx-amount">
-        <div class="tx-amount-val">${Utils.formatCurrency(tx.amount)}</div>
-        <div class="tx-per-person">${Utils.formatCurrency(share)}/person</div>
+        <div class="tx-amount-val">${Utils.fmt(tx.amount)}</div>
+        <div class="tx-per-person">${Utils.fmt(share)}/person</div>
       </div>
       <div class="tx-actions">
         <button class="btn btn-ghost btn-icon btn-sm" onclick="openEditTransactionModal('${tx.id}')" title="Edit">✎</button>
         <button class="btn btn-ghost btn-icon btn-sm" onclick="confirmDeleteTransaction('${tx.id}')" title="Delete">🗑</button>
       </div>
-    </div>
-  `;
+    </div>`;
+  }).join('')}</div>`;
 }
 
 function renderBalances() {
-  const g = Groups.getActive();
-  if (!g) return;
-  const balances = Utils.computeBalances(g);
-
-  const rows = Object.entries(balances).map(([name, amt]) => {
-    const cls = amt > 0.009 ? 'positive' : amt < -0.009 ? 'negative' : 'neutral';
-    const label = amt > 0.009 ? 'Gets back' : amt < -0.009 ? 'Owes' : 'Settled';
-    return `
-      <div class="balance-row">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div class="chip-avatar" style="background:${memberColor(name)};width:32px;height:32px;font-size:13px">${Utils.initials(name)}</div>
-          <div>
-            <div class="balance-member">${Utils.sanitize(name)}</div>
-            <div class="text-sm text-muted">${label}</div>
-          </div>
-        </div>
-        <div class="balance-amount ${cls}">${amt >= 0 ? '+' : ''}${Utils.formatCurrency(amt)}</div>
-      </div>
-    `;
-  }).join('');
-
+  const g = Groups.active(); if (!g) return;
+  const b = Utils.computeBalances(g);
   document.getElementById('balances-content').innerHTML = `
     <div class="section-title">Balance Sheet</div>
-    <div class="balance-list">${rows || '<div class="text-muted">No balances yet</div>'}</div>
-  `;
+    <div class="balance-list">${Object.entries(b).map(([name, amt]) => {
+      const cls   = amt > 0.009 ? 'positive' : amt < -0.009 ? 'negative' : 'neutral';
+      const label = amt > 0.009 ? 'Gets back' : amt < -0.009 ? 'Owes' : 'Settled';
+      return `<div class="balance-row">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="chip-avatar" style="background:${Utils.memberColor(name)};width:32px;height:32px;font-size:13px">${Utils.initials(name)}</div>
+          <div><div style="font-weight:600">${Utils.esc(name)}</div><div class="text-sm text-muted">${label}</div></div>
+        </div>
+        <div class="balance-amount ${cls}">${amt>=0?'+':''}${Utils.fmt(amt)}</div>
+      </div>`;
+    }).join('')}</div>`;
 }
 
 function renderSettle() {
-  const g = Groups.getActive();
-  if (!g) return;
-  const balances = Utils.computeBalances(g);
-  const settlements = Utils.computeSettlements(balances);
-
-  const rows = settlements.map(s => `
-    <div class="settlement-row">
-      <div class="chip-avatar" style="background:${memberColor(s.from)}">${Utils.initials(s.from)}</div>
-      <strong>${Utils.sanitize(s.from)}</strong>
-      <span class="settlement-arrow">→</span>
-      <div class="chip-avatar" style="background:${memberColor(s.to)}">${Utils.initials(s.to)}</div>
-      <strong>${Utils.sanitize(s.to)}</strong>
-      <span style="flex:1;text-align:right;font-weight:700;font-family:var(--font-mono);color:var(--green)">${Utils.formatCurrency(s.amount)}</span>
-    </div>
-  `).join('');
-
+  const g = Groups.active(); if (!g) return;
+  const s = Utils.computeSettlements(Utils.computeBalances(g));
   document.getElementById('settle-content').innerHTML = `
     <div class="section-title">Minimum Settlements Required</div>
-    ${settlements.length ? `
-      <div class="info-text" style="margin-bottom:12px">This is the minimum number of transactions needed to settle all debts</div>
-      <div class="settlement-list">${rows}</div>
-    ` : `<div class="card" style="text-align:center;padding:32px;color:var(--text3)">✅ All settled up!</div>`}
-  `;
+    ${s.length
+      ? `<div class="info-text" style="margin-bottom:12px">Minimum transactions needed to settle all debts</div>
+         <div class="settlement-list">${s.map(x => `<div class="settlement-row">
+          <div class="chip-avatar" style="background:${Utils.memberColor(x.from)}">${Utils.initials(x.from)}</div>
+          <strong>${Utils.esc(x.from)}</strong>
+          <span style="color:var(--green);font-size:18px">→</span>
+          <div class="chip-avatar" style="background:${Utils.memberColor(x.to)}">${Utils.initials(x.to)}</div>
+          <strong>${Utils.esc(x.to)}</strong>
+          <span style="flex:1;text-align:right;font-weight:700;font-family:var(--font-mono);color:var(--green)">${Utils.fmt(x.amount)}</span>
+        </div>`).join('')}</div>`
+      : `<div class="card" style="text-align:center;padding:32px;color:var(--text3)">✅ All settled up!</div>`}`;
 }
 
 function renderAnalytics() {
-  const g = Groups.getActive();
-  if (!g) return;
-  const total = g.transactions.reduce((s, t) => s + t.amount, 0);
-
-  // Spending per member (how much paid by each)
-  const paidBy = {};
-  const owedBy = {};
-  g.members.forEach(m => { paidBy[m] = 0; owedBy[m] = 0; });
+  const g = Groups.active(); if (!g) return;
+  const total = g.transactions.reduce((s,t) => s+t.amount, 0);
+  const paid = {}, owed = {};
+  g.members.forEach(m => { paid[m] = 0; owed[m] = 0; });
   g.transactions.forEach(tx => {
-    if (paidBy[tx.paidBy] !== undefined) paidBy[tx.paidBy] += tx.amount;
-    const share = tx.amount / tx.splitBetween.length;
-    tx.splitBetween.forEach(m => { if (owedBy[m] !== undefined) owedBy[m] += share; });
+    if (paid[tx.paidBy] !== undefined) paid[tx.paidBy] += tx.amount;
+    const sh = tx.amount / tx.splitBetween.length;
+    tx.splitBetween.forEach(m => { if (owed[m] !== undefined) owed[m] += sh; });
   });
-
-  const maxPaid = Math.max(...Object.values(paidBy), 1);
-  const maxOwed = Math.max(...Object.values(owedBy), 1);
-
-  const paidRows = Object.entries(paidBy).map(([name, amt]) => `
-    <div class="bar-row">
-      <div class="bar-label"><span>${Utils.sanitize(name)}</span><span class="font-mono">${Utils.formatCurrency(amt)}</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${(amt/maxPaid*100).toFixed(1)}%;background:${memberColor(name)}"></div></div>
-    </div>
-  `).join('');
-
-  const owedRows = Object.entries(owedBy).map(([name, amt]) => `
-    <div class="bar-row">
-      <div class="bar-label"><span>${Utils.sanitize(name)}</span><span class="font-mono">${Utils.formatCurrency(amt)}</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${(amt/maxOwed*100).toFixed(1)}%;background:${memberColor(name)}"></div></div>
-    </div>
-  `).join('');
-
-  // Category breakdown
+  const maxP = Math.max(...Object.values(paid), 1);
+  const maxO = Math.max(...Object.values(owed), 1);
+  const barRows = (obj, max) => Object.entries(obj).map(([n,a]) =>
+    `<div class="bar-row"><div class="bar-label"><span>${Utils.esc(n)}</span><span class="font-mono">${Utils.fmt(a)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${(a/max*100).toFixed(1)}%;background:${Utils.memberColor(n)}"></div></div></div>`).join('');
   const cats = {};
-  g.transactions.forEach(tx => {
-    const e = tx.emoji || '💰';
-    cats[e] = (cats[e] || 0) + tx.amount;
-  });
-  const catRows = Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([e, amt]) => `
-    <div class="balance-row">
-      <span style="font-size:20px">${e}</span>
-      <span class="font-mono" style="font-weight:700">${Utils.formatCurrency(amt)}</span>
-      <span class="badge badge-gray">${((amt/total)*100).toFixed(1)}%</span>
-    </div>
-  `).join('');
-
+  g.transactions.forEach(tx => { const e=tx.emoji||'💰'; cats[e]=(cats[e]||0)+tx.amount; });
   document.getElementById('analytics-content').innerHTML = `
     <div class="analytics-grid">
-      <div class="card">
-        <div class="section-title">Amount Paid By</div>
-        <div class="bar-chart">${paidRows}</div>
-      </div>
-      <div class="card">
-        <div class="section-title">Amount Owed By</div>
-        <div class="bar-chart">${owedRows}</div>
-      </div>
+      <div class="card"><div class="section-title">Paid By</div><div class="bar-chart">${barRows(paid,maxP)}</div></div>
+      <div class="card"><div class="section-title">Owes</div><div class="bar-chart">${barRows(owed,maxO)}</div></div>
     </div>
-    <div class="card mt-16">
-      <div class="section-title">Category Breakdown</div>
-      <div class="balance-list mt-8">${catRows || '<div class="text-muted">No data</div>'}</div>
-    </div>
-  `;
+    <div class="card mt-16"><div class="section-title">Category Breakdown</div>
+      <div class="balance-list mt-8">${Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([e,a]) =>
+        `<div class="balance-row"><span style="font-size:20px">${e}</span><span class="font-mono" style="font-weight:700">${Utils.fmt(a)}</span><span class="badge badge-gray">${total?((a/total)*100).toFixed(1)+'%':'—'}</span></div>`).join('') || '<div class="text-muted">No data</div>'}</div>
+    </div>`;
 }
 
 // ============================================================
 //  TABS
 // ============================================================
-function switchTab(name) {
-  STATE.activeTab = name;
+function switchTab(btn) {
+  const name = btn.dataset.tab;
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-
-  const tabs = ['transactions', 'balances', 'settle', 'analytics'];
-  tabs.forEach(t => {
-    const el = document.getElementById(`tab-${t}`);
+  btn.classList.add('active');
+  ['transactions','balances','settle','analytics'].forEach(t => {
+    const el = document.getElementById('tab-' + t);
     if (el) el.classList.toggle('hidden', t !== name);
   });
-
-  if (name === 'balances') renderBalances();
-  else if (name === 'settle') renderSettle();
-  else if (name === 'analytics') renderAnalytics();
-  else if (name === 'transactions') renderTransactions();
+  if (name === 'balances')  renderBalances();
+  if (name === 'settle')    renderSettle();
+  if (name === 'analytics') renderAnalytics();
+  if (name === 'transactions') renderTransactions();
 }
 
 // ============================================================
-//  CREATE GROUP MODAL
+//  MEMBER CHIPS HELPER
+// ============================================================
+function renderChips(containerId) {
+  const el = document.getElementById(containerId); if (!el) return;
+  el.innerHTML = (window._members||[]).map(m =>
+    `<div class="member-chip"><div class="chip-avatar" style="background:${Utils.memberColor(m)}">${Utils.initials(m)}</div>${Utils.esc(m)}<span class="chip-remove" onclick="removeChip('${Utils.esc(m)}','${containerId}')">×</span></div>`
+  ).join('');
+}
+window.removeChip = (name, cid) => { window._members = (window._members||[]).filter(m=>m!==name); renderChips(cid); };
+function addChip(inputId, cid) {
+  const inp = document.getElementById(inputId); const name = inp.value.trim();
+  if (!name) return;
+  if ((window._members||[]).includes(name)) { showToast('Already added', 'warning'); return; }
+  window._members = [...(window._members||[]), name]; inp.value = ''; renderChips(cid); inp.focus();
+}
+
+// ============================================================
+//  CREATE / EDIT GROUP MODALS
 // ============================================================
 function openCreateGroupModal() {
-  openModal(`
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">Create New Group</div>
-        <button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button>
-      </div>
-      <div class="form-group">
-        <label>Group Name</label>
-        <input class="input" id="new-group-name" placeholder="e.g. Goa Trip, Flatmates…" autofocus>
-      </div>
-      <div class="form-group">
-        <label>Add Members</label>
-        <div style="display:flex;gap:8px">
-          <input class="input" id="new-member-input" placeholder="Member name" onkeydown="if(event.key==='Enter'){addMemberChip();event.preventDefault();}">
-          <button class="btn btn-secondary" onclick="addMemberChip()">Add</button>
-        </div>
-        <div class="member-chips" id="member-chips-create"></div>
-        <div class="info-text">Press Enter or click Add to add a member</div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="submitCreateGroup()">Create Group</button>
-      </div>
+  window._members = [];
+  openModal(`<div class="modal">
+    <div class="modal-header"><div class="modal-title">Create New Group</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
+    <div class="form-group"><label>Group Name</label><input class="input" id="grp-name" placeholder="e.g. Goa Trip, Flatmates…" autofocus></div>
+    <div class="form-group">
+      <label>Members</label>
+      <div style="display:flex;gap:8px"><input class="input" id="mbr-input" placeholder="Member name" onkeydown="if(event.key==='Enter'){addChip('mbr-input','mbr-chips');event.preventDefault();}"><button class="btn btn-secondary" onclick="addChip('mbr-input','mbr-chips')">Add</button></div>
+      <div class="member-chips" id="mbr-chips"></div>
+      <div class="info-text">Press Enter or click Add</div>
     </div>
-  `);
-  window._tempMembers = [];
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="_submitCreateGroup()">Create</button></div>
+  </div>`);
 }
-
-function addMemberChip(containerIdOverride) {
-  const input = document.getElementById('new-member-input');
-  const name = input.value.trim();
-  if (!name) return;
-  if (window._tempMembers.includes(name)) { showToast('Member already added', 'warning'); return; }
-  window._tempMembers.push(name);
-  input.value = '';
-  renderMemberChips('member-chips-create', window._tempMembers, (m) => {
-    window._tempMembers = window._tempMembers.filter(x => x !== m);
-    renderMemberChips('member-chips-create', window._tempMembers, arguments.callee);
-  });
-  input.focus();
-}
-
-function renderMemberChips(containerId, members, onRemove) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
-  el.innerHTML = members.map(m => `
-    <div class="member-chip">
-      <div class="chip-avatar" style="background:${memberColor(m)}">${Utils.initials(m)}</div>
-      ${Utils.sanitize(m)}
-      <span class="member-chip-remove" onclick="removeTempMember('${Utils.sanitize(m)}','${containerId}')">×</span>
-    </div>
-  `).join('');
-}
-
-window.removeTempMember = (name, containerId) => {
-  window._tempMembers = window._tempMembers.filter(m => m !== name);
-  renderMemberChips(containerId, window._tempMembers, null);
+window._submitCreateGroup = () => {
+  const name = document.getElementById('grp-name').value.trim();
+  if (!name) { showToast('Group name required', 'error'); return; }
+  if (!(window._members||[]).length) { showToast('Add at least one member', 'error'); return; }
+  Groups.create(name, [...window._members]); closeModal(); renderDashboard(); showToast('Group created!', 'success');
 };
 
-function submitCreateGroup() {
-  const name = document.getElementById('new-group-name').value.trim();
-  if (!name) { showToast('Please enter a group name', 'error'); return; }
-  if (!window._tempMembers.length) { showToast('Please add at least one member', 'error'); return; }
-  Groups.create(name, [...window._tempMembers]);
-  closeModal();
-  renderDashboard();
-  showToast('Group created!', 'success');
-}
-
-// ============================================================
-//  EDIT GROUP MODAL
-// ============================================================
 function openEditGroupModal(id) {
-  const g = STATE.groups.find(g => g.id === id);
-  if (!g) return;
-  window._editGroupId = id;
-  window._tempMembers = [...g.members];
-
-  openModal(`
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">Edit Group</div>
-        <button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button>
-      </div>
-      <div class="form-group">
-        <label>Group Name</label>
-        <input class="input" id="edit-group-name" value="${Utils.sanitize(g.name)}" autofocus>
-      </div>
-      <div class="form-group">
-        <label>Members</label>
-        <div style="display:flex;gap:8px">
-          <input class="input" id="new-member-input" placeholder="Add member" onkeydown="if(event.key==='Enter'){addMemberChip();event.preventDefault();}">
-          <button class="btn btn-secondary" onclick="addMemberChip()">Add</button>
-        </div>
-        <div class="member-chips" id="member-chips-create"></div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="submitEditGroup()">Save Changes</button>
-      </div>
+  const g = STATE.groups.find(g=>g.id===id); if (!g) return;
+  window._editGroupId = id; window._members = [...g.members];
+  openModal(`<div class="modal">
+    <div class="modal-header"><div class="modal-title">Edit Group</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
+    <div class="form-group"><label>Group Name</label><input class="input" id="grp-name-edit" value="${Utils.esc(g.name)}" autofocus></div>
+    <div class="form-group">
+      <label>Members</label>
+      <div style="display:flex;gap:8px"><input class="input" id="mbr-input" placeholder="Add member" onkeydown="if(event.key==='Enter'){addChip('mbr-input','mbr-chips');event.preventDefault();}"><button class="btn btn-secondary" onclick="addChip('mbr-input','mbr-chips')">Add</button></div>
+      <div class="member-chips" id="mbr-chips"></div>
     </div>
-  `);
-
-  renderMemberChips('member-chips-create', window._tempMembers, null);
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="_submitEditGroup()">Save</button></div>
+  </div>`);
+  renderChips('mbr-chips');
 }
+window._submitEditGroup = () => {
+  const name = document.getElementById('grp-name-edit').value.trim();
+  if (!name) { showToast('Name required', 'error'); return; }
+  Groups.update(window._editGroupId, { name, members: [...window._members] });
+  closeModal(); renderDashboard(); showToast('Updated!', 'success');
+};
 
-function submitEditGroup() {
-  const name = document.getElementById('edit-group-name').value.trim();
-  if (!name) { showToast('Group name required', 'error'); return; }
-  if (!window._tempMembers.length) { showToast('At least one member required', 'error'); return; }
-  Groups.update(window._editGroupId, { name, members: [...window._tempMembers] });
-  closeModal();
-  renderDashboard();
-  showToast('Group updated!', 'success');
-}
-
-// ============================================================
-//  DELETE GROUP
-// ============================================================
 function confirmDeleteGroup(id) {
-  const g = STATE.groups.find(g => g.id === id);
-  if (!g) return;
-  openConfirm(
-    'Delete Group',
-    `Are you sure you want to delete <span class="confirm-highlight">"${Utils.sanitize(g.name)}"</span>? This will permanently remove all ${g.transactions.length} transactions. This action cannot be undone.`,
-    () => {
-      Groups.delete(id);
-      renderDashboard();
-      showToast('Group deleted', 'default');
-    }
-  );
+  const g = STATE.groups.find(g=>g.id===id); if (!g) return;
+  openConfirm('Delete Group', `Delete <span class="confirm-hl">"${Utils.esc(g.name)}"</span>? This removes all ${g.transactions.length} expenses. Cannot be undone.`,
+    () => { Groups.delete(id); renderDashboard(); showToast('Group deleted', 'default'); });
 }
 
 // ============================================================
 //  MANAGE MEMBERS MODAL
 // ============================================================
 function openManageMembersModal() {
-  const g = Groups.getActive();
-  if (!g) return;
-  window._editGroupId = g.id;
-  window._tempMembers = [...g.members];
-
-  openModal(`
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">Manage Members</div>
-        <button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button>
-      </div>
-      <div class="form-group">
-        <label>Add Member</label>
-        <div style="display:flex;gap:8px">
-          <input class="input" id="new-member-input" placeholder="Member name" onkeydown="if(event.key==='Enter'){addMemberChip();event.preventDefault();}">
-          <button class="btn btn-secondary" onclick="addMemberChip()">Add</button>
-        </div>
-      </div>
-      <div class="member-chips" id="member-chips-create"></div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="submitManageMembers()">Save</button>
-      </div>
+  const g = Groups.active(); if (!g) return;
+  window._editGroupId = g.id; window._members = [...g.members];
+  openModal(`<div class="modal">
+    <div class="modal-header"><div class="modal-title">Manage Members</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
+    <div class="form-group">
+      <label>Add Member</label>
+      <div style="display:flex;gap:8px"><input class="input" id="mbr-input" placeholder="Member name" onkeydown="if(event.key==='Enter'){addChip('mbr-input','mbr-chips');event.preventDefault();}"><button class="btn btn-secondary" onclick="addChip('mbr-input','mbr-chips')">Add</button></div>
     </div>
-  `);
-
-  renderMemberChips('member-chips-create', window._tempMembers, null);
+    <div class="member-chips" id="mbr-chips"></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="_submitMembers()">Save</button></div>
+  </div>`);
+  renderChips('mbr-chips');
 }
-
-function submitManageMembers() {
-  if (!window._tempMembers.length) { showToast('Need at least one member', 'error'); return; }
-  Groups.update(window._editGroupId, { members: [...window._tempMembers] });
-  closeModal();
-  renderGroup();
-  showToast('Members updated!', 'success');
-}
+window._submitMembers = () => {
+  if (!(window._members||[]).length) { showToast('Need at least one member', 'error'); return; }
+  Groups.update(window._editGroupId, { members: [...window._members] });
+  closeModal(); renderGroup(); showToast('Members updated!', 'success');
+};
 
 // ============================================================
-//  ADD TRANSACTION MODAL
+//  ADD / EDIT TRANSACTION MODAL
 // ============================================================
 function openAddTransactionModal(editId) {
-  const g = Groups.getActive();
-  if (!g) return;
-  const isEdit = !!editId;
-  const tx = isEdit ? g.transactions.find(t => t.id === editId) : null;
-
-  const memberOptions = g.members.map(m =>
-    `<option value="${Utils.sanitize(m)}" ${tx && tx.paidBy === m ? 'selected' : ''}>${Utils.sanitize(m)}</option>`
-  ).join('');
-
-  const splitChecks = g.members.map(m => {
-    const checked = !tx || tx.splitBetween.includes(m) ? 'checked' : '';
-    return `
-      <label class="checkbox-label">
-        <input type="checkbox" class="split-check" value="${Utils.sanitize(m)}" ${checked} onchange="updateSplitPreview()">
-        <div class="chip-avatar" style="background:${memberColor(m)};width:24px;height:24px;font-size:10px">${Utils.initials(m)}</div>
-        ${Utils.sanitize(m)}
-      </label>
-    `;
+  const g = Groups.active(); if (!g) return;
+  const tx = editId ? g.transactions.find(t=>t.id===editId) : null;
+  const opts = g.members.map(m => `<option value="${Utils.esc(m)}" ${tx&&tx.paidBy===m?'selected':''}>${Utils.esc(m)}</option>`).join('');
+  const checks = g.members.map(m => {
+    const chk = !tx || tx.splitBetween.includes(m) ? 'checked' : '';
+    return `<label class="check-label"><input type="checkbox" class="split-chk" value="${Utils.esc(m)}" ${chk} onchange="_updateSplitPreview()"><div class="chip-avatar" style="background:${Utils.memberColor(m)};width:24px;height:24px;font-size:10px">${Utils.initials(m)}</div>${Utils.esc(m)}</label>`;
   }).join('');
-
-  openModal(`
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">${isEdit ? 'Edit Expense' : 'Add Expense'}</div>
-        <button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button>
-      </div>
-      <div class="form-group">
-        <label>Description</label>
-        <input class="input" id="tx-desc" placeholder="e.g. Dinner, Cab, Groceries…" value="${tx ? Utils.sanitize(tx.desc) : ''}" autofocus>
-      </div>
-      <div class="form-group">
-        <label>Amount (₹)</label>
-        <input class="input" id="tx-amount" type="number" placeholder="0.00" min="0" step="0.01" value="${tx ? tx.amount : ''}" oninput="updateSplitPreview()">
-      </div>
-      <div class="form-group">
-        <label>Paid By</label>
-        <select class="select" id="tx-paid-by">${memberOptions}</select>
-      </div>
-      <div class="form-group">
-        <div class="select-all-row">
-          <label style="margin:0">Split Between</label>
-          <button class="btn btn-ghost btn-sm" onclick="toggleSelectAll()">Toggle All</button>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:2px">${splitChecks}</div>
-        <div class="split-preview" id="split-preview">Select members to split</div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="submitTransaction('${editId || ''}')">
-          ${isEdit ? 'Save Changes' : 'Add Expense'}
-        </button>
-      </div>
+  openModal(`<div class="modal">
+    <div class="modal-header"><div class="modal-title">${tx?'Edit':'Add'} Expense</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
+    <div class="form-group"><label>Description</label><input class="input" id="tx-desc" placeholder="e.g. Dinner, Cab…" value="${tx?Utils.esc(tx.desc):''}" autofocus></div>
+    <div class="form-group"><label>Amount (₹)</label><input class="input" id="tx-amt" type="number" placeholder="0.00" min="0" step="0.01" value="${tx?tx.amount:''}" oninput="_updateSplitPreview()"></div>
+    <div class="form-group"><label>Paid By</label><select class="select" id="tx-paidby">${opts}</select></div>
+    <div class="form-group">
+      <div class="select-all-row"><label style="margin:0">Split Between</label><button class="btn btn-ghost btn-sm" onclick="_toggleAll()">Toggle All</button></div>
+      <div style="display:flex;flex-direction:column;gap:2px">${checks}</div>
+      <div class="split-preview" id="split-preview">Select members to split</div>
     </div>
-  `);
-
-  updateSplitPreview();
-  window._editTxId = editId || null;
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="_submitTx('${editId||''}')">${tx?'Save Changes':'Add Expense'}</button></div>
+  </div>`);
+  _updateSplitPreview();
 }
-
-function openEditTransactionModal(id) {
-  openAddTransactionModal(id);
-}
-
-function toggleSelectAll() {
-  const checks = document.querySelectorAll('.split-check');
-  const allChecked = [...checks].every(c => c.checked);
-  checks.forEach(c => c.checked = !allChecked);
-  updateSplitPreview();
-}
-
-function updateSplitPreview() {
-  const amt = parseFloat(document.getElementById('tx-amount').value) || 0;
-  const checks = [...document.querySelectorAll('.split-check')].filter(c => c.checked);
-  const preview = document.getElementById('split-preview');
-  if (!preview) return;
-  if (!checks.length) { preview.innerHTML = '<span style="color:var(--accent)">Select at least one member</span>'; return; }
-  const share = amt / checks.length;
-  preview.innerHTML = `Splitting <strong>${Utils.formatCurrency(amt)}</strong> equally → <strong>${Utils.formatCurrency(share)}</strong> per person among ${checks.length} member${checks.length !== 1 ? 's' : ''}`;
-}
-
-function submitTransaction(editId) {
-  const desc = document.getElementById('tx-desc').value.trim();
-  const amount = parseFloat(document.getElementById('tx-amount').value);
-  const paidBy = document.getElementById('tx-paid-by').value;
-  const splitBetween = [...document.querySelectorAll('.split-check')].filter(c => c.checked).map(c => c.value);
-
-  if (!desc) { showToast('Description required', 'error'); return; }
-  if (!amount || amount <= 0) { showToast('Enter a valid amount', 'error'); return; }
-  if (!splitBetween.length) { showToast('Select at least one person to split', 'error'); return; }
-
-  const g = Groups.getActive();
-  if (editId) {
-    Transactions.update(g, editId, { desc, amount, paidBy, splitBetween });
-    showToast('Expense updated!', 'success');
-  } else {
-    Transactions.add(g, { desc, amount, paidBy, splitBetween });
-    showToast('Expense added!', 'success');
-  }
-
-  closeModal();
-  renderGroup();
-}
-
+function openEditTransactionModal(id) { openAddTransactionModal(id); }
+window._toggleAll = () => { const c = [...document.querySelectorAll('.split-chk')]; const all = c.every(x=>x.checked); c.forEach(x=>x.checked=!all); _updateSplitPreview(); };
+window._updateSplitPreview = () => {
+  const amt = parseFloat(document.getElementById('tx-amt')?.value)||0;
+  const sel = [...document.querySelectorAll('.split-chk')].filter(c=>c.checked);
+  const p = document.getElementById('split-preview'); if (!p) return;
+  if (!sel.length) { p.innerHTML='<span style="color:var(--accent)">Select at least one member</span>'; return; }
+  const sh = amt/sel.length;
+  p.innerHTML = `Splitting <strong>${Utils.fmt(amt)}</strong> equally → <strong>${Utils.fmt(sh)}</strong>/person among ${sel.length} member${sel.length!==1?'s':''}`;
+};
+window._submitTx = (editId) => {
+  const desc  = document.getElementById('tx-desc').value.trim();
+  const amt   = parseFloat(document.getElementById('tx-amt').value);
+  const paid  = document.getElementById('tx-paidby').value;
+  const split = [...document.querySelectorAll('.split-chk')].filter(c=>c.checked).map(c=>c.value);
+  if (!desc)        { showToast('Description required', 'error'); return; }
+  if (!amt || amt<=0) { showToast('Enter a valid amount', 'error'); return; }
+  if (!split.length){ showToast('Select at least one person', 'error'); return; }
+  const g = Groups.active();
+  if (editId) { Transactions.update(g, editId, {desc, amount:amt, paidBy:paid, splitBetween:split}); showToast('Expense updated!', 'success'); }
+  else        { Transactions.add(g, {desc, amount:amt, paidBy:paid, splitBetween:split}); showToast('Expense added!', 'success'); }
+  closeModal(); renderGroup();
+};
 function confirmDeleteTransaction(id) {
-  const g = Groups.getActive();
-  const tx = g.transactions.find(t => t.id === id);
-  if (!tx) return;
-  openConfirm(
-    'Delete Expense',
-    `Delete <span class="confirm-highlight">"${Utils.sanitize(tx.desc)}"</span> (${Utils.formatCurrency(tx.amount)})? This cannot be undone.`,
-    () => {
-      Transactions.delete(g, id);
-      renderGroup();
-      showToast('Expense deleted', 'default');
-    }
-  );
+  const g = Groups.active(); const tx = g.transactions.find(t=>t.id===id); if (!tx) return;
+  openConfirm('Delete Expense', `Delete <span class="confirm-hl">"${Utils.esc(tx.desc)}"</span> (${Utils.fmt(tx.amount)})? Cannot be undone.`,
+    () => { Transactions.delete(g, id); renderGroup(); showToast('Deleted', 'default'); });
 }
 
 // ============================================================
-//  IMPORT / EXPORT
+//  SETTINGS MODAL
 // ============================================================
-function openImportExportModal() {
-  openModal(`
-    <div class="modal modal-wide">
-      <div class="modal-header">
-        <div class="modal-title">Import / Export</div>
-        <button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <div class="card" style="background:var(--surface2)">
-          <div class="section-title">Export Data</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
-            <button class="btn btn-primary" onclick="exportXML('all')">⬇ Export All Groups (XML)</button>
-            ${STATE.activeGroupId ? `<button class="btn btn-secondary" onclick="exportXML('active')">⬇ Export Current Group (XML)</button>` : ''}
+function openSettingsModal() {
+  const connected = driveService.isConnected();
+  const email     = driveService.userEmail();
+  const uname     = driveService.userName();
+  const lastSync  = STATE.lastSync ? Utils.dateTime(STATE.lastSync) : 'Never';
+
+  const driveBlock = connected
+    ? `<div class="settings-row">
+        <div>
+          <div class="settings-label">Google Drive</div>
+          <div class="drive-user-info">
+            <div class="drive-avatar">${Utils.initials(uname||email||'G')}</div>
+            <div><div style="font-size:13px;font-weight:600">${Utils.esc(uname||'Connected')}</div><div class="settings-desc">${Utils.esc(email||'')}</div></div>
           </div>
         </div>
-        <div class="card" style="background:var(--surface2)">
-          <div class="section-title">Import Data</div>
-          <p class="text-sm text-muted" style="margin-bottom:12px">Import groups from a previously exported XML file. Existing data will be merged.</p>
-          <input type="file" id="import-file" accept=".xml" onchange="importXML(event)" style="display:none">
-          <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">📂 Choose XML File</button>
-          <div id="import-status" style="margin-top:12px"></div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+          <button class="btn btn-secondary btn-sm" onclick="_settingsSyncNow()">↻ Sync Now</button>
+          <button class="btn btn-danger btn-sm" onclick="_settingsDisconnect()">Disconnect</button>
         </div>
+      </div>`
+    : `<div class="settings-row">
+        <div><div class="settings-label">Google Drive</div><div class="settings-desc">Sync data across devices and keep it safe in the cloud</div></div>
+        <button class="btn btn-google btn-sm" id="connect-drive-btn" onclick="_settingsConnect()">
+          <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Connect Google Drive
+        </button>
+      </div>`;
+
+  openModal(`<div class="modal modal-wide">
+    <div class="modal-header"><div class="modal-title">⚙ Settings</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">☁ Cloud Sync</div>
+      ${driveBlock}
+      <div class="settings-row"><div><div class="settings-label">Last Synced</div><div class="settings-desc">${lastSync}</div></div><span class="badge ${STATE.lastSync?'badge-green':'badge-gray'}">${STATE.lastSync?'✓ Synced':'Local only'}</span></div>
+      <div class="settings-row"><div class="settings-label">Network</div><span class="badge ${navigator.onLine?'badge-green':'badge-gray'}">${navigator.onLine?'● Online':'○ Offline'}</span></div>
+      ${STATE.pendingChanges?`<div class="settings-row"><div class="settings-label">Pending Changes</div><span class="badge badge-yellow">⚠ Not synced</span></div>`:''}
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">🎨 Appearance</div>
+      <div class="settings-row"><div class="settings-label">Dark Mode</div><button class="dark-toggle" onclick="toggleDark()"></button></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">🔒 Data Safety</div>
+      <div class="settings-row">
+        <div><div class="settings-label">Local Storage Warning</div><div class="settings-desc">Data stored in browser may be lost if you clear browser data or use incognito mode</div></div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+      <div class="settings-row">
+        <div><div class="settings-label">Manual Backup</div><div class="settings-desc">Download all your data as a JSON file</div></div>
+        <button class="btn btn-secondary btn-sm" onclick="exportJSON('all');closeModal()">⬇ Backup</button>
       </div>
     </div>
-  `);
+
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Close</button></div>
+  </div>`);
 }
 
-function exportXML(scope) {
-  let groups = scope === 'active' ? [Groups.getActive()] : STATE.groups;
-  groups = groups.filter(Boolean);
+window._settingsConnect = async () => {
+  const btn = document.getElementById('connect-drive-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Connecting…'; }
+  const ok = await driveService.connect();
+  if (ok) { await syncManager.pullFromDrive(); }
+  closeModal(); openSettingsModal();
+};
+window._settingsDisconnect = async () => { await driveService.disconnect(); closeModal(); openSettingsModal(); };
+window._settingsSyncNow   = async () => { closeModal(); await syncManager.syncNow(); openSettingsModal(); };
+
+// ============================================================
+//  IMPORT / EXPORT MODAL
+// ============================================================
+function openImportExportModal() {
+  const activeBtn = STATE.activeGroupId
+    ? `<button class="btn btn-secondary" onclick="exportXML('active')">⬇ Current Group (XML)</button><button class="btn btn-secondary" onclick="exportJSON('active')">⬇ Current Group (JSON)</button>`
+    : '';
+  openModal(`<div class="modal modal-wide">
+    <div class="modal-header"><div class="modal-title">Import / Export</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
+    <div class="card" style="background:var(--surface2);margin-bottom:16px">
+      <div class="section-title">Export</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+        <button class="btn btn-primary" onclick="exportJSON('all')">⬇ All Groups (JSON)</button>
+        <button class="btn btn-secondary" onclick="exportXML('all')">⬇ All Groups (XML)</button>
+        ${activeBtn}
+      </div>
+    </div>
+    <div class="card" style="background:var(--surface2)">
+      <div class="section-title">Import</div>
+      <p class="text-sm text-muted" style="margin-bottom:12px">Supports JSON and XML exports. Duplicates are skipped; data is merged.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <input type="file" id="f-json" accept=".json" onchange="importJSON(event)" style="display:none">
+        <input type="file" id="f-xml"  accept=".xml"  onchange="importXML(event)"  style="display:none">
+        <button class="btn btn-primary"   onclick="document.getElementById('f-json').click()">📂 Import JSON</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('f-xml').click()">📂 Import XML</button>
+      </div>
+      <div id="import-status" style="margin-top:12px"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Close</button></div>
+  </div>`);
+}
+
+// ===== JSON EXPORT =====
+function exportJSON(scope) {
+  let groups = (scope === 'active' ? [Groups.active()] : STATE.groups).filter(Boolean);
   if (!groups.length) { showToast('No data to export', 'warning'); return; }
-
-  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<splitease>\n';
-  groups.forEach(g => {
-    xml += `  <group id="${g.id}" createdAt="${g.createdAt}">\n`;
-    xml += `    <name>${escXML(g.name)}</name>\n`;
-    xml += `    <members>\n`;
-    g.members.forEach(m => xml += `      <member>${escXML(m)}</member>\n`);
-    xml += `    </members>\n`;
-    xml += `    <transactions>\n`;
-    g.transactions.forEach(tx => {
-      xml += `      <transaction id="${tx.id}" date="${tx.date}" updatedAt="${tx.updatedAt}">\n`;
-      xml += `        <desc>${escXML(tx.desc)}</desc>\n`;
-      xml += `        <amount>${tx.amount}</amount>\n`;
-      xml += `        <paidBy>${escXML(tx.paidBy)}</paidBy>\n`;
-      xml += `        <emoji>${escXML(tx.emoji || '💰')}</emoji>\n`;
-      xml += `        <splitBetween>\n`;
-      tx.splitBetween.forEach(m => xml += `          <member>${escXML(m)}</member>\n`);
-      xml += `        </splitBetween>\n`;
-      xml += `      </transaction>\n`;
-    });
-    xml += `    </transactions>\n`;
-    xml += `  </group>\n`;
+  const data = { version: STATE.version, exportedAt: new Date().toISOString(), groups };
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type:'application/json' })),
+    download: `splitease-${new Date().toISOString().slice(0,10)}.json`
   });
-  xml += '</splitease>';
-
-  const blob = new Blob([xml], { type: 'application/xml' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `splitease-export-${new Date().toISOString().slice(0,10)}.xml`;
-  a.click();
-  showToast('Exported successfully!', 'success');
+  a.click(); showToast('JSON downloaded!', 'success');
 }
 
-function escXML(str) {
-  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-function importXML(event) {
-  const file = event.target.files[0];
-  if (!file) return;
+function importJSON(event) {
+  const file = event.target.files[0]; if (!file) return;
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = e => {
     try {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(e.target.result, 'application/xml');
-      const err = doc.querySelector('parsererror');
-      if (err) throw new Error('Invalid XML');
-
-      const groups = doc.querySelectorAll('group');
-      if (!groups.length) throw new Error('No groups found in XML');
-
-      let imported = 0;
-      groups.forEach(gEl => {
-        const id = gEl.getAttribute('id') || Utils.uid();
-        if (STATE.groups.find(g => g.id === id)) return; // skip duplicate
-
-        const name = gEl.querySelector('name')?.textContent || 'Unnamed Group';
-        const members = [...gEl.querySelectorAll('members > member')].map(m => m.textContent);
-        const transactions = [...gEl.querySelectorAll('transaction')].map(txEl => ({
-          id: txEl.getAttribute('id') || Utils.uid(),
-          desc: txEl.querySelector('desc')?.textContent || '',
-          amount: parseFloat(txEl.querySelector('amount')?.textContent || '0'),
-          paidBy: txEl.querySelector('paidBy')?.textContent || '',
-          emoji: txEl.querySelector('emoji')?.textContent || '💰',
-          splitBetween: [...txEl.querySelectorAll('splitBetween > member')].map(m => m.textContent),
-          date: txEl.getAttribute('date') || new Date().toISOString(),
-          updatedAt: txEl.getAttribute('updatedAt') || new Date().toISOString()
-        }));
-
-        // Validation
-        if (!members.length) return;
-        if (!name.trim()) return;
-
-        STATE.groups.push({ id, name, members, transactions, createdAt: gEl.getAttribute('createdAt') || new Date().toISOString() });
-        imported++;
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data.groups)) throw new Error('Invalid JSON structure');
+      let n = 0;
+      data.groups.forEach(g => {
+        if (!g.id || !g.name || !Array.isArray(g.members)) return;
+        if (STATE.groups.find(x => x.id === g.id)) return;
+        STATE.groups.push(g); n++;
       });
-
-      Storage.save();
-      document.getElementById('import-status').innerHTML = `<span style="color:var(--green);font-weight:600">✓ Imported ${imported} group(s) successfully</span>`;
-      renderDashboard();
-      showToast(`Imported ${imported} group(s)!`, 'success');
+      syncManager.onDataChanged(); renderDashboard();
+      const el = document.getElementById('import-status');
+      if (el) el.innerHTML = `<span style="color:var(--green);font-weight:600">✓ Imported ${n} group(s)</span>`;
+      showToast(`Imported ${n} group(s)!`, 'success');
     } catch (err) {
-      document.getElementById('import-status').innerHTML = `<span style="color:var(--accent);font-weight:600">✕ Import failed: ${err.message}</span>`;
+      const el = document.getElementById('import-status');
+      if (el) el.innerHTML = `<span style="color:var(--accent);font-weight:600">✕ ${Utils.esc(err.message)}</span>`;
       showToast('Import failed: ' + err.message, 'error');
     }
   };
   reader.readAsText(file);
 }
 
-// ============================================================
-//  PDF DOWNLOAD (pure JS, no external libs)
-// ============================================================
+// ===== XML EXPORT / IMPORT =====
+function exportXML(scope) {
+  let groups = (scope === 'active' ? [Groups.active()] : STATE.groups).filter(Boolean);
+  if (!groups.length) { showToast('No data to export', 'warning'); return; }
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<splitease>\n';
+  groups.forEach(g => {
+    xml += `  <group id="${g.id}" createdAt="${g.createdAt}" updatedAt="${g.updatedAt||''}">\n`;
+    xml += `    <name>${Utils.escXML(g.name)}</name>\n    <members>\n`;
+    g.members.forEach(m => xml += `      <member>${Utils.escXML(m)}</member>\n`);
+    xml += `    </members>\n    <transactions>\n`;
+    g.transactions.forEach(tx => {
+      xml += `      <transaction id="${tx.id}" date="${tx.date}" updatedAt="${tx.updatedAt}">\n`;
+      xml += `        <desc>${Utils.escXML(tx.desc)}</desc>\n        <amount>${tx.amount}</amount>\n`;
+      xml += `        <paidBy>${Utils.escXML(tx.paidBy)}</paidBy>\n        <emoji>${Utils.escXML(tx.emoji||'💰')}</emoji>\n`;
+      xml += `        <splitBetween>${tx.splitBetween.map(m=>`<member>${Utils.escXML(m)}</member>`).join('')}</splitBetween>\n`;
+      xml += `      </transaction>\n`;
+    });
+    xml += `    </transactions>\n  </group>\n`;
+  });
+  xml += '</splitease>';
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([xml], { type:'application/xml' })),
+    download: `splitease-${new Date().toISOString().slice(0,10)}.xml`
+  });
+  a.click(); showToast('XML exported!', 'success');
+}
+
+function importXML(event) {
+  const file = event.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const doc = new DOMParser().parseFromString(e.target.result, 'application/xml');
+      if (doc.querySelector('parsererror')) throw new Error('Invalid XML');
+      const gEls = doc.querySelectorAll('group');
+      if (!gEls.length) throw new Error('No groups found');
+      let n = 0;
+      gEls.forEach(gEl => {
+        const id = gEl.getAttribute('id') || Utils.uid();
+        if (STATE.groups.find(g=>g.id===id)) return;
+        const name = gEl.querySelector('name')?.textContent || 'Unnamed';
+        const members = [...gEl.querySelectorAll('members > member')].map(m=>m.textContent);
+        if (!members.length || !name.trim()) return;
+        STATE.groups.push({
+          id, name, members, createdAt: gEl.getAttribute('createdAt')||new Date().toISOString(),
+          updatedAt: gEl.getAttribute('updatedAt')||new Date().toISOString(),
+          transactions: [...gEl.querySelectorAll('transaction')].map(txEl => ({
+            id: txEl.getAttribute('id')||Utils.uid(),
+            desc: txEl.querySelector('desc')?.textContent||'',
+            amount: parseFloat(txEl.querySelector('amount')?.textContent||'0'),
+            paidBy: txEl.querySelector('paidBy')?.textContent||'',
+            emoji: txEl.querySelector('emoji')?.textContent||'💰',
+            splitBetween: [...txEl.querySelectorAll('splitBetween > member')].map(m=>m.textContent),
+            date: txEl.getAttribute('date')||new Date().toISOString(),
+            updatedAt: txEl.getAttribute('updatedAt')||new Date().toISOString()
+          }))
+        }); n++;
+      });
+      syncManager.onDataChanged(); renderDashboard();
+      const el = document.getElementById('import-status');
+      if (el) el.innerHTML = `<span style="color:var(--green);font-weight:600">✓ Imported ${n} group(s)</span>`;
+      showToast(`Imported ${n} group(s)!`, 'success');
+    } catch (err) {
+      const el = document.getElementById('import-status');
+      if (el) el.innerHTML = `<span style="color:var(--accent);font-weight:600">✕ ${Utils.esc(err.message)}</span>`;
+      showToast('Import failed: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+
 function downloadPDF() {
-  const g = Groups.getActive();
+  const g = Groups.active(); 
   if (!g) return;
 
-  // Build HTML for the PDF (print-optimized)
-  const total = g.transactions.reduce((s, t) => s + t.amount, 0);
+  const total = g.transactions.reduce((s,t)=>s+t.amount,0);
   const balances = Utils.computeBalances(g);
   const settlements = Utils.computeSettlements(balances);
 
-  const txRows = g.transactions.map((tx, i) => `
-    <tr style="background:${i % 2 === 0 ? '#fff' : '#faf9f7'}">
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">${tx.emoji} ${tx.desc}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc;text-align:right;font-weight:700">₹${tx.amount.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">${tx.paidBy}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">${tx.splitBetween.join(', ')}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">${Utils.formatDate(tx.date)}</td>
-    </tr>
-  `).join('');
-
-  const balanceRows = Object.entries(balances).map(([name, amt]) => `
-    <tr>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">${name}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc;font-weight:700;color:${amt >= 0 ? '#2d7a5e' : '#c84b31'}">
-        ${amt >= 0 ? '+' : ''}₹${amt.toLocaleString('en-IN', {minimumFractionDigits:2})}
+  const txRows = g.transactions.map((tx,i) =>
+    `<tr style="background:${i%2?'#faf9f7':'#fff'}">
+      <td>${tx.emoji} ${tx.desc}</td>
+      <td style="text-align:right;font-weight:bold">
+        ₹${tx.amount.toLocaleString('en-IN',{minimumFractionDigits:2})}
       </td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">${amt > 0.009 ? 'Gets Back' : amt < -0.009 ? 'Owes' : 'Settled'}</td>
-    </tr>
-  `).join('');
+      <td>${tx.paidBy}</td>
+      <td>${tx.splitBetween.join(', ')}</td>
+      <td>${Utils.date(tx.date)}</td>
+    </tr>`
+  ).join('');
 
-  const settlementRows = settlements.map(s => `
-    <tr>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">${s.from}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">→</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">${s.to}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc;font-weight:700;color:#2d7a5e">₹${s.amount.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
-    </tr>
-  `).join('');
+  const balRows = Object.entries(balances).map(([n,a]) =>
+    `<tr>
+      <td>${n}</td>
+      <td style="font-weight:bold;color:${a>=0?'#2d7a5e':'#c84b31'}">
+        ${a>=0?'+':''}₹${a.toLocaleString('en-IN',{minimumFractionDigits:2})}
+      </td>
+      <td>${a>0.009?'Gets Back':a<-0.009?'Owes':'Settled'}</td>
+    </tr>`
+  ).join('');
 
-  const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <title>${g.name} — SplitEase Report</title>
-      <style>
-        body { font-family: Georgia, serif; color: #1a1714; margin: 40px; font-size: 13px; }
-        h1 { font-size: 28px; color: #c84b31; margin-bottom: 4px; }
-        h2 { font-size: 16px; margin: 24px 0 10px; color: #1a1714; border-bottom: 2px solid #c84b31; padding-bottom: 6px; }
-        .meta { color: #5c564e; font-size: 12px; margin-bottom: 24px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
-        th { background: #c84b31; color: #fff; padding: 10px 12px; text-align: left; font-size: 12px; }
-        .summary-box { background: #fdf0ed; border: 1px solid #f3c5bc; border-radius: 8px; padding: 16px 24px; margin-bottom: 24px; display: inline-block; }
-        .summary-box .val { font-size: 28px; font-weight: bold; color: #c84b31; }
-        @media print { body { margin: 20px; } }
-      </style>
-    </head>
-    <body>
-      <h1>SplitEase — ${g.name}</h1>
-      <div class="meta">Generated on ${new Date().toLocaleDateString('en-IN', {weekday:'long', year:'numeric', month:'long', day:'numeric'})} · ${g.members.length} members · ${g.transactions.length} transactions</div>
-      <div class="summary-box">
-        <div style="font-size:12px;color:#5c564e;margin-bottom:4px">TOTAL SPENT</div>
-        <div class="val">₹${total.toLocaleString('en-IN', {minimumFractionDigits:2})}</div>
-      </div>
-      <div style="margin-bottom:8px"><strong>Members:</strong> ${g.members.join(', ')}</div>
-
-      <h2>Transactions</h2>
-      <table>
-        <thead><tr><th>Description</th><th>Amount</th><th>Paid By</th><th>Split Between</th><th>Date</th></tr></thead>
-        <tbody>${txRows}</tbody>
-      </table>
-
-      <h2>Balance Sheet</h2>
-      <table>
-        <thead><tr><th>Member</th><th>Balance</th><th>Status</th></tr></thead>
-        <tbody>${balanceRows}</tbody>
-      </table>
-
-      <h2>Settlement Plan</h2>
-      ${settlements.length ? `
-      <table>
-        <thead><tr><th>Payer</th><th></th><th>Receiver</th><th>Amount</th></tr></thead>
-        <tbody>${settlementRows}</tbody>
-      </table>` : '<p style="color:#2d7a5e;font-weight:bold">✅ All settled up!</p>'}
-    </body>
-    </html>
-  `;
+  const setRows = settlements.map(s =>
+    `<tr>
+      <td>${s.from}</td>
+      <td>→</td>
+      <td>${s.to}</td>
+      <td style="font-weight:bold;color:#2d7a5e">
+        ₹${s.amount.toLocaleString('en-IN',{minimumFractionDigits:2})}
+      </td>
+    </tr>`
+  ).join('');
 
   const w = window.open('', '_blank');
-  w.document.write(html);
+
+  w.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${g.name} — SplitEase</title>
+
+<style>
+body{
+  font-family:Georgia,serif;
+  color:#1a1714;
+  margin:40px;
+  font-size:13px;
+}
+
+h1{font-size:28px;color:#c84b31}
+h2{
+  font-size:16px;
+  margin:24px 0 10px;
+  border-bottom:2px solid #c84b31;
+  padding-bottom:6px;
+}
+
+table{width:100%;border-collapse:collapse;margin-bottom:8px}
+th{background:#c84b31;color:#fff;padding:8px 12px;text-align:left}
+td{padding:8px 12px;border-bottom:1px solid #e8e4dc}
+
+.box{
+  background:#fdf0ed;
+  border:1px solid #f3c5bc;
+  border-radius:8px;
+  padding:16px 24px;
+  margin:16px 0;
+  display:inline-block;
+}
+
+.val{font-size:28px;font-weight:bold;color:#c84b31}
+
+@media print{
+  .toolbar{display:none}
+  body{margin:20px}
+}
+
+/* ===== Toolbar ===== */
+.toolbar{
+  position:fixed;
+  top:12px;
+  right:12px;
+  display:flex;
+  gap:8px;
+  z-index:9999;
+}
+
+.toolbar button{
+  background:#c84b31;
+  color:#fff;
+  border:none;
+  padding:8px 12px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:12px;
+}
+
+.toolbar button.secondary{
+  background:#444;
+}
+</style>
+
+<script>
+function printPage(){
+  window.print();
+}
+
+function closePage(){
+  window.close();
+}<\/script>
+
+</head>
+
+<body>
+
+<div class="toolbar">
+  <button onclick="printPage()">🖨 Print</button>
+  <button class="secondary" onclick="closePage()">✖ Close</button>
+</div>
+
+<h1>SplitEase — ${g.name}</h1>
+
+<p style="color:#5c564e;font-size:12px">
+Generated ${new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}
+· ${g.members.length} members · ${g.transactions.length} transactions
+</p>
+
+<div class="box">
+  <div style="font-size:11px;color:#5c564e;margin-bottom:4px">TOTAL SPENT</div>
+  <div class="val">₹${total.toLocaleString('en-IN',{minimumFractionDigits:2})}</div>
+</div>
+
+<p><strong>Members:</strong> ${g.members.join(', ')}</p>
+
+<h2>Transactions</h2>
+<table>
+<thead>
+<tr>
+  <th>Description</th>
+  <th>Amount</th>
+  <th>Paid By</th>
+  <th>Split Between</th>
+  <th>Date</th>
+</tr>
+</thead>
+<tbody>${txRows}</tbody>
+</table>
+
+<h2>Balances</h2>
+<table>
+<thead>
+<tr><th>Member</th><th>Balance</th><th>Status</th></tr>
+</thead>
+<tbody>${balRows}</tbody>
+</table>
+
+<h2>Settlement Plan</h2>
+${
+  settlements.length
+    ? `<table>
+        <thead><tr><th>Payer</th><th></th><th>Receiver</th><th>Amount</th></tr></thead>
+        <tbody>${setRows}</tbody>
+      </table>`
+    : '<p style="color:#2d7a5e;font-weight:bold">✅ All settled up!</p>'
+}
+
+</body>
+</html>
+`);
+
   w.document.close();
-  setTimeout(() => { w.focus(); w.print(); }, 500);
-  showToast('PDF ready — use browser print dialog to save', 'success', 5000);
+
+  showToast('PDF opened — use Print button top-right', 'success', 5000);
+}
+
+// ============================================================
+//  PDF DOWNLOAD — print-based, no external libs
+// ============================================================
+function downloadPDF_old() {
+  const g = Groups.active(); if (!g) return;
+  const total = g.transactions.reduce((s,t)=>s+t.amount,0);
+  const balances = Utils.computeBalances(g);
+  const settlements = Utils.computeSettlements(balances);
+  const txRows = g.transactions.map((tx,i) =>
+    `<tr style="background:${i%2?'#faf9f7':'#fff'}"><td>${tx.emoji} ${tx.desc}</td><td style="text-align:right;font-weight:bold">₹${tx.amount.toLocaleString('en-IN',{minimumFractionDigits:2})}</td><td>${tx.paidBy}</td><td>${tx.splitBetween.join(', ')}</td><td>${Utils.date(tx.date)}</td></tr>`).join('');
+  const balRows = Object.entries(balances).map(([n,a]) =>
+    `<tr><td>${n}</td><td style="font-weight:bold;color:${a>=0?'#2d7a5e':'#c84b31'}">${a>=0?'+':''}₹${a.toLocaleString('en-IN',{minimumFractionDigits:2})}</td><td>${a>0.009?'Gets Back':a<-0.009?'Owes':'Settled'}</td></tr>`).join('');
+  const setRows = settlements.map(s =>
+    `<tr><td>${s.from}</td><td>→</td><td>${s.to}</td><td style="font-weight:bold;color:#2d7a5e">₹${s.amount.toLocaleString('en-IN',{minimumFractionDigits:2})}</td></tr>`).join('');
+  const w = window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${g.name} — SplitEase</title>
+  <style>body{font-family:Georgia,serif;color:#1a1714;margin:40px;font-size:13px}h1{font-size:28px;color:#c84b31}h2{font-size:16px;margin:24px 0 10px;border-bottom:2px solid #c84b31;padding-bottom:6px}table{width:100%;border-collapse:collapse;margin-bottom:8px}th{background:#c84b31;color:#fff;padding:8px 12px;text-align:left}td{padding:8px 12px;border-bottom:1px solid #e8e4dc}.box{background:#fdf0ed;border:1px solid #f3c5bc;border-radius:8px;padding:16px 24px;margin:16px 0;display:inline-block}.val{font-size:28px;font-weight:bold;color:#c84b31}@media print{body{margin:20px}}</style>
+  </head><body>
+  <h1>SplitEase — ${g.name}</h1>
+  <p style="color:#5c564e;font-size:12px">Generated ${new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})} · ${g.members.length} members · ${g.transactions.length} transactions</p>
+  <div class="box"><div style="font-size:11px;color:#5c564e;margin-bottom:4px">TOTAL SPENT</div><div class="val">₹${total.toLocaleString('en-IN',{minimumFractionDigits:2})}</div></div>
+  <p><strong>Members:</strong> ${g.members.join(', ')}</p>
+  <h2>Transactions</h2><table><thead><tr><th>Description</th><th>Amount</th><th>Paid By</th><th>Split Between</th><th>Date</th></tr></thead><tbody>${txRows}</tbody></table>
+  <h2>Balances</h2><table><thead><tr><th>Member</th><th>Balance</th><th>Status</th></tr></thead><tbody>${balRows}</tbody></table>
+  <h2>Settlement Plan</h2>${settlements.length?`<table><thead><tr><th>Payer</th><th></th><th>Receiver</th><th>Amount</th></tr></thead><tbody>${setRows}</tbody></table>`:'<p style="color:#2d7a5e;font-weight:bold">✅ All settled up!</p>'}
+  </body></html>`);
+  w.document.close();
+  setTimeout(() => { w.focus(); w.print(); }, 600);
+  showToast('PDF ready — save via browser print', 'success', 5000);
 }
 
 // ============================================================
@@ -1817,14 +1755,38 @@ function downloadPDF() {
 function toggleDark() {
   STATE.darkMode = !STATE.darkMode;
   document.documentElement.classList.toggle('dark', STATE.darkMode);
-  Storage.save();
+  storageManager.save();
 }
 
 // ============================================================
-//  INIT
+//  WARNING BANNER
 // ============================================================
-function init() {
-  Storage.load();
+function dismissBanner() {
+  document.getElementById('warning-banner').classList.add('hidden');
+  storageManager.dismissBanner();
+}
+
+// ============================================================
+//  APP INIT
+// ============================================================
+async function init() {
+  storageManager.load();
+  networkManager.init();
+
+  // Show/hide data loss banner
+  if (storageManager.isBannerDismissed()) {
+    document.getElementById('warning-banner').classList.add('hidden');
+  }
+
+  // Incognito detection — best effort
+  const isIncognito = await storageManager.detectIncognito();
+  if (isIncognito) {
+    const banner = document.getElementById('warning-banner');
+    banner.classList.remove('hidden');
+    document.getElementById('warning-text').innerHTML =
+      '<strong>⚠ Private/Incognito mode detected.</strong> Your data will be lost when you close this window. <a onclick="openImportExportModal()">Export a backup</a> or <a onclick="openSettingsModal()">connect Google Drive</a> to keep it safe.';
+  }
+
   renderDashboard();
 }
 
