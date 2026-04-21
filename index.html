@@ -55,6 +55,7 @@
   --shadow2:0 2px 8px rgba(0,0,0,.4),0 8px 32px rgba(0,0,0,.3);
 }
 *{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden;width:100%}
 body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;transition:background var(--tr),color var(--tr);line-height:1.5}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 
@@ -422,15 +423,20 @@ label{
    ================================================================ */
 .dark-toggle{
   width:44px;height:24px;background:var(--border2);border-radius:12px;
-  position:relative;cursor:pointer;border:none;transition:background var(--tr);
+  position:relative;cursor:pointer;border:1px solid var(--border);transition:all var(--tr);
+  display:flex;align-items:center;justify-content:space-between;padding:0 4px;
 }
-.dark-toggle::after{
-  content:'';position:absolute;top:3px;left:3px;
+.dark-toggle::before { content: '☀️'; font-size:12px; padding-left:2px; }
+.dark-toggle::after { content: '🌙'; font-size:12px; padding-right:2px; }
+.dark-toggle-slider{
+  position:absolute;top:2px;left:2px;
   width:18px;height:18px;background:#fff;border-radius:50%;
   transition:transform var(--tr);
+  box-shadow:0 1px 3px rgba(0,0,0,.2);
+  z-index:2;
 }
-.dark .dark-toggle{background:var(--accent)}
-.dark .dark-toggle::after{transform:translateX(20px)}
+.dark .dark-toggle{background:var(--accent); border-color:var(--accent2)}
+.dark .dark-toggle-slider{transform:translateX(20px)}
 
 /* ================================================================
    MISC
@@ -458,7 +464,12 @@ label{
 }
 
 @media(max-width:768px){
-  .header{padding:0 16px}.main{padding:16px}
+  .header{padding:0 12px}.main{padding:16px}
+  .header-right{gap:4px;flex-wrap:nowrap}
+  .sync-toggle-label, #sync-countdown-ui, #sync-ui-area { display:none!important }
+  #hdr-sync-area { margin-right:4px!important; gap:6px!important }
+  .btn-hdr { width:32px; height:32px; font-size:14px }
+  .sync-pill { padding:4px 8px; font-size:11px }
   .groups-grid{grid-template-columns:1fr}
   .analytics-grid{grid-template-columns:1fr}
   .summary-grid{grid-template-columns:1fr 1fr}
@@ -466,6 +477,14 @@ label{
   .logo span{display:none}
   .sync-pill span:last-child{display:none}
   .stale-banner,.offline-banner,.safety-banner{padding:10px 16px}
+  .modal{padding:20px;border-radius:var(--radius2)}
+  .transaction-card{padding:12px 14px; gap:12px}
+  .tx-icon{width:36px; height:36px; min-width:36px; font-size:16px}
+  .tx-desc{font-size:14px}
+  .tx-amount-val{font-size:16px}
+  .group-card{padding:16px}
+  .summary-card{padding:12px 16px}
+  .summary-card-val{font-size:18px}
 }
 
 /* ================================================================
@@ -588,14 +607,182 @@ label{
   .split-mode-tabs .split-mode-btn { padding:6px 2px;font-size:11px; }
   .member-tree-item.sub { margin-left:16px; }
 }
+
+/* ================================================================
+   SPLASH / LOADING SCREEN — hides the app until auth resolves
+   ================================================================ */
+#splash-screen {
+  position:fixed;inset:0;z-index:99999;
+  background:var(--bg);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:16px;
+  transition:opacity .3s ease;
+}
+#splash-screen.fade-out { opacity:0;pointer-events:none; }
+.splash-logo { display:flex;align-items:center;gap:12px; }
+.splash-icon {
+  width:52px;height:52px;background:var(--accent);border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:28px;
+}
+.splash-text {
+  font-family:var(--font-display);font-size:30px;font-weight:700;
+  color:var(--accent);letter-spacing:-.5px;
+}
+.splash-dots {
+  display:flex;gap:6px;
+}
+.splash-dot {
+  width:7px;height:7px;border-radius:50%;background:var(--accent);
+  animation:splashBounce .8s infinite ease-in-out;
+}
+.splash-dot:nth-child(2) { animation-delay:.15s; }
+.splash-dot:nth-child(3) { animation-delay:.3s; }
+@keyframes splashBounce{0%,80%,100%{transform:scale(0.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+/* ================================================================
+   GUEST BANNER
+   ================================================================ */
+.guest-banner {
+  display:flex;align-items:center;gap:10px;padding:10px 24px;
+  background:#7c2d12;color:#fde68a;font-size:13px;font-weight:600;
+  border-bottom:2px solid #92400e;flex-wrap:wrap;
+}
+.guest-banner.hidden { display:none!important; }
+.guest-banner a {
+  color:#fde68a;cursor:pointer;text-decoration:underline;
+  font-weight:700;
+}
+.guest-banner .gbtn {
+  margin-left:auto;background:#92400e;border:none;color:#fde68a;
+  font-size:12px;font-weight:700;padding:5px 14px;border-radius:6px;
+  cursor:pointer;font-family:var(--font-body);
+}
+
+/* ================================================================
+   SYNC TOGGLE on dashboard
+   ================================================================ */
+.sync-toggle-bar {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius2);margin-bottom:16px;font-size:13px;
+}
+.sync-toggle-bar.hidden { display:none!important; }
+.sync-toggle-label { font-weight:600;color:var(--text2); }
+.sync-toggle-desc  { font-size:11px;color:var(--text3);margin-top:1px; }
+
+/* ================================================================
+   BIGGER HEADER ICON BUTTONS
+   ================================================================ */
+.btn-hdr {
+  width:42px;height:42px;padding:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  border-radius:var(--radius2);font-size:20px;
+  background:transparent;color:var(--text2);
+  border:none;cursor:pointer;transition:all var(--tr);
+  position:relative;
+}
+.btn-hdr:hover { background:var(--surface2);color:var(--text); }
+/* Force btn-icon in header to same size */
+.header-right .btn-icon {
+  width:42px!important;height:42px!important;font-size:20px!important;
+}
+/* Bigger group card action buttons */
+.group-card .btn-ghost.btn-icon.btn-sm {
+  width:34px!important;height:34px!important;font-size:18px!important;
+  border:1px solid var(--border);
+}
+.group-card .btn-ghost.btn-icon.btn-sm:hover {
+  background:var(--accent);color:#fff;border-color:var(--accent);
+}
+/* Bigger tx action buttons */
+.transaction-card .btn-ghost.btn-icon.btn-sm,
+.card.transaction-card .btn-ghost.btn-icon.btn-sm {
+  width:34px!important;height:34px!important;font-size:16px!important;
+}
+
+/* ================================================================
+   FAST TOOLTIP (0ms delay)
+   ================================================================ */
+[data-tip] { position:relative; }
+[data-tip]::after {
+  content:attr(data-tip);
+  position:absolute;bottom:calc(100% + 6px);left:50%;
+  transform:translateX(-50%);
+  background:var(--text);color:var(--bg);
+  font-size:11px;font-weight:500;white-space:nowrap;
+  padding:4px 8px;border-radius:5px;
+  pointer-events:none;opacity:0;
+  transition:opacity .08s ease;
+  z-index:9999;
+}
+[data-tip-pos="bottom"]::after {
+  top:calc(100% + 6px); bottom:auto;
+}
+[data-tip]:hover::after { opacity:1; }
+
+/* ================================================================
+   PENDING SYNC BADGE — top-right corner on cards
+   ================================================================ */
+.card-pending-corner {
+  position:absolute;top:-6px;right:-6px;
+  border-radius:6px; padding:2px 6px;
+  background:var(--yellow);color:#fff;
+  font-size:9px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  border:2px solid var(--surface);
+  box-shadow:0 1px 4px rgba(0,0,0,.2);
+  animation:dirtyPulse 2s infinite;
+  z-index:2;
+}
+.group-card, .transaction-card { position:relative; }
+
+/* ================================================================
+   USER AVATAR — slightly bigger, shown in header
+   ================================================================ */
+.user-avatar {
+  width:36px;height:36px;border-radius:50%;
+  background:var(--accent);color:#fff;
+  font-size:14px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+/* Guest avatar style */
+.user-avatar.guest {
+  background:var(--text3);font-size:18px;
+}
+
+/* ================================================================
+   MOBILE PATCHES
+   ================================================================ */
+@media(max-width:768px){
+  .guest-banner,.sync-toggle-bar{padding:10px 14px;}
+  .sync-toggle-bar{flex-wrap:wrap;gap:8px;}
+  [data-tip]::after{font-size:10px;padding:3px 6px;}
+}
+
 </style>
 </head>
 <body>
 
 <!-- ================================================================
+     SPLASH SCREEN — shown while Firebase resolves auth state
+     ================================================================ -->
+<div id="splash-screen">
+  <div class="splash-logo">
+    <div class="splash-icon">₹</div>
+    <div class="splash-text">SplitEase</div>
+  </div>
+  <div class="splash-dots">
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+  </div>
+</div>
+
+<!-- ================================================================
      AUTH SCREEN — shown when user is not logged in
      ================================================================ -->
-<div id="auth-screen" class="auth-screen">
+<div id="auth-screen" class="auth-screen hidden">
   <div class="auth-card">
     <div class="auth-logo">
       <div class="auth-logo-icon">₹</div>
@@ -619,6 +806,14 @@ label{
         </div>
       </div>
       <button class="btn btn-primary btn-full" id="signin-btn" onclick="authManager.signIn()">Sign In</button>
+      <div style="display:flex;align-items:center;gap:12px;margin:12px 0">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="font-size:12px;color:var(--text3)">or</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+      <button class="btn btn-secondary btn-full" onclick="authManager.continueAsGuest()" style="font-size:13px">
+        👤 Continue as Guest <span style="font-size:11px;color:var(--text3);margin-left:4px">(no account needed)</span>
+      </button>
       <div class="auth-switch">Don't have an account? <a onclick="authManager.showRegister()">Create one</a></div>
     </div>
 
@@ -679,6 +874,13 @@ label{
     <span style="margin-left:auto;font-size:11px;opacity:.7">tap to sync now</span>
   </div>
 
+  <!-- Guest mode warning banner -->
+  <div class="guest-banner hidden" id="guest-banner">
+    <span>👤</span>
+    <span>You're using <strong>Guest Mode</strong>. Data is stored in this browser only — <strong>it will be lost if you clear browser data or close a private window.</strong> <a onclick="uiManager.showAuthFromGuest()">Sign in</a> to sync and keep your data safe.</span>
+    <button class="gbtn" onclick="uiManager.showAuthFromGuest()">Sign In / Register</button>
+  </div>
+
   <!-- Offline banner -->
   <div class="offline-banner hidden" id="offline-banner">
     📡 You're offline — changes saved locally and will sync when reconnected.
@@ -697,14 +899,38 @@ label{
       <span>SplitEase</span>
     </div>
     <div class="header-right">
-      <button class="sync-pill local" id="sync-pill" onclick="openSettingsModal()" title="Sync status">
+      <!-- Sync Toggle + Countdown -->
+      <div id="hdr-sync-area" style="display:flex;align-items:center;gap:12px;margin-right:8px">
+        <div style="display:flex;flex-direction:column;align-items:flex-end">
+          <div class="sync-toggle-label" style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Sync</div>
+          <div id="sync-countdown-ui" style="font-size:9px;color:var(--blue);font-weight:600;margin-top:-2px" class="hidden">Next: 0s</div>
+        </div>
+        <label class="toggle-wrap" style="width:36px;height:20px" data-tip="Enable/Disable Cloud Sync" data-tip-pos="bottom">
+          <input type="checkbox" id="hdr-sync-toggle" checked onchange="uiManager.setSyncEnabled(this.checked)">
+          <span class="toggle-slider" style="border-radius:10px"></span>
+          <style>
+            #hdr-sync-area .toggle-slider::before { width:14px; height:14px; top:3px; left:3px; }
+            #hdr-sync-area input:checked+.toggle-slider::before { transform:translateX(16px); }
+          </style>
+        </label>
+      </div>
+
+      <button id="hdr-sync-now-btn" class="btn-hdr" onclick="syncManager.syncNow(true)" data-tip="Sync Now" data-tip-pos="bottom">🔄</button>
+
+      <button class="sync-pill local" id="sync-pill" onclick="openSettingsModal()" data-tip="Sync status — click for settings" data-tip-pos="bottom">
         <span class="sync-dot"></span>
         <span id="sync-label">Local only</span>
       </button>
-      <button class="btn btn-ghost btn-icon" onclick="openImportExportModal()" title="Import/Export">⇅</button>
-      <button class="btn btn-ghost btn-icon" onclick="openSettingsModal()" title="Settings">⚙</button>
-      <div class="user-avatar" id="user-avatar" onclick="openSettingsModal()" title="Account">?</div>
-      <button class="dark-toggle" onclick="toggleDark()" title="Toggle dark mode"></button>
+
+      <span id="sync-ui-area">
+        <button class="btn-hdr" onclick="openImportExportModal()" data-tip="Import / Export" data-tip-pos="bottom">⇅</button>
+        <button class="btn-hdr" onclick="openSettingsModal()" data-tip="Settings" data-tip-pos="bottom">⚙</button>
+      </span>
+
+      <div class="user-avatar" id="user-avatar" onclick="openSettingsModal()" data-tip="Account settings" data-tip-pos="bottom">?</div>
+      
+      <!-- Guest Logout Button -->
+      <button id="guest-logout-btn" class="btn btn-ghost btn-sm hidden" onclick="authManager.clearGuestSession()" data-tip="Logout Guest Session" data-tip-pos="bottom" style="padding:4px 8px">Logout</button>
     </div>
   </header>
 
@@ -807,6 +1033,8 @@ const FIREBASE_CONFIG = {
    ================================================================ */
 const STATE = {
   user:           null,
+  isGuest:        false,   // true = guest login mode
+  syncEnabled:    true,    // user-controlled sync toggle
   groups:         [],
   activeGroupId:  null,
   darkMode:       false,
@@ -825,7 +1053,8 @@ const STATE = {
    All LocalStorage I/O. Scoped per user.
    ================================================================ */
 const localCacheManager = (() => {
-  const K = s => `se_${STATE.user?.uid||'anon'}_${s}`;
+  // Scope localStorage per user; guests use 'guest' namespace
+  const K = s => `se_${STATE.isGuest ? 'guest' : (STATE.user?.uid||'anon')}_${s}`;
 
   function saveGroups() {
     try { localStorage.setItem(K('groups'), JSON.stringify(STATE.groups)); }
@@ -844,7 +1073,7 @@ const localCacheManager = (() => {
       localStorage.setItem(K('settings'), JSON.stringify({
         darkMode: STATE.darkMode, fontFamily: STATE.fontFamily,
         backupEnabled: STATE.backupEnabled, backupInterval: STATE.backupInterval,
-        lastSyncAt: STATE.lastSyncAt
+        lastSyncAt: STATE.lastSyncAt, syncEnabled: STATE.syncEnabled
       }));
     } catch {}
   }
@@ -859,6 +1088,7 @@ const localCacheManager = (() => {
       STATE.backupEnabled  = s.backupEnabled  ?? false;
       STATE.backupInterval = s.backupInterval ?? 120;
       STATE.lastSyncAt     = s.lastSyncAt     ?? null;
+      STATE.syncEnabled    = s.syncEnabled    ?? true;
       if (window.applyFont) window.applyFont(STATE.fontFamily);
     } catch {}
   }
@@ -1025,14 +1255,32 @@ const syncManager = (() => {
     localCacheManager.saveSettings();
     networkManager.updateSyncPill();
     uiManager.updatePendingBanner();
-    clearTimeout(_debounceTimer);
-    _debounceTimer = setTimeout(syncNow, DEBOUNCE_MS);
+    
+    // Only queue immediate auto-sync if:
+    // 1. User is not guest
+    // 2. Sync is enabled
+    // 3. AUTO BACKUP IS DISABLED (if enabled, the scheduler handles it)
+    if (!STATE.isGuest && STATE.syncEnabled && !STATE.backupEnabled) {
+      clearTimeout(_debounceTimer);
+      _debounceTimer = setTimeout(syncNow, DEBOUNCE_MS);
+    }
   }
 
   /* Main incremental sync — push dirty, pull changed */
-  async function syncNow() {
-    if (STATE.isSyncing) { console.log('[sync] Already running — skipped'); return; }
-    if (!STATE.user)     { return; }
+  async function syncNow(isManual = false) {
+    if (STATE.isSyncing) { 
+      if (isManual) showToast('Sync already in progress', 'info');
+      return; 
+    }
+    if (!STATE.user || STATE.isGuest) return;
+    if (!STATE.syncEnabled) { 
+      if (isManual) showToast('Sync is disabled', 'warning');
+      networkManager.updateSyncPill(); 
+      return; 
+    }
+
+    // Always reset countdown at the start of a sync attempt
+    backupScheduler.resetCountdown();
     if (!navigator.onLine) { networkManager.updateSyncPill(); return; }
 
     // Check if there is anything to sync
@@ -1066,8 +1314,12 @@ const syncManager = (() => {
       STATE.syncRetries    = 0;
       localCacheManager.saveGroups();
       localCacheManager.saveSettings();
-      networkManager.updateSyncPill();
       uiManager.updatePendingBanner();
+      
+      // Re-render UI to remove localized sync badges
+      if (typeof renderDashboard === 'function' && document.getElementById('view-dashboard')?.classList.contains('active')) renderDashboard();
+      if (typeof renderGroup === 'function' && STATE.activeGroupId) renderGroup();
+      
       showToast('Synced ✓', 'success', 2000);
 
     } catch(err) {
@@ -1088,6 +1340,7 @@ const syncManager = (() => {
     } finally {
       STATE.isSyncing = false;
       _setSyncBar(false);
+      networkManager.updateSyncPill();
     }
   }
 
@@ -1160,7 +1413,8 @@ const syncManager = (() => {
 
   /* Initial load on sign-in — full pull if no lastSyncAt */
   async function initialLoad() {
-    if (!STATE.user || !navigator.onLine) return;
+    if (!STATE.user || STATE.isGuest) return;
+    if (!STATE.syncEnabled || !navigator.onLine) return;
     if (STATE.isSyncing) return;
 
     STATE.isSyncing = true;
@@ -1190,14 +1444,10 @@ const syncManager = (() => {
         })(),
         timeout
       ]);
-      networkManager.updateSyncPill();
-    } catch(e) {
-      console.warn('[initialLoad]', e);
-      _showError('Could not load cloud data. Using local cache.');
-      networkManager.updateSyncPill();
     } finally {
       STATE.isSyncing = false;
       _setSyncBar(false);
+      networkManager.updateSyncPill();
     }
   }
 
@@ -1231,22 +1481,53 @@ const syncManager = (() => {
   return { onDataChanged, syncNow, initialLoad, resolveConflicts };
 })();
 
-/* ================================================================
-   BACKUP SCHEDULER
-   ================================================================ */
 const backupScheduler = (() => {
-  let _id = null;
+  let _tickerId = null;
+  let _countdown = 0;
+
   function start() {
     stop();
-    if (!STATE.backupEnabled) return;
-    _id = setInterval(() => {
-      if (!STATE.pendingChanges || !navigator.onLine || STATE.isSyncing) return;
-      syncManager.syncNow();
-    }, STATE.backupInterval * 1000);
+    if (!STATE.backupEnabled || STATE.isGuest || !STATE.syncEnabled) {
+      document.getElementById('sync-countdown-ui').classList.add('hidden');
+      return;
+    }
+    resetCountdown();
+    _tickerId = setInterval(_tick, 1000);
+    document.getElementById('sync-countdown-ui').classList.remove('hidden');
   }
-  function stop() { if (_id) { clearInterval(_id); _id = null; } }
+
+  function _tick() {
+    if (_countdown > 0) {
+      _countdown--;
+      _updateUI();
+    } else {
+      if (STATE.pendingChanges && navigator.onLine && !STATE.isSyncing) {
+        syncManager.syncNow();
+      } else {
+        resetCountdown(); // Reset if nothing to sync or offline
+      }
+    }
+  }
+
+  function _updateUI() {
+    const el = document.getElementById('sync-countdown-ui');
+    if (el) el.textContent = `Next: ${_countdown}s`;
+  }
+
+  function resetCountdown() {
+    _countdown = STATE.backupInterval || 120;
+    _updateUI();
+  }
+
+  function stop() { 
+    if (_tickerId) { clearInterval(_tickerId); _tickerId = null; } 
+    const el = document.getElementById('sync-countdown-ui');
+    if (el) el.classList.add('hidden');
+  }
+
   function restart() { stop(); start(); }
-  return { start, stop, restart };
+
+  return { start, stop, restart, resetCountdown };
 })();
 
 /* ================================================================
@@ -1258,8 +1539,10 @@ const networkManager = (() => {
   function init() {
     window.addEventListener('online', () => {
       document.getElementById('offline-banner').classList.add('hidden');
-      showToast('Back online — syncing…', 'info', 2000);
-      if (STATE.user && STATE.pendingChanges) syncManager.syncNow();
+      if (!STATE.isGuest && STATE.syncEnabled) {
+        showToast('Back online — syncing…', 'info', 2000);
+        if (STATE.user && STATE.pendingChanges) syncManager.syncNow();
+      }
       updateSyncPill();
     });
     window.addEventListener('offline', () => {
@@ -1292,10 +1575,12 @@ const networkManager = (() => {
   }
 
   function updateSyncPill() {
-    if (!navigator.onLine)    return setSyncStatus('offline');
-    if (!STATE.user)          return setSyncStatus('local');
-    if (STATE.isSyncing)      return setSyncStatus('syncing');
-    if (STATE.pendingChanges) return setSyncStatus('pending');
+    if (STATE.isGuest) return; // no pill for guest
+    if (!navigator.onLine)     return setSyncStatus('offline');
+    if (!STATE.user)           return setSyncStatus('local');
+    if (!STATE.syncEnabled)    return setSyncStatus('local');
+    if (STATE.isSyncing)       return setSyncStatus('syncing');
+    if (STATE.pendingChanges)  return setSyncStatus('pending');
     return setSyncStatus('synced');
   }
 
@@ -1365,22 +1650,176 @@ const authManager = (() => {
     catch(e) { _err('register-error', _friendly(e.code)); btn.disabled = false; btn.textContent = 'Create Account'; }
   }
   async function signOut() { await firebaseService.signOut(); }
-  return { showSignIn, showRegister, signIn, register, signOut };
+
+  /* Guest login — no Firebase, local-only */
+  async function continueAsGuest() {
+    const storedPw = localStorage.getItem('se_guest_password');
+    
+    if (!storedPw) {
+      // First time guest login - ask to set password
+      _promptSetGuestPassword();
+    } else {
+      // Subsequent login - ask for password
+      _promptGuestLogin(storedPw);
+    }
+  }
+
+  function _promptSetGuestPassword() {
+    openModal(`<div class="modal" style="max-width:380px">
+      <div class="modal-header"><div class="modal-title">Set Guest Password</div></div>
+      <p class="text-sm text-muted" style="margin-bottom:16px">Secure your local data. This password will be required next time you use this browser.</p>
+      <div class="form-group">
+        <label>New Password</label>
+        <div class="input-password-wrap">
+          <input class="input" id="guest-new-pw" type="password" placeholder="Min 4 characters" autofocus>
+          <button class="pw-toggle" onclick="togglePw('guest-new-pw',this)" tabindex="-1">👁</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="authManager.saveGuestPassword()">Set Password & Continue</button>
+      </div>
+    </div>`);
+    document.getElementById('guest-new-pw').addEventListener('keydown', e => { if(e.key==='Enter') authManager.saveGuestPassword(); });
+  }
+
+  function saveGuestPassword() {
+    const pw = document.getElementById('guest-new-pw').value;
+    if (pw.length < 4) { showToast('Password must be at least 4 characters', 'error'); return; }
+    localStorage.setItem('se_guest_password', pw);
+    closeModal();
+    _startGuestSession(true); // true = first time
+  }
+
+  function _promptGuestLogin(correctPw) {
+    openModal(`<div class="modal" style="max-width:380px">
+      <div class="modal-header"><div class="modal-title">Guest Login</div></div>
+      <div class="form-group">
+        <label>Guest Password</label>
+        <div class="input-password-wrap">
+          <input class="input" id="guest-login-pw" type="password" placeholder="••••" autofocus>
+          <button class="pw-toggle" onclick="togglePw('guest-login-pw',this)" tabindex="-1">👁</button>
+        </div>
+      </div>
+      <div id="guest-login-err" class="auth-error"></div>
+      <div class="modal-footer" style="flex-direction:column; gap:12px; align-items:stretch">
+        <button class="btn btn-primary btn-full" onclick="authManager.verifyGuestPassword('${correctPw}')">Unlock</button>
+        <div style="text-align:center"><a href="#" onclick="authManager.promptForgotPasswordGuest()" style="font-size:12px; color:var(--accent)">Forgot password?</a></div>
+      </div>
+    </div>`);
+    document.getElementById('guest-login-pw').addEventListener('keydown', e => { if(e.key==='Enter') authManager.verifyGuestPassword(correctPw); });
+  }
+
+  function verifyGuestPassword(correctPw) {
+    const input = document.getElementById('guest-login-pw').value;
+    if (input === correctPw) {
+      closeModal();
+      _startGuestSession(false);
+    } else {
+      const err = document.getElementById('guest-login-err');
+      err.textContent = 'Incorrect password';
+      err.classList.add('show');
+    }
+  }
+
+  function promptForgotPasswordGuest() {
+    openConfirm('Clear All Data?', 
+      'If you forgot your guest password, the only way to regain access is to <span class="confirm-hl">clear all your local data</span>. This cannot be undone.', 
+      () => {
+        localStorage.removeItem('se_guest_password');
+        localStorage.removeItem('se_guest_groups');
+        localStorage.removeItem('se_guest_settings');
+        // Clear all keys starting with se_guest_
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const key = localStorage.key(i);
+          if (key.startsWith('se_guest_')) localStorage.removeItem(key);
+        }
+        showToast('All guest data cleared', 'info');
+        location.reload();
+      }
+    );
+  }
+
+  function _startGuestSession(isFirstTime) {
+    STATE.isGuest = true;
+    STATE.user    = null;
+    STATE.groups  = [];
+    STATE.pendingChanges = false;
+    
+    // Load existing guest data
+    const K = s => `se_guest_${s}`;
+    try {
+      const raw = localStorage.getItem(K('groups'));
+      STATE.groups = raw ? JSON.parse(raw) : [];
+      const sraw = localStorage.getItem(K('settings'));
+      if (sraw) {
+        const s = JSON.parse(sraw);
+        STATE.darkMode    = s.darkMode   ?? false;
+        STATE.fontFamily  = s.fontFamily ?? 'DM Sans';
+        if (window.applyFont) window.applyFont(STATE.fontFamily);
+        if (STATE.darkMode) document.documentElement.classList.add('dark');
+      }
+    } catch { STATE.groups = []; }
+    
+    if (isFirstTime) {
+      uiManager.showGuestWarning();
+    } else {
+      uiManager.onGuestSignedIn();
+    }
+  }
+
+  function clearGuestSession() {
+    openConfirm('Logout Guest Session?', 'This will return you to the login screen. Your data remains safe on this device.', () => {
+      STATE.isGuest = false;
+      location.reload();
+    });
+  }
+
+  return { showSignIn, showRegister, signIn, register, signOut, continueAsGuest, saveGuestPassword, verifyGuestPassword, promptForgotPasswordGuest, clearGuestSession };
 })();
 
 /* ================================================================
    UI MANAGER
    ================================================================ */
 const uiManager = (() => {
-  function onUserSignedIn(user) {
+
+  /* Helper to reveal the main app and hide splash/auth */
+  function _showApp() {
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('main-app').classList.remove('hidden');
+    // Remove splash screen
+    const splash = document.getElementById('splash-screen');
+    if (splash) { splash.classList.add('fade-out'); setTimeout(() => splash.remove(), 400); }
+  }
+
+  /* Helper to setup guest-scoped localStorage */
+  function _guestKey(s) { return `se_guest_${s}`; }
+
+  function onUserSignedIn(user) {
+    // Clear groups BEFORE showing app to prevent flash of previous user's data
+    STATE.groups = [];
+    _showApp();
     localCacheManager.loadSettings();
     STATE.groups = localCacheManager.loadGroups();
     if (STATE.darkMode) document.documentElement.classList.add('dark');
     const init = (user.displayName || user.email || '?').slice(0,2).toUpperCase();
     const el = document.getElementById('user-avatar');
-    el.textContent = init; el.title = user.displayName || user.email;
+    el.textContent = init;
+    el.className = 'user-avatar';
+    el.title = user.displayName || user.email;
+    // Hide guest-only UI
+    document.getElementById('guest-banner').classList.add('hidden');
+    // Show sync UI
+    document.getElementById('hdr-sync-area').classList.remove('hidden');
+    document.getElementById('sync-ui-area').style.display = '';
+    document.getElementById('sync-pill').style.display = '';
+    document.getElementById('pending-banner').classList.add('hidden');
+    document.getElementById('sync-err-bar').classList.add('hidden');
+    // Hide guest logout
+    document.getElementById('guest-logout-btn').classList.add('hidden');
+
+    // Show sync toggle
+    _updateSyncToggleBar();
     if (localCacheManager.isBannerDismissed()) document.getElementById('safety-banner').classList.add('hidden');
     document.getElementById('dashboard-subtitle').textContent =
       `Welcome back, ${user.displayName || user.email.split('@')[0]}`;
@@ -1390,11 +1829,47 @@ const uiManager = (() => {
     syncManager.initialLoad().then(renderDashboard);
   }
 
+  function onGuestSignedIn() {
+    STATE.isGuest = true;
+    STATE.syncEnabled = false;
+    _showApp();
+    // Apply saved appearance settings for guest
+    if (STATE.darkMode) document.documentElement.classList.add('dark');
+    // Show guest avatar
+    const el = document.getElementById('user-avatar');
+    el.textContent = '👤';
+    el.className = 'user-avatar guest';
+    el.title = 'Guest (not signed in)';
+    // Show guest banner
+    document.getElementById('guest-banner').classList.remove('hidden');
+    // Show/Hide header sync area
+    document.getElementById('hdr-sync-area').classList.add('hidden');
+    document.getElementById('sync-pill').style.display = 'none';
+    document.getElementById('sync-ui-area').style.display = 'none';
+    document.getElementById('pending-banner').classList.add('hidden');
+    document.getElementById('sync-err-bar').classList.add('hidden');
+    // Show guest logout
+    document.getElementById('guest-logout-btn').classList.remove('hidden');
+
+    document.getElementById('dashboard-subtitle').textContent = 'Guest mode — data is local only';
+    renderDashboard();
+    // No networkManager.init() — guest doesn't need it
+  }
+
   function onUserSignedOut() {
     backupScheduler.stop();
-    STATE.user = null; STATE.groups = []; STATE.lastSyncAt = null; STATE.pendingChanges = false;
+    // IMPORTANT: Clear state immediately before showing auth,
+    // so there's zero chance of previous data flashing
+    STATE.user = null;
+    STATE.isGuest = false;
+    STATE.groups = [];
+    STATE.lastSyncAt = null;
+    STATE.pendingChanges = false;
     document.getElementById('main-app').classList.add('hidden');
     document.getElementById('auth-screen').classList.remove('hidden');
+    // Remove splash if still visible (shouldn't happen, but safe)
+    const splash = document.getElementById('splash-screen');
+    if (splash) splash.remove();
     authManager.showSignIn();
     ['signin-email','signin-password','reg-name','reg-email','reg-password','reg-password2']
       .forEach(id => { const e = document.getElementById(id); if(e) e.value = ''; });
@@ -1405,26 +1880,126 @@ const uiManager = (() => {
     localCacheManager.dismissBanner();
   }
 
+  /* Show auth screen from guest mode */
+  function showAuthFromGuest() {
+    STATE.isGuest = false;
+    document.getElementById('main-app').classList.add('hidden');
+    document.getElementById('auth-screen').classList.remove('hidden');
+    authManager.showSignIn();
+  }
+
+  /* User-controlled sync master toggle (dashboard) */
+  function setSyncEnabled(on) {
+    STATE.syncEnabled = on;
+    localCacheManager.saveSettings();
+    _updateSyncToggleBar();
+    networkManager.updateSyncPill();
+    if (on && STATE.pendingChanges && navigator.onLine) {
+      syncManager.syncNow();
+    }
+    showToast(on ? 'Sync enabled' : 'Sync paused — working offline', on ? 'success' : 'warning', 2000);
+  }
+
+  function _updateSyncToggleBar() {
+    const toggle = document.getElementById('hdr-sync-toggle');
+    const syncBtn = document.getElementById('hdr-sync-now-btn');
+    if (STATE.isGuest) { 
+      document.getElementById('hdr-sync-area').classList.add('hidden');
+      if (syncBtn) syncBtn.classList.add('hidden');
+      return; 
+    }
+    document.getElementById('hdr-sync-area').classList.remove('hidden');
+    if (syncBtn) {
+      syncBtn.classList.remove('hidden');
+      syncBtn.disabled = !STATE.syncEnabled;
+    }
+    if (toggle) toggle.checked = STATE.syncEnabled;
+    
+    // Resume/Stop scheduler based on syncEnabled
+    if (STATE.syncEnabled) backupScheduler.start();
+    else backupScheduler.stop();
+  }
+
   /* Update the pending-sync banner with count of dirty items */
   function updatePendingBanner() {
+    // Never show for guest
+    if (STATE.isGuest) return;
     const banner = document.getElementById('pending-banner');
     const msgEl  = document.getElementById('pending-banner-msg');
     if (!banner || !msgEl) return;
+    
     let dirtyCount = 0;
     STATE.groups.forEach(g => {
-      if (g.isDirty || g.deletedFlag) dirtyCount++;
-      g.transactions.forEach(tx => { if (tx.isDirty || tx.deletedFlag) dirtyCount++; });
+      let groupHasDirtyTx = false;
+      g.transactions.forEach(tx => { 
+        if (tx.isDirty || tx.deletedFlag) {
+          dirtyCount++; 
+          groupHasDirtyTx = true;
+        }
+      });
+      
+      // Count the group only if it's marked for deletion, 
+      // or if it's dirty but NOT solely because of its transactions 
+      // (e.g. name or members changed).
+      // Since we don't have a 'metadataOnlyDirty' flag, we check if 
+      // the group is dirty and either has no dirty tx or is deleted.
+      if (g.deletedFlag || (g.isDirty && !groupHasDirtyTx)) {
+        dirtyCount++;
+      }
     });
+
+    // Show banner if there are unsynced changes
     if (dirtyCount > 0 && STATE.user) {
-      msgEl.textContent = `${dirtyCount} pending change${dirtyCount > 1 ? 's' : ''} — tap to sync`;
+      if (!STATE.syncEnabled) {
+          msgEl.textContent = `${dirtyCount} pending change${dirtyCount > 1 ? 's' : ''} (saved locally) — enable sync to save to server`;
+      } else {
+          msgEl.textContent = `${dirtyCount} pending change${dirtyCount > 1 ? 's' : ''} — tap to sync`;
+      }
       banner.classList.remove('hidden');
     } else {
       banner.classList.add('hidden');
     }
   }
 
-  return { onUserSignedIn, onUserSignedOut, dismissSafetyBanner, updatePendingBanner };
-})();
+  function showGuestWarning() {
+    let timeLeft = 5;
+    openModal(`<div class="modal" style="max-width:420px; text-align:center">
+      <div style="font-size:48px; margin-bottom:16px">⚠️</div>
+      <div class="modal-title" style="margin-bottom:12px">Local Data Warning</div>
+      <p class="text-sm text-muted" style="line-height:1.6; margin-bottom:24px">
+        Your data will be <strong>stored locally in this browser only</strong>. 
+        It might be lost if you clear your browser history or close this private window.
+      </p>
+      <div class="modal-footer" style="justify-content:center">
+        <button id="guest-understand-btn" class="btn btn-primary" disabled style="min-width:180px">
+          I understood (${timeLeft}s)
+        </button>
+      </div>
+    </div>`);
+    
+    const btn = document.getElementById('guest-understand-btn');
+    const timer = setInterval(() => {
+      timeLeft--;
+      if (timeLeft > 0) {
+        btn.textContent = `I understood (${timeLeft}s)`;
+      } else {
+        clearInterval(timer);
+        btn.disabled = false;
+        btn.textContent = 'I understood';
+        btn.onclick = () => {
+          closeModal();
+          uiManager.onGuestSignedIn();
+        };
+      }
+    }, 1000);
+  }
+
+  return {
+    onUserSignedIn, onGuestSignedIn, onUserSignedOut,
+    dismissSafetyBanner, updatePendingBanner,
+    showAuthFromGuest, setSyncEnabled, showGuestWarning
+  };
+})()
 
 /* ================================================================
    UTILITIES
@@ -1611,15 +2186,17 @@ const memberManager = {
       html += `<div class="member-tree-item" data-id="${m.id}">
         <div class="chip-avatar" style="background:${Utils.memberColor(m.name)}">${Utils.initials(m.name)}</div>
         <span class="member-name">${Utils.esc(m.name)}</span>
+        <button class="btn btn-ghost btn-sm" onclick="openEditMemberNameModal('${m.id}')" style="padding:2px 6px;font-size:13px" title="Edit Name">✎</button>
         <button class="add-sub-btn" onclick="openAddSubMemberModal('${m.id}','${Utils.esc(m.name)}')" title="Add sub-member">+ sub</button>
-        <button class="btn btn-ghost btn-sm" onclick="${onRemove}('${m.id}')" style="padding:2px 6px;font-size:13px">×</button>
+        <button class="btn btn-ghost btn-sm" onclick="${onRemove}('${m.id}')" style="padding:2px 6px;font-size:13px" title="Remove">×</button>
       </div>`;
       subs.forEach(s => {
         html += `<div class="member-tree-item sub" data-id="${s.id}">
           <div class="chip-avatar" style="background:${Utils.memberColor(s.name)}">${Utils.initials(s.name)}</div>
           <span class="member-name">${Utils.esc(s.name)}</span>
           <span class="sub-badge">sub of ${Utils.esc(m.name)}</span>
-          <button class="btn btn-ghost btn-sm" onclick="${onRemove}('${s.id}')" style="padding:2px 6px;font-size:13px">×</button>
+          <button class="btn btn-ghost btn-sm" onclick="openEditMemberNameModal('${s.id}')" style="padding:2px 6px;font-size:13px" title="Edit Name">✎</button>
+          <button class="btn btn-ghost btn-sm" onclick="${onRemove}('${s.id}')" style="padding:2px 6px;font-size:13px" title="Remove">×</button>
         </div>`;
       });
     });
@@ -1881,14 +2458,20 @@ function renderGroupCard(g) {
   const normMembers = memberManager.normalize(g.members);
   const mainMembers = normMembers.filter(m => !m.parentId);
   const dirtyTxCount = g.transactions.filter(t => t.isDirty && !t.deletedFlag).length;
-  const pendingBadge = (g.isDirty || dirtyTxCount > 0)
-    ? `<span class="group-pending-badge">⏳ ${dirtyTxCount || ''}${g.isDirty && !dirtyTxCount?'':''}</span>` : '';
+  const showBadges = !STATE.isGuest;
+  const pendingBadge = showBadges && (g.isDirty || dirtyTxCount > 0)
+    ? `<span class="group-pending-badge">⏳ ${dirtyTxCount>0?dirtyTxCount:''}</span>` : '';
   const avatars = mainMembers.slice(0,4).map(m =>
     `<div class="member-avatar-sm" style="background:${Utils.memberColor(m.name)}">${Utils.initials(m.name)}</div>`
   ).join('');
   const extra = mainMembers.length > 4 ? `<div class="member-avatar-sm" style="background:var(--text3)">+${mainMembers.length-4}</div>` : '';
   const visibleTxCount = g.transactions.filter(t => !t.deletedFlag).length;
-  return `<div class="card card-hover group-card" onclick="showGroup('${g.id}')">
+  const showPendingCorner = showBadges && (g.isDirty || dirtyTxCount > 0);
+  const cornerText = !STATE.syncEnabled ? 'Pending Sync' : 'Syncing';
+  const cornerBadge = showPendingCorner
+    ? `<span class="card-pending-corner" title="Pending sync">${cornerText}</span>` : '';
+  return `<div class="card card-hover group-card" style="position:relative" onclick="showGroup('${g.id}')">
+    ${cornerBadge}
     <div class="group-card-header">
       <div style="display:flex;align-items:center;gap:12px">
         <div class="group-avatar">${Utils.groupEmoji(g.name)}</div>
@@ -1935,10 +2518,10 @@ function renderSummaryCards(g) {
   const maxD = vals.length ? Math.min(...vals) : 0;
   const maxC = vals.length ? Math.max(...vals) : 0;
   const dirtyCount = g.transactions.filter(t => t.isDirty && !t.deletedFlag).length;
-  const dirtyBadge = dirtyCount > 0
+  const dirtyBadge = (dirtyCount > 0 && !STATE.isGuest)
     ? `<div class="summary-card" style="border-color:var(--yellow)">
         <div class="summary-card-val" style="color:var(--yellow);font-size:18px">${dirtyCount}</div>
-        <div class="summary-card-label" style="color:var(--yellow)">Pending Sync</div>
+        <div class="summary-card-label" style="color:var(--yellow)">${!STATE.syncEnabled ? 'Pending Sync' : 'Syncing'}</div>
       </div>` : '';
   document.getElementById('summary-cards').innerHTML = `
     <div class="summary-card"><div class="summary-card-val">${Utils.fmt(total)}</div><div class="summary-card-label">Total Spent</div></div>
@@ -1956,6 +2539,9 @@ function renderTransactions() {
   const sort   = document.getElementById('tx-sort').value;
   const list   = Transactions.sorted(g.transactions, sort, search);
   const c = document.getElementById('transactions-list');
+  const normM = memberManager.normalize(g.members);
+  const getName = id => normM.find(m => m.id === id)?.name || id;
+
   if (!list.length) {
     c.innerHTML = `<div class="empty-state" style="padding:40px">
       <div class="empty-state-icon">📝</div>
@@ -1966,35 +2552,37 @@ function renderTransactions() {
   c.innerHTML = `<div class="transactions-list">${list.map(tx => {
     const share = Transactions.perPersonShare(tx);
     const shareLabel = share.type==='equal' ? `${Utils.fmt(share.amount)}/person` : 'custom split';
-    const dirtyIndicator = tx.isDirty
+    const showDirty = tx.isDirty && !STATE.isGuest;
+    const dirtyIndicator = showDirty
       ? `<span class="tx-dirty-dot" title="Pending sync"></span>` : '';
-    const cardClass = tx.isDirty ? 'card transaction-card tx-card-dirty' : 'card transaction-card';
+    const cardClass = showDirty ? 'card transaction-card tx-card-dirty' : 'card transaction-card';
+    const cornerText = !STATE.syncEnabled ? 'Pending Sync' : 'Syncing';
+    const txCornerBadge = showDirty ? `<span class="card-pending-corner" title="Pending sync">${cornerText}</span>` : '';
 
     // Participant display
     let participantDisplay = '';
     if (tx.participants && tx.participants.length) {
-      const g2 = Groups.active();
-      const normM = memberManager.normalize(g2?.members||[]);
       participantDisplay = tx.participants.slice(0,4).map(p => {
-        const m = normM.find(m => m.id === p.memberId) || { name: p.memberId };
+        const mName = getName(p.memberId);
         const shareAmt = tx.splitType==='custom' ? Utils.fmt(p.customAmount||0) :
           tx.splitType==='share' ? `${p.shareCount||1}x` : '';
-        return `<span class="tx-share-pill">${Utils.esc(m.name)}${shareAmt?' ('+shareAmt+')':''}</span>`;
+        return `<span class="tx-share-pill">${Utils.esc(mName)}${shareAmt?' ('+shareAmt+')':''}</span>`;
       }).join('');
       if (tx.participants.length > 4) participantDisplay += `<span class="tx-share-pill">+${tx.participants.length-4}</span>`;
     } else {
       participantDisplay = (tx.splitBetween||[]).slice(0,3).map(m =>
-        `<span class="tx-share-pill">${Utils.esc(m)}</span>`
+        `<span class="tx-share-pill">${Utils.esc(getName(m))}</span>`
       ).join('');
       if ((tx.splitBetween||[]).length > 3) participantDisplay += `<span class="tx-share-pill">+${tx.splitBetween.length-3}</span>`;
     }
 
-    return `<div class="${cardClass}">
+    return `<div class="${cardClass}" style="position:relative">
+      ${txCornerBadge}
       <div class="tx-icon">${tx.emoji||'💰'}</div>
       <div class="tx-body">
         <div class="tx-desc" style="display:flex;align-items:center;gap:6px">${dirtyIndicator}${Utils.esc(tx.desc)}</div>
         <div class="tx-meta">
-          <span>👤 ${Utils.esc(tx.paidBy)}</span>
+          <span>👤 ${Utils.esc(getName(tx.paidBy))}</span>
           <span>🗓 ${Utils.dateTime(tx.date)}</span>
         </div>
         <div class="tx-share-pills">${participantDisplay}</div>
@@ -2120,16 +2708,65 @@ function addChip(inputId, cid) {
   inp.value=''; renderChips(cid); inp.focus();
 }
 
-function openAddSubMemberModal(parentId, parentName) {
-  const cid = 'mbr-chips';
+function closeAddSubMemberModal() {
+  closeModal();
+  if (window._lastModal === 'create') openCreateGroupModal(true);
+  else if (window._lastModal === 'edit') openEditGroupModal(window._editGroupId, true);
+  else if (window._lastModal === 'manage') openManageMembersModal(true);
+}
+
+function openEditMemberNameModal(id) {
+  // Capture current form state if in Create/Edit modal
+  if (window._lastModal === 'create') {
+    window._tempGrpName = document.getElementById('grp-name')?.value || '';
+  } else if (window._lastModal === 'edit') {
+    window._tempGrpName = document.getElementById('grp-name-edit')?.value || '';
+  }
+
+  const norm = memberManager.normalize(window._members||[]);
+  const m = norm.find(x => x.id === id);
+  if (!m) return;
+  
   openModal(`<div class="modal" style="max-width:360px">
-    <div class="modal-header"><div class="modal-title">Add Sub-Member</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
-    <p class="text-sm text-muted" style="margin-bottom:14px">Adding a sub-member under <strong>${Utils.esc(parentName)}</strong>. Sub-members can be included in expense splits and their balances are aggregated under their parent.</p>
-    <div class="form-group"><label>Sub-Member Name</label>
-      <input class="input" id="sub-name" placeholder="e.g. Spouse, Child…" autofocus>
+    <div class="modal-header"><div class="modal-title">Edit Member Name</div><button class="btn btn-ghost btn-icon" onclick="closeAddSubMemberModal()">✕</button></div>
+    <div class="form-group"><label>Member Name</label>
+      <input class="input" id="edit-member-name" value="${Utils.esc(m.name)}" autofocus onkeydown="if(event.key==='Enter') _saveMemberName('${id}')">
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-secondary" onclick="closeAddSubMemberModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="_saveMemberName('${id}')">Save Changes</button>
+    </div>
+  </div>`);
+}
+
+window._saveMemberName = (id) => {
+  const name = document.getElementById('edit-member-name')?.value.trim();
+  if(!name){showToast('Name required','error');return;}
+  const norm = memberManager.normalize(window._members||[]);
+  const m = norm.find(x => x.id === id);
+  if (m) m.name = name;
+  window._members = norm;
+  closeAddSubMemberModal();
+  renderChips('mbr-chips');
+};
+
+function openAddSubMemberModal(parentId, parentName) {
+  // Capture current form state if in Create/Edit modal
+  if (window._lastModal === 'create') {
+    window._tempGrpName = document.getElementById('grp-name')?.value || '';
+  } else if (window._lastModal === 'edit') {
+    window._tempGrpName = document.getElementById('grp-name-edit')?.value || '';
+  }
+
+  const cid = 'mbr-chips';
+  openModal(`<div class="modal" style="max-width:360px">
+    <div class="modal-header"><div class="modal-title">Add Sub-Member</div><button class="btn btn-ghost btn-icon" onclick="closeAddSubMemberModal()">✕</button></div>
+    <p class="text-sm text-muted" style="margin-bottom:14px">Adding a sub-member under <strong>${Utils.esc(parentName)}</strong>. Sub-members can be included in expense splits and their balances are aggregated under their parent.</p>
+    <div class="form-group"><label>Sub-Member Name</label>
+      <input class="input" id="sub-name" placeholder="e.g. Spouse, Child…" autofocus onkeydown="if(event.key==='Enter') _addSubMember('${parentId}')">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeAddSubMemberModal()">Cancel</button>
       <button class="btn btn-primary" onclick="_addSubMember('${parentId}')">Add Sub-Member</button>
     </div>
   </div>`);
@@ -2138,20 +2775,22 @@ window._addSubMember = (parentId) => {
   const name = document.getElementById('sub-name')?.value.trim();
   if(!name){showToast('Name required','error');return;}
   window._members = memberManager.addMember(memberManager.normalize(window._members||[]), name, parentId);
-  const norm = memberManager.normalize(window._members||[]); // My Changes
-  Groups.update(window._editGroupId,{members:norm}); // My Changes
-  closeModal();
+  closeAddSubMemberModal();
   renderChips('mbr-chips');
 };
 
 /* ================================================================
    CREATE / EDIT GROUP MODALS
    ================================================================ */
-function openCreateGroupModal(){
-  window._members=[];
+function openCreateGroupModal(isResume){
+  if (!isResume) {
+    window._members=[];
+    window._tempGrpName = '';
+  }
+  window._lastModal = 'create';
   openModal(`<div class="modal">
     <div class="modal-header"><div class="modal-title">Create New Group</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
-    <div class="form-group"><label>Group Name</label><input class="input" id="grp-name" placeholder="e.g. Goa Trip, Flatmates…" autofocus></div>
+    <div class="form-group"><label>Group Name</label><input class="input" id="grp-name" placeholder="e.g. Goa Trip, Flatmates…" value="${Utils.esc(window._tempGrpName || '')}" autofocus></div>
     <div class="form-group">
       <label>Members</label>
       <div style="display:flex;gap:8px"><input class="input" id="mbr-input" placeholder="Member name" onkeydown="if(event.key==='Enter'){addChip('mbr-input','mbr-chips');event.preventDefault();}"><button class="btn btn-secondary" onclick="addChip('mbr-input','mbr-chips')">Add</button></div>
@@ -2169,13 +2808,17 @@ window._submitCreateGroup=()=>{
   Groups.create(name,norm); closeModal(); renderDashboard(); showToast('Group created!','success');
 };
 
-function openEditGroupModal(id){
+function openEditGroupModal(id, isResume){
   const g=STATE.groups.find(g=>g.id===id); if(!g) return;
-  window._editGroupId=id;
-  window._members=memberManager.normalize(g.members);
+  if (!isResume) {
+    window._editGroupId=id;
+    window._members=memberManager.normalize(g.members);
+    window._tempGrpName = g.name;
+  }
+  window._lastModal = 'edit';
   openModal(`<div class="modal">
     <div class="modal-header"><div class="modal-title">Edit Group</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
-    <div class="form-group"><label>Group Name</label><input class="input" id="grp-name-edit" value="${Utils.esc(g.name)}" autofocus></div>
+    <div class="form-group"><label>Group Name</label><input class="input" id="grp-name-edit" value="${Utils.esc(window._tempGrpName)}" autofocus></div>
     <div class="form-group">
       <label>Members</label>
       <div style="display:flex;gap:8px"><input class="input" id="mbr-input" placeholder="Add member" onkeydown="if(event.key==='Enter'){addChip('mbr-input','mbr-chips');event.preventDefault();}"><button class="btn btn-secondary" onclick="addChip('mbr-input','mbr-chips')">Add</button></div>
@@ -2202,10 +2845,13 @@ function confirmDeleteGroup(id){
 /* ================================================================
    MANAGE MEMBERS MODAL
    ================================================================ */
-function openManageMembersModal(){
+function openManageMembersModal(isResume){
   const g=Groups.active(); if(!g) return;
-  window._editGroupId=g.id;
-  window._members=memberManager.normalize(g.members);
+  if (!isResume) {
+    window._editGroupId=g.id;
+    window._members=memberManager.normalize(g.members);
+  }
+  window._lastModal = 'manage';
   openModal(`<div class="modal">
     <div class="modal-header"><div class="modal-title">Manage Members</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
     <div class="form-group">
@@ -2441,25 +3087,24 @@ function openSettingsModal(){
   const user = STATE.user;
   const ago  = STATE.lastSyncAt ? _timeAgo(STATE.lastSyncAt) : null;
   const syncDesc = !navigator.onLine ? '○ Offline'
+    : !STATE.syncEnabled ? '⏸ Sync paused'
     : STATE.pendingChanges ? '● Changes pending sync'
     : ago ? `✓ Last synced ${ago}` : 'Not synced yet';
 
-  openModal(`<div class="modal modal-wide">
-    <div class="modal-header"><div class="modal-title">⚙ Settings</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
-
+  // Build sync section only for logged-in non-guest users
+  const syncSection = STATE.isGuest ? '' : `
     <div class="settings-section">
-      <div class="settings-section-title">👤 Account</div>
-      <div class="settings-row">
-        <div><div class="settings-label">${Utils.esc(user?.displayName||'User')}</div><div class="settings-desc">${Utils.esc(user?.email||'')}</div></div>
-        <button class="btn btn-danger btn-sm" onclick="_settingsSignOut()">Sign Out</button>
-      </div>
-    </div>
-
-    <div class="settings-section">
-      <div class="settings-section-title">☁ Cloud Sync (Incremental)</div>
+      <div class="settings-section-title">☁ Cloud Sync</div>
       <div class="settings-row">
         <div><div class="settings-label">Sync Status</div><div class="settings-desc">${syncDesc}</div></div>
-        <button class="btn btn-secondary btn-sm" onclick="_settingsSyncNow()">↻ Sync Now</button>
+        <button class="btn btn-secondary btn-sm" onclick="_settingsSyncNow()" ${!STATE.syncEnabled?'disabled':''}>↻ Sync Now</button>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-label">Enable Sync</div><div class="settings-desc">Push/pull changes to Firebase</div></div>
+        <label class="toggle-wrap">
+          <input type="checkbox" id="sync-enabled-toggle" ${STATE.syncEnabled?'checked':''} onchange="uiManager.setSyncEnabled(this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
       </div>
       <div class="settings-row">
         <div><div class="settings-label">Auto Backup</div><div class="settings-desc">Every ${STATE.backupInterval}s when online</div></div>
@@ -2472,11 +3117,40 @@ function openSettingsModal(){
         <div><div class="settings-label">Backup Interval</div><div class="settings-desc">Seconds (30–3600)</div></div>
         <input class="input" id="backup-interval" type="number" min="30" max="3600" value="${STATE.backupInterval}" style="width:80px" onchange="_changeInterval(this.value)">
       </div>
-    </div>
+    </div>`;
 
+  // Build account section
+  const accountSection = STATE.isGuest
+    ? `<div class="settings-section">
+        <div class="settings-section-title">👤 Guest Mode</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Not signed in</div>
+            <div class="settings-desc">Your data is stored locally in this browser only</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="closeModal();uiManager.showAuthFromGuest()">Sign In / Register</button>
+        </div>
+      </div>`
+    : `<div class="settings-section">
+        <div class="settings-section-title">👤 Account</div>
+        <div class="settings-row">
+          <div><div class="settings-label">${Utils.esc(user?.displayName||'User')}</div><div class="settings-desc">${Utils.esc(user?.email||'')}</div></div>
+          <button class="btn btn-danger btn-sm" onclick="_settingsSignOut()">Sign Out</button>
+        </div>
+      </div>`;
+
+  openModal(`<div class="modal modal-wide">
+    <div class="modal-header"><div class="modal-title">⚙ Settings</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
+    ${accountSection}
+    ${syncSection}
     <div class="settings-section">
       <div class="settings-section-title">🎨 Appearance</div>
-      <div class="settings-row"><div class="settings-label">Dark Mode</div><button class="dark-toggle" onclick="toggleDark()"></button></div>
+      <div class="settings-row">
+        <div><div class="settings-label">Dark Mode</div><div class="settings-desc">Switch between light and dark themes</div></div>
+        <button class="dark-toggle" onclick="toggleDark()">
+          <div class="dark-toggle-slider"></div>
+        </button>
+      </div>
       <div class="settings-row">
         <div><div class="settings-label">Font Family</div><div class="settings-desc">Change the app's body font</div></div>
         <select class="select" id="font-select" style="width:140px" onchange="window._changeFont(this.value)">
@@ -2488,17 +3162,22 @@ function openSettingsModal(){
         </select>
       </div>
     </div>
-
     <div class="divider"></div>
     <div class="settings-section">
       <div class="settings-section-title">🔒 Data Safety</div>
       <div class="settings-row">
         <div style="font-size:13px;color:var(--text2);line-height:1.6">
-          Data is stored locally and synced incrementally to Firebase. Only changed records are pushed/pulled — efficient and fast.
+          ${STATE.isGuest
+            ? '⚠ Guest mode: data is stored in this browser only. Sign in to back up to the cloud.'
+            : 'Data is stored locally and synced incrementally to Firebase. Only changed records are pushed/pulled.'}
         </div>
       </div>
       <div class="settings-row">
-        <div><div class="settings-label">Manual Backup</div><div class="settings-desc">Download all data as JSON</div></div>
+        <div><div class="settings-label">More Tools</div><div class="settings-desc">Advanced data handling options</div></div>
+        <button class="btn btn-secondary btn-sm" onclick="closeModal();openImportExportModal()">⇅ Import / Export</button>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-label">Export Backup</div><div class="settings-desc">Download all data as JSON</div></div>
         <button class="btn btn-secondary btn-sm" onclick="exportJSON('all');closeModal()">⬇ Backup JSON</button>
       </div>
     </div>
@@ -2716,7 +3395,8 @@ function downloadReport(){
 function toggleDark(){
   STATE.darkMode=!STATE.darkMode;
   document.documentElement.classList.toggle('dark',STATE.darkMode);
-  if(STATE.user) localCacheManager.saveSettings();
+  // Save settings for both logged-in users and guests
+  localCacheManager.saveSettings();
 }
 
 window.applyFont = (val) => {
@@ -2733,7 +3413,9 @@ window.applyFont = (val) => {
   document.documentElement.style.setProperty('--font-body', `"${val}", 'Segoe UI', sans-serif`);
 };
 window._changeFont = (val) => {
-  STATE.fontFamily = val; localCacheManager.saveSettings(); applyFont(val);
+  STATE.fontFamily = val;
+  localCacheManager.saveSettings();
+  applyFont(val);
 };
 
 /* ================================================================
@@ -2760,11 +3442,38 @@ function checkPwStrength(pw){
    APP BOOTSTRAP
    ================================================================ */
 (function init(){
+  // Both screens start hidden — splash covers everything while
+  // Firebase resolves auth state. This prevents the "flash of
+  // login screen" on page reload when user is already signed in.
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('main-app').classList.add('hidden');
+
   firebaseService.init();
 
+  let _authResolved = false;
   firebaseService.onAuthChange(user => {
-    if (user) { STATE.user = user; uiManager.onUserSignedIn(user); }
-    else       { uiManager.onUserSignedOut(); }
+    const splash = document.getElementById('splash-screen');
+    if (!_authResolved) {
+      _authResolved = true;
+      // First resolution: remove splash with a brief delay so it
+      // doesn't flash the wrong screen before state settles
+      setTimeout(() => {
+        if (splash && !splash.classList.contains('fade-out')) {
+          splash.classList.add('fade-out');
+          setTimeout(() => splash?.remove(), 350);
+        }
+      }, 100);
+    }
+    if (user) {
+      STATE.user = user;
+      uiManager.onUserSignedIn(user);
+    } else {
+      // If guest session was active, restore guest mode
+      if (STATE.isGuest) return; // already in guest mode, ignore Firebase logout
+      uiManager.onUserSignedOut();
+      // Show auth screen (not covered by splash anymore)
+      document.getElementById('auth-screen').classList.remove('hidden');
+    }
   });
 
   document.getElementById('signin-password').addEventListener('keydown', e => {
