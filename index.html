@@ -3,74 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Local expense Manager - Splitwise lite</title>
+<title>SplitEase — Expense Sharing</title>
+
+<!-- Firebase SDK v10 (modular CDN build — only scripts allowed as external dep) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <link rel="manifest" href="/manifest.json">
+
 <style>
-  /* ===== CSS VARIABLES & RESET ===== */
-  :root {
-    --bg: #f5f3ef;
-    --surface: #ffffff;
-    --surface2: #faf9f7;
-    --border: #e8e4dc;
-    --border2: #d4cfc4;
-    --text: #1a1714;
-    --text2: #5c564e;
-    --text3: #9c948a;
-    --accent: #c84b31;
-    --accent2: #e85d43;
-    --accent-bg: #fdf0ed;
-    --green: #2d7a5e;
-    --green-bg: #edf7f3;
-    --yellow: #c4860a;
-    --yellow-bg: #fef7e6;
-    --blue: #2563a8;
-    --blue-bg: #eef4fb;
-    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
-    --shadow2: 0 2px 8px rgba(0,0,0,0.12), 0 8px 32px rgba(0,0,0,0.08);
-    --radius: 12px;
-    --radius2: 8px;
-    --font-display: 'Playfair Display', 'Georgia', serif;
-    --font-body: 'DM Sans', 'Segoe UI', sans-serif;
-    --font-mono: 'DM Mono', 'Courier New', monospace;
-    --transition: 0.18s ease;
-  }
-  .dark {
-    --bg: #121110;
-    --surface: #1e1c1a;
-    --surface2: #252320;
-    --border: #2e2b27;
-    --border2: #3d3930;
-    --text: #f0ece4;
-    --text2: #b8b0a6;
-    --text3: #7a7268;
-    --accent: #e05f43;
-    --accent2: #f07055;
-    --accent-bg: #2a1a16;
-    --green: #3d9a74;
-    --green-bg: #0f2b1f;
-    --yellow: #d4960a;
-    --yellow-bg: #251c06;
-    --blue: #3d7bc4;
-    --blue-bg: #0e1e36;
-    --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
-    --shadow2: 0 2px 8px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: var(--font-body);
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    transition: background var(--transition), color var(--transition);
-    line-height: 1.5;
-  }
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
-
-  /* ===== SCROLLBAR ===== */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-
 
   /* ===== MOBILE OPTIMIZATION ===== */
   /* Disable zoom */
@@ -82,567 +23,736 @@
   input, select, textarea {
     font-size: 16px;
   }
+/* ================================================================
+   CSS VARIABLES & RESET
+   ================================================================ */
+:root {
+  --bg:#f5f3ef; --surface:#fff; --surface2:#faf9f7;
+  --border:#e8e4dc; --border2:#d4cfc4;
+  --text:#1a1714; --text2:#5c564e; --text3:#9c948a;
+  --accent:#c84b31; --accent2:#e85d43; --accent-bg:#fdf0ed;
+  --green:#2d7a5e; --green-bg:#edf7f3;
+  --yellow:#c4860a; --yellow-bg:#fef7e6;
+  --blue:#2563a8; --blue-bg:#eef4fb;
+  --red:#dc2626; --red-bg:#fee2e2;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
+  --shadow2:0 2px 8px rgba(0,0,0,.12),0 8px 32px rgba(0,0,0,.08);
+  --radius:12px; --radius2:8px;
+  --font-display:'Playfair Display','Georgia',serif;
+  --font-body:'DM Sans','Segoe UI',sans-serif;
+  --font-mono:'DM Mono','Courier New',monospace;
+  --tr:.18s ease;
+}
+.dark {
+  --bg:#121110; --surface:#1e1c1a; --surface2:#252320;
+  --border:#2e2b27; --border2:#3d3930;
+  --text:#f0ece4; --text2:#b8b0a6; --text3:#7a7268;
+  --accent:#e05f43; --accent2:#f07055; --accent-bg:#2a1a16;
+  --green:#3d9a74; --green-bg:#0f2b1f;
+  --yellow:#d4960a; --yellow-bg:#251c06;
+  --blue:#3d7bc4; --blue-bg:#0e1e36;
+  --shadow:0 1px 3px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.2);
+  --shadow2:0 2px 8px rgba(0,0,0,.4),0 8px 32px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;transition:background var(--tr),color var(--tr);line-height:1.5}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 
-  /* ===== LAYOUT ===== */
-  .app { display: flex; flex-direction: column; min-height: 100vh; }
-  .header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 32px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .logo {
-    font-family: var(--font-display);
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: -0.5px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .logo-icon {
-    width: 32px; height: 32px;
-    background: var(--accent);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff;
-    font-size: 16px;
-  }
-  .header-actions { display: flex; gap: 8px; align-items: center; }
-  .main { flex: 1; padding: 32px; max-width: 1100px; margin: 0 auto; width: 100%; }
+/* ================================================================
+   AUTH SCREEN
+   ================================================================ */
+.auth-screen {
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  padding:20px; background:var(--bg);
+}
+.auth-card {
+  width:100%; max-width:420px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); padding:36px;
+  box-shadow:var(--shadow2);
+}
+.auth-logo {
+  display:flex; align-items:center; gap:10px; justify-content:center;
+  margin-bottom:28px;
+}
+.auth-logo-icon {
+  width:44px; height:44px; background:var(--accent);
+  border-radius:12px; display:flex; align-items:center;
+  justify-content:center; color:#fff; font-size:22px;
+}
+.auth-logo-text {
+  font-family:var(--font-display); font-size:26px;
+  font-weight:700; color:var(--accent); letter-spacing:-.5px;
+}
+.auth-title {
+  font-family:var(--font-display); font-size:20px;
+  font-weight:700; margin-bottom:6px; text-align:center;
+}
+.auth-sub { font-size:13px; color:var(--text3); text-align:center; margin-bottom:24px; }
+.auth-switch {
+  text-align:center; font-size:13px; color:var(--text2);
+  margin-top:16px;
+}
+.auth-switch a { color:var(--accent); cursor:pointer; font-weight:600; text-decoration:none; }
+.auth-switch a:hover { text-decoration:underline; }
+.auth-error {
+  background:var(--red-bg); color:var(--red);
+  border:1px solid #fca5a5; border-radius:var(--radius2);
+  padding:10px 14px; font-size:13px; margin-bottom:16px;
+  display:none;
+}
+.auth-error.show { display:block; }
+.input-password-wrap { position:relative; }
+.input-password-wrap .input { padding-right:44px; }
+.pw-toggle {
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  cursor:pointer; color:var(--text3); font-size:16px;
+  background:none; border:none; padding:4px;
+}
+.pw-strength {
+  height:4px; border-radius:2px; margin-top:6px;
+  background:var(--border); overflow:hidden;
+}
+.pw-strength-bar {
+  height:100%; border-radius:2px; transition:width .3s ease, background .3s ease;
+  width:0%;
+}
 
-  /* ===== BUTTONS ===== */
-  .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 16px; border-radius: var(--radius2);
-    font-family: var(--font-body); font-size: 14px; font-weight: 500;
-    cursor: pointer; border: none; transition: all var(--transition);
-    white-space: nowrap;
-  }
-  .btn-primary {
-    background: var(--accent); color: #fff;
-  }
-  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(200,75,49,0.3); }
-  .btn-secondary {
-    background: var(--surface2); color: var(--text2);
-    border: 1px solid var(--border);
-  }
-  .btn-secondary:hover { background: var(--border); color: var(--text); }
-  .btn-ghost {
-    background: transparent; color: var(--text2);
-  }
-  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
-  .btn-danger { background: #fee2e2; color: #dc2626; }
-  .btn-danger:hover { background: #dc2626; color: #fff; }
-  .btn-sm { padding: 5px 10px; font-size: 12px; }
-  .btn-icon {
-    width: 36px; height: 36px; padding: 0;
-    display: inline-flex; align-items: center; justify-content: center;
-    border-radius: var(--radius2);
-  }
+/* ================================================================
+   LAYOUT
+   ================================================================ */
+.app{display:flex;flex-direction:column;min-height:100vh}
+.header{
+  background:var(--surface); border-bottom:1px solid var(--border);
+  padding:0 24px; height:64px; display:flex; align-items:center;
+  justify-content:space-between; position:sticky; top:0; z-index:100;
+}
+.logo{
+  font-family:var(--font-display); font-size:21px; font-weight:700;
+  color:var(--accent); letter-spacing:-.5px;
+  display:flex; align-items:center; gap:8px; cursor:pointer;
+}
+.logo-icon{
+  width:32px; height:32px; background:var(--accent);
+  border-radius:8px; display:flex; align-items:center;
+  justify-content:center; color:#fff; font-size:16px;
+}
+.header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.main{flex:1;padding:32px;max-width:1100px;margin:0 auto;width:100%}
 
-  /* ===== CARDS ===== */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    box-shadow: var(--shadow);
-  }
-  .card-hover {
-    transition: all var(--transition);
-    cursor: pointer;
-  }
-  .card-hover:hover {
-    border-color: var(--accent);
-    box-shadow: var(--shadow2);
-    transform: translateY(-2px);
-  }
+/* ================================================================
+   SYNC / STATUS INDICATORS
+   ================================================================ */
+.sync-bar{
+  position:fixed;top:0;left:0;right:0;height:3px;
+  background:var(--blue);transform:scaleX(0);transform-origin:left;
+  transition:transform .4s ease;z-index:9999;pointer-events:none;
+}
+.sync-bar.active{transform:scaleX(1)}
 
-  /* ===== INPUTS ===== */
-  .input, .select, .textarea {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius2);
-    padding: 10px 14px;
-    font-family: var(--font-body);
-    font-size: 14px;
-    color: var(--text);
-    transition: border-color var(--transition);
-    outline: none;
-  }
-  .input:focus, .select:focus, .textarea:focus {
-    border-color: var(--accent);
-    background: var(--surface);
-  }
-  .input::placeholder { color: var(--text3); }
-  label {
-    display: block;
-    font-size: 12px; font-weight: 600;
-    color: var(--text2);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-  }
-  .form-group { margin-bottom: 16px; }
+.sync-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:99px;font-size:12px;
+  font-weight:600;cursor:pointer;border:1px solid transparent;
+  transition:all var(--tr);white-space:nowrap;
+}
+.sync-pill:hover{filter:brightness(.95)}
+.sync-pill.synced {background:var(--green-bg);color:var(--green);border-color:#b6e4d2}
+.sync-pill.pending{background:var(--yellow-bg);color:var(--yellow);border-color:#f5d87a}
+.sync-pill.offline{background:var(--surface2);color:var(--text3);border-color:var(--border)}
+.sync-pill.syncing{background:var(--blue-bg);color:var(--blue);border-color:#a7c8f5}
+.sync-pill.error  {background:var(--accent-bg);color:var(--accent);border-color:#f5b9ae}
+.sync-pill.local  {background:var(--surface2);color:var(--text2);border-color:var(--border)}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+.sync-pill.syncing .sync-dot{animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-  /* ===== MODAL ===== */
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(4px);
-    z-index: 1000;
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-    animation: fadeIn 0.15s ease;
-  }
-  .modal {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 28px;
-    width: 100%; max-width: 520px;
-    max-height: 90vh; overflow-y: auto;
-    box-shadow: var(--shadow2);
-    animation: slideUp 0.2s ease;
-  }
-  .modal-wide { max-width: 680px; }
-  .modal-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 24px;
-  }
-  .modal-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; }
-  .modal-footer {
-    display: flex; gap: 10px; justify-content: flex-end;
-    margin-top: 24px; padding-top: 20px;
-    border-top: 1px solid var(--border);
-  }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+/* Stale sync warning REMOVED */
+/* Offline banner */
+.offline-banner{
+  display:flex;align-items:center;gap:8px;padding:8px 24px;
+  background:var(--surface2);border-bottom:1px solid var(--border);
+  font-size:13px;color:var(--text3);
+}
+.offline-banner.hidden{display:none!important}
+/* Data safety banner */
+.safety-banner{
+  display:flex;align-items:center;gap:10px;padding:10px 24px;
+  background:var(--blue-bg);border-bottom:1px solid #c7ddf7;
+  font-size:13px;color:var(--blue);flex-wrap:wrap;
+}
+.safety-banner.hidden{display:none!important}
+.safety-banner .dismiss-btn{
+  margin-left:auto;cursor:pointer;background:none;border:none;
+  color:var(--blue);font-size:18px;line-height:1;padding:0;
+}
 
-  /* ===== TOAST ===== */
-  .toast-container {
-    position: fixed; bottom: 24px; right: 24px;
-    display: flex; flex-direction: column; gap: 8px;
-    z-index: 2000;
-  }
-  .toast {
-    background: var(--text);
-    color: var(--bg);
-    padding: 12px 18px;
-    border-radius: var(--radius2);
-    font-size: 13px; font-weight: 500;
-    box-shadow: var(--shadow2);
-    display: flex; align-items: center; gap: 10px;
-    animation: toastIn 0.25s ease;
-    max-width: 320px;
-  }
-  .toast.success { background: var(--green); color: #fff; }
-  .toast.error { background: #dc2626; color: #fff; }
-  .toast.warning { background: var(--yellow); color: #fff; }
-  @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-  @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateX(100%); } }
+/* ================================================================
+   BUTTONS
+   ================================================================ */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:var(--radius2);
+  font-family:var(--font-body);font-size:14px;font-weight:500;
+  cursor:pointer;border:none;transition:all var(--tr);white-space:nowrap;
+}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(200,75,49,.3)}
+.btn-secondary{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--border);color:var(--text)}
+.btn-ghost{background:transparent;color:var(--text2)}
+.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.btn-danger{background:#fee2e2;color:#dc2626}
+.btn-danger:hover{background:#dc2626;color:#fff}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-icon{width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--radius2)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+.btn-full{width:100%;justify-content:center}
 
-  /* ===== BADGE ===== */
-  .badge {
-    display: inline-flex; align-items: center;
-    padding: 2px 8px; border-radius: 99px;
-    font-size: 11px; font-weight: 600;
-  }
-  .badge-green { background: var(--green-bg); color: var(--green); }
-  .badge-red { background: var(--accent-bg); color: var(--accent); }
-  .badge-yellow { background: var(--yellow-bg); color: var(--yellow); }
-  .badge-blue { background: var(--blue-bg); color: var(--blue); }
-  .badge-gray { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+/* ================================================================
+   CARDS
+   ================================================================ */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.card-hover{transition:all var(--tr);cursor:pointer}
+.card-hover:hover{border-color:var(--accent);box-shadow:var(--shadow2);transform:translateY(-2px)}
 
-  /* ===== TABS ===== */
-  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
-  .tab {
-    padding: 10px 18px;
-    font-size: 14px; font-weight: 500;
-    color: var(--text2);
-    cursor: pointer;
-    border: none; background: none;
-    border-bottom: 2px solid transparent;
-    transition: all var(--transition);
-    font-family: var(--font-body);
-    margin-bottom: -1px;
-  }
-  .tab:hover { color: var(--text); }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+/* ================================================================
+   INPUTS
+   ================================================================ */
+.input,.select,.textarea{
+  width:100%;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius2);padding:10px 14px;
+  font-family:var(--font-body);font-size:14px;color:var(--text);
+  transition:border-color var(--tr);outline:none;
+}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--accent);background:var(--surface)}
+.input::placeholder{color:var(--text3)}
+label{
+  display:block;font-size:12px;font-weight:600;color:var(--text2);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;
+}
+.form-group{margin-bottom:16px}
 
-  /* ===== VIEWS ===== */
-  .view { display: none; }
-  .view.active { display: block; }
+/* ================================================================
+   MODAL
+   ================================================================ */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);
+  backdrop-filter:blur(4px);z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;animation:fadeIn .15s ease;
+}
+.modal{
+  background:var(--surface);border-radius:var(--radius);
+  padding:28px;width:100%;max-width:520px;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:var(--shadow2);animation:slideUp .2s ease;
+}
+.modal-wide{max-width:680px}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.modal-title{font-family:var(--font-display);font-size:20px;font-weight:700}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 
-  /* ===== DASHBOARD ===== */
-  .page-header {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    margin-bottom: 28px;
-  }
-  .page-title {
-    font-family: var(--font-display);
-    font-size: 28px; font-weight: 700;
-    letter-spacing: -0.5px;
-  }
-  .page-subtitle { font-size: 14px; color: var(--text2); margin-top: 4px; }
-  .groups-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 16px;
-  }
-  .group-card {
-    padding: 24px;
-    display: flex; flex-direction: column; gap: 16px;
-  }
-  .group-card-header { display: flex; align-items: flex-start; justify-content: space-between; }
-  .group-avatar {
-    width: 48px; height: 48px;
-    border-radius: 12px;
-    background: var(--accent-bg);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-  }
-  .group-name { font-size: 17px; font-weight: 600; margin-bottom: 2px; }
-  .group-meta { font-size: 12px; color: var(--text3); }
-  .group-stats {
-    display: flex; gap: 16px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-  }
-  .group-stat { flex: 1; }
-  .group-stat-val { font-size: 18px; font-weight: 700; color: var(--accent); font-family: var(--font-mono); }
-  .group-stat-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
-  .group-card-actions { display: flex; gap: 6px; }
-  .empty-state {
-    text-align: center; padding: 80px 20px;
-    color: var(--text3);
-  }
-  .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
-  .empty-state-title { font-size: 18px; font-weight: 600; color: var(--text2); margin-bottom: 8px; }
+/* ================================================================
+   TOAST
+   ================================================================ */
+.toast-container{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:2000}
+.toast{
+  background:var(--text);color:var(--bg);padding:12px 18px;
+  border-radius:var(--radius2);font-size:13px;font-weight:500;
+  box-shadow:var(--shadow2);display:flex;align-items:center;
+  gap:10px;animation:toastIn .25s ease;max-width:340px;
+}
+.toast.success{background:var(--green);color:#fff}
+.toast.error  {background:#dc2626;color:#fff}
+.toast.warning{background:var(--yellow);color:#fff}
+.toast.info   {background:var(--blue);color:#fff}
+@keyframes toastIn {from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateX(100%)}}
 
-  /* ===== GROUP VIEW ===== */
-  .breadcrumb {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 13px; color: var(--text3);
-    margin-bottom: 8px;
-  }
-  .breadcrumb a { color: var(--accent); cursor: pointer; text-decoration: none; }
-  .breadcrumb a:hover { text-decoration: underline; }
-  .group-header {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    margin-bottom: 24px;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  .group-header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-  .summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-  .summary-card {
-    padding: 16px 20px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius2);
-  }
-  .summary-card-val { font-size: 22px; font-weight: 700; font-family: var(--font-mono); }
-  .summary-card-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
-  .section-title {
-    font-size: 14px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 1px;
-    color: var(--text2);
-    margin-bottom: 12px;
-  }
-  .search-row {
-    display: flex; gap: 10px; align-items: center;
-    margin-bottom: 16px;
-  }
-  .search-input-wrap { position: relative; flex: 1; }
-  .search-input-wrap .input { padding-left: 36px; }
-  .search-icon {
-    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-    color: var(--text3); font-size: 14px; pointer-events: none;
-  }
-  .sort-select { width: 160px; }
+/* ================================================================
+   BADGE
+   ================================================================ */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600}
+.badge-green {background:var(--green-bg);color:var(--green)}
+.badge-red   {background:var(--accent-bg);color:var(--accent)}
+.badge-yellow{background:var(--yellow-bg);color:var(--yellow)}
+.badge-blue  {background:var(--blue-bg);color:var(--blue)}
+.badge-gray  {background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
 
-  /* ===== TRANSACTIONS ===== */
-  .transactions-list { display: flex; flex-direction: column; gap: 10px; }
-  .transaction-card {
-    padding: 16px 20px;
-    display: flex; align-items: center; gap: 16px;
-    cursor: default;
-  }
-  .tx-icon {
-    width: 40px; height: 40px; min-width: 40px;
-    border-radius: 10px;
-    background: var(--surface2);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-  }
-  .tx-body { flex: 1; min-width: 0; }
-  .tx-desc { font-size: 15px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .tx-meta { font-size: 12px; color: var(--text3); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-  .tx-meta span { display: flex; align-items: center; gap: 3px; }
-  .tx-amount { text-align: right; }
-  .tx-amount-val { font-size: 18px; font-weight: 700; font-family: var(--font-mono); color: var(--text); }
-  .tx-per-person { font-size: 11px; color: var(--text3); margin-top: 2px; }
-  .tx-actions { display: flex; gap: 4px; }
+/* ================================================================
+   TABS
+   ================================================================ */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:24px}
+.tab{
+  padding:10px 18px;font-size:14px;font-weight:500;color:var(--text2);
+  cursor:pointer;border:none;background:none;
+  border-bottom:2px solid transparent;
+  transition:all var(--tr);font-family:var(--font-body);margin-bottom:-1px;
+}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 
-  /* ===== BALANCES ===== */
-  .balance-list { display: flex; flex-direction: column; gap: 8px; }
-  .balance-row {
-    padding: 12px 16px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius2);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .balance-member { font-weight: 600; font-size: 14px; }
-  .balance-amount { font-family: var(--font-mono); font-size: 15px; font-weight: 700; }
-  .positive { color: var(--green); }
-  .negative { color: var(--accent); }
-  .neutral { color: var(--text3); }
+/* ================================================================
+   VIEWS
+   ================================================================ */
+.view{display:none}.view.active{display:block}
 
-  /* ===== SETTLEMENT ===== */
-  .settlement-list { display: flex; flex-direction: column; gap: 8px; }
-  .settlement-row {
-    padding: 12px 16px;
-    background: var(--green-bg);
-    border: 1px solid #b6e4d2;
-    border-radius: var(--radius2);
-    display: flex; align-items: center; gap: 10px;
-    font-size: 14px; font-weight: 500;
-  }
-  .dark .settlement-row { border-color: #1a4a36; }
-  .settlement-arrow { color: var(--green); font-size: 18px; }
+/* ================================================================
+   DASHBOARD
+   ================================================================ */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px}
+.page-title{font-family:var(--font-display);font-size:28px;font-weight:700;letter-spacing:-.5px}
+.page-subtitle{font-size:14px;color:var(--text2);margin-top:4px}
+.groups-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.group-card{padding:24px;display:flex;flex-direction:column;gap:16px}
+.group-card-header{display:flex;align-items:flex-start;justify-content:space-between}
+.group-avatar{width:48px;height:48px;border-radius:12px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:22px}
+.group-name{font-size:17px;font-weight:600;margin-bottom:2px}
+.group-meta{font-size:12px;color:var(--text3)}
+.group-stats{display:flex;gap:16px;padding-top:16px;border-top:1px solid var(--border)}
+.group-stat{flex:1}
+.group-stat-val{font-size:18px;font-weight:700;color:var(--accent);font-family:var(--font-mono)}
+.group-stat-label{font-size:11px;color:var(--text3);margin-top:2px}
+.empty-state{text-align:center;padding:80px 20px;color:var(--text3)}
+.empty-state-icon{font-size:48px;margin-bottom:16px}
+.empty-state-title{font-size:18px;font-weight:600;color:var(--text2);margin-bottom:8px}
 
-  /* ===== MEMBER CHIPS ===== */
-  .member-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-  .member-chip {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 99px;
-    padding: 4px 12px;
-    font-size: 13px;
-  }
-  .member-chip-remove {
-    cursor: pointer; color: var(--text3);
-    padding: 0 2px;
-    font-size: 16px; line-height: 1;
-  }
-  .member-chip-remove:hover { color: var(--accent); }
-  .chip-avatar {
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    font-size: 10px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-  }
+/* ================================================================
+   GROUP VIEW
+   ================================================================ */
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text3);margin-bottom:8px}
+.breadcrumb a{color:var(--accent);cursor:pointer;text-decoration:none}
+.breadcrumb a:hover{text-decoration:underline}
+.group-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap}
+.group-header-actions{display:flex;gap:8px;flex-wrap:wrap}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.summary-card{padding:16px 20px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius2)}
+.summary-card-val{font-size:22px;font-weight:700;font-family:var(--font-mono)}
+.summary-card-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.section-title{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:12px}
+.search-row{display:flex;gap:10px;align-items:center;margin-bottom:16px}
+.search-wrap{position:relative;flex:1}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+.sort-select{width:160px}
 
-  /* ===== CHECKBOXES ===== */
-  .checkbox-label {
-    display: flex; align-items: center; gap: 8px;
-    cursor: pointer; font-size: 14px;
-    padding: 6px 0; text-transform: none; letter-spacing: 0;
-  }
-  .checkbox-label input[type="checkbox"] {
-    width: 16px; height: 16px;
-    accent-color: var(--accent);
-    cursor: pointer;
-  }
+/* ================================================================
+   TRANSACTIONS
+   ================================================================ */
+.transactions-list{display:flex;flex-direction:column;gap:10px}
+.transaction-card{padding:16px 20px;display:flex;align-items:center;gap:16px}
+.tx-icon{width:40px;height:40px;min-width:40px;border-radius:10px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:18px}
+.tx-body{flex:1;min-width:0}
+.tx-desc{font-size:15px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-meta{font-size:12px;color:var(--text3);display:flex;gap:8px;flex-wrap:wrap}
+.tx-amount{text-align:right}
+.tx-amount-val{font-size:18px;font-weight:700;font-family:var(--font-mono)}
+.tx-per-person{font-size:11px;color:var(--text3);margin-top:2px}
+.tx-actions{display:flex;gap:4px}
 
-  /* ===== DIVIDER ===== */
-  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+/* ================================================================
+   BALANCES + SETTLEMENT
+   ================================================================ */
+.balance-list{display:flex;flex-direction:column;gap:8px}
+.balance-row{padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius2);display:flex;align-items:center;justify-content:space-between}
+.balance-amount{font-family:var(--font-mono);font-size:15px;font-weight:700}
+.positive{color:var(--green)}.negative{color:var(--accent)}.neutral{color:var(--text3)}
+.settlement-list{display:flex;flex-direction:column;gap:8px}
+.settlement-row{padding:12px 16px;background:var(--green-bg);border:1px solid #b6e4d2;border-radius:var(--radius2);display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500}
+.dark .settlement-row{border-color:#1a4a36}
 
-  /* ===== ANALYTICS ===== */
-  .analytics-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  .bar-chart { display: flex; flex-direction: column; gap: 8px; }
-  .bar-row { display: flex; flex-direction: column; gap: 4px; }
-  .bar-label { font-size: 13px; font-weight: 500; display: flex; justify-content: space-between; }
-  .bar-track { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
-  .bar-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.6s ease; }
+/* ================================================================
+   MEMBER CHIPS
+   ================================================================ */
+.member-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.member-chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:99px;padding:4px 12px;font-size:13px}
+.chip-remove{cursor:pointer;color:var(--text3);padding:0 2px;font-size:16px;line-height:1}
+.chip-remove:hover{color:var(--accent)}
+.chip-avatar{width:20px;height:20px;border-radius:50%;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.check-label{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;padding:6px 0;text-transform:none;letter-spacing:0}
+.check-label input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
 
-  /* ===== DARK TOGGLE ===== */
-  .dark-toggle {
-    width: 44px; height: 24px;
-    background: var(--border2);
-    border-radius: 12px;
-    position: relative;
-    cursor: pointer;
-    border: none;
-    transition: background var(--transition);
-  }
-  .dark-toggle::after {
-    content: '';
-    position: absolute;
-    top: 3px; left: 3px;
-    width: 18px; height: 18px;
-    background: #fff;
-    border-radius: 50%;
-    transition: transform var(--transition);
-  }
-  .dark .dark-toggle { background: var(--accent); }
-  .dark .dark-toggle::after { transform: translateX(20px); }
+/* ================================================================
+   ANALYTICS
+   ================================================================ */
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.bar-chart{display:flex;flex-direction:column;gap:8px}
+.bar-row{display:flex;flex-direction:column;gap:4px}
+.bar-label{font-size:13px;font-weight:500;display:flex;justify-content:space-between}
+.bar-track{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .6s ease}
 
-  /* ===== RESPONSIVE ===== */
-  @media (max-width: 768px) {
-    .header { padding: 0 16px; }
-    .main { padding: 16px; }
-    .groups-grid { grid-template-columns: 1fr; }
-    .analytics-grid { grid-template-columns: 1fr; }
-    .summary-grid { grid-template-columns: 1fr 1fr; }
-    .group-header { flex-direction: column; }
-    .page-header { flex-direction: column; gap: 12px; }
-    .logo span { display: none; }
-  }
+/* ================================================================
+   SETTINGS
+   ================================================================ */
+.settings-section{margin-bottom:24px}
+.settings-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:10px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);gap:16px}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:14px;font-weight:500}
+.settings-desc{font-size:12px;color:var(--text3);margin-top:2px}
+/* Toggle switch */
+.toggle-wrap{position:relative;width:44px;height:24px;cursor:pointer}
+.toggle-wrap input{opacity:0;width:0;height:0}
+.toggle-slider{
+  position:absolute;inset:0;background:var(--border2);
+  border-radius:12px;transition:background var(--tr);
+}
+.toggle-slider::before{
+  content:'';position:absolute;top:3px;left:3px;
+  width:18px;height:18px;background:#fff;border-radius:50%;
+  transition:transform var(--tr);
+}
+.toggle-wrap input:checked+.toggle-slider{background:var(--accent)}
+.toggle-wrap input:checked+.toggle-slider::before{transform:translateX(20px)}
 
-  /* ===== MISC ===== */
-  .flex { display: flex; }
-  .flex-col { flex-direction: column; }
-  .gap-8 { gap: 8px; }
-  .gap-12 { gap: 12px; }
-  .items-center { align-items: center; }
-  .justify-between { justify-content: space-between; }
-  .mt-8 { margin-top: 8px; }
-  .mt-12 { margin-top: 12px; }
-  .mt-16 { margin-top: 16px; }
-  .text-sm { font-size: 13px; }
-  .text-muted { color: var(--text3); }
-  .font-mono { font-family: var(--font-mono); }
-  .w-full { width: 100%; }
-  .hidden { display: none !important; }
-  .select-all-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+/* User avatar in header */
+.user-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--accent);color:#fff;
+  font-size:13px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
 
-  /* Confirm modal */
-  .confirm-msg { font-size: 14px; color: var(--text2); line-height: 1.6; }
-  .confirm-highlight { font-weight: 600; color: var(--text); }
+/* ================================================================
+   DARK MODE TOGGLE
+   ================================================================ */
+.dark-toggle{
+  width:44px;height:24px;background:var(--border2);border-radius:12px;
+  position:relative;cursor:pointer;border:none;transition:background var(--tr);
+}
+.dark-toggle::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:18px;height:18px;background:#fff;border-radius:50%;
+  transition:transform var(--tr);
+}
+.dark .dark-toggle{background:var(--accent)}
+.dark .dark-toggle::after{transform:translateX(20px)}
 
-  /* Tag-like members display */
-  .split-preview {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: var(--radius2); padding: 12px;
-    font-size: 13px; color: var(--text2);
-    margin-top: 8px;
-  }
-  .split-preview strong { color: var(--text); }
+/* ================================================================
+   MISC
+   ================================================================ */
+.divider{height:1px;background:var(--border);margin:20px 0}
+.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}
+.text-sm{font-size:13px}.text-muted{color:var(--text3)}
+.font-mono{font-family:var(--font-mono)}
+.hidden{display:none!important}
+.select-all-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.confirm-msg{font-size:14px;color:var(--text2);line-height:1.6}
+.confirm-hl{font-weight:600;color:var(--text)}
+.split-preview{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius2);padding:12px;font-size:13px;color:var(--text2);margin-top:8px}
+.split-preview strong{color:var(--text)}
+.info-text{font-size:12px;color:var(--text3);margin-top:6px}
+.member-avatar-sm{
+  width:26px;height:26px;border-radius:50%;color:#fff;
+  font-size:10px;font-weight:700;display:flex;align-items:center;
+  justify-content:center;border:2px solid var(--surface);margin-right:-6px;flex-shrink:0;
+}
+.member-avatar-sm:last-child{margin-right:0}
+.pending-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--yellow);
+  display:inline-block;margin-right:4px;
+}
 
-  /* Loading shimmer */
-  .skeleton {
-    background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 4px;
-    height: 16px;
-  }
-  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@media(max-width:768px){
+  .header{padding:0 16px}.main{padding:16px}
+  .groups-grid{grid-template-columns:1fr}
+  .analytics-grid{grid-template-columns:1fr}
+  .summary-grid{grid-template-columns:1fr 1fr}
+  .group-header,.page-header{flex-direction:column;gap:12px}
+  .logo span{display:none}
+  .sync-pill span:last-child{display:none}
+  .stale-banner,.offline-banner,.safety-banner{padding:10px 16px}
+}
 
-  /* Members in group card */
-  .member-avatars { display: flex; gap: -4px; }
-  .member-avatar-sm {
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    font-size: 10px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    border: 2px solid var(--surface);
-    margin-right: -6px;
-  }
-  .member-avatar-sm:last-child { margin-right: 0; }
+/* ================================================================
+   NEW FEATURE CSS — isDirty indicators, sub-members, split modes,
+   pending badge, sync error bar
+   ================================================================ */
 
-  /* Info text */
-  .info-text { font-size: 12px; color: var(--text3); margin-top: 6px; }
+/* isDirty / pending indicator on transaction card */
+.tx-dirty-dot {
+  width:8px;height:8px;border-radius:50%;background:var(--yellow);
+  flex-shrink:0;box-shadow:0 0 0 2px var(--yellow-bg);
+  animation:dirtyPulse 2s infinite;
+}
+@keyframes dirtyPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.8)}}
+.tx-card-dirty {border-left:3px solid var(--yellow) !important;}
 
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+/* Pending badge on group card */
+.group-pending-badge {
+  display:inline-flex;align-items:center;gap:4px;
+  background:var(--yellow-bg);color:var(--yellow);
+  border:1px solid #f5d87a;border-radius:99px;
+  font-size:10px;font-weight:700;padding:2px 7px;margin-left:6px;
+}
 
-  /* Amount colors on cards */
-  .amount-green { color: var(--green); }
-  .amount-red { color: var(--accent); }
+/* Global pending sync banner */
+.pending-sync-banner {
+  display:flex;align-items:center;gap:10px;padding:8px 24px;
+  background:var(--yellow-bg);border-bottom:1px solid #f5d87a;
+  font-size:12px;color:var(--yellow);cursor:pointer;
+}
+.pending-sync-banner.hidden{display:none!important}
+.pending-sync-banner:hover{filter:brightness(.97)}
+
+/* Sync inline error bar */
+.sync-error-bar {
+  display:flex;align-items:center;gap:10px;padding:8px 24px;
+  background:#7f1d1d;color:#fecaca;font-size:12px;font-weight:500;
+  border-bottom:1px solid #991b1b;
+}
+.sync-error-bar.hidden{display:none!important}
+.sync-error-bar button {
+  margin-left:auto;background:none;border:1px solid #fecaca;
+  color:#fecaca;padding:3px 10px;border-radius:4px;cursor:pointer;
+  font-size:11px;font-family:var(--font-body);
+}
+
+/* Sub-member UI */
+.member-tree { display:flex;flex-direction:column;gap:2px;margin-top:6px; }
+.member-tree-item {
+  display:flex;align-items:center;gap:8px;
+  padding:6px 8px;border-radius:var(--radius2);
+  background:var(--surface2);border:1px solid var(--border);
+  font-size:13px;
+}
+.member-tree-item.sub {
+  margin-left:28px;background:var(--blue-bg);
+  border-color:#c7ddf7;font-size:12px;
+}
+.member-tree-item .chip-avatar {
+  width:22px;height:22px;border-radius:50%;color:#fff;
+  font-size:10px;font-weight:700;display:flex;
+  align-items:center;justify-content:center;flex-shrink:0;
+}
+.member-tree-item.sub .chip-avatar { width:18px;height:18px;font-size:9px; }
+.member-tree-item .member-name { flex:1;font-weight:500; }
+.member-tree-item .sub-badge {
+  font-size:9px;background:var(--blue-bg);color:var(--blue);
+  border:1px solid #c7ddf7;border-radius:99px;padding:1px 5px;
+  font-weight:600;
+}
+.add-sub-btn {
+  font-size:11px;color:var(--blue);background:none;border:none;
+  cursor:pointer;padding:0 4px;text-decoration:underline;
+}
+
+/* Split mode tabs */
+.split-mode-tabs { display:flex;gap:4px;margin-bottom:12px; }
+.split-mode-btn {
+  flex:1;padding:7px 4px;font-size:12px;font-weight:600;
+  border:1px solid var(--border);background:var(--surface2);
+  color:var(--text2);border-radius:var(--radius2);cursor:pointer;
+  transition:all var(--tr);font-family:var(--font-body);text-align:center;
+}
+.split-mode-btn.active { background:var(--accent);color:#fff;border-color:var(--accent); }
+.split-member-row {
+  display:flex;align-items:center;gap:8px;
+  padding:6px 0;border-bottom:1px solid var(--border);
+}
+.split-member-row:last-child { border-bottom:none; }
+.split-member-name { flex:1;font-size:13px; }
+.split-input-sm {
+  width:88px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius2);padding:5px 8px;font-size:13px;
+  color:var(--text);text-align:right;outline:none;
+  font-family:var(--font-body);
+}
+.split-input-sm:focus { border-color:var(--accent); }
+.split-preview-box {
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius2);padding:10px 12px;
+  font-size:12px;color:var(--text2);margin-top:8px;
+}
+.split-preview-box strong { color:var(--text); }
+.split-warn { color:var(--accent);font-weight:600; }
+.split-ok   { color:var(--green);font-weight:600; }
+
+/* Participant summary on transaction card */
+.tx-share-pills { display:flex;flex-wrap:wrap;gap:3px;margin-top:3px; }
+.tx-share-pill {
+  font-size:10px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:99px;padding:1px 6px;color:var(--text2);
+}
+
+/* Sync status "Nothing to sync" */
+.sync-pill.nothing { background:var(--surface2);color:var(--text3);border-color:var(--border); }
+
+/* Mobile responsive patches */
+@media(max-width:768px){
+  .sync-error-bar,.pending-sync-banner { padding:8px 14px; }
+  .split-mode-tabs .split-mode-btn { padding:6px 2px;font-size:11px; }
+  .member-tree-item.sub { margin-left:16px; }
+}
 </style>
 </head>
 <body>
 
-<div class="app">
+<!-- ================================================================
+     AUTH SCREEN — shown when user is not logged in
+     ================================================================ -->
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">₹</div>
+      <div class="auth-logo-text">SplitEase</div>
+    </div>
 
-  <!-- HEADER -->
+    <!-- Sign In Panel -->
+    <div id="auth-signin">
+      <div class="auth-title">Welcome back</div>
+      <div class="auth-sub">Sign in to access your groups</div>
+      <div class="auth-error" id="signin-error"></div>
+      <div class="form-group">
+        <label>Email</label>
+        <input class="input" id="signin-email" type="email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-password-wrap">
+          <input class="input" id="signin-password" type="password" placeholder="••••••••" autocomplete="current-password">
+          <button class="pw-toggle" onclick="togglePw('signin-password',this)" tabindex="-1">👁</button>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="signin-btn" onclick="authManager.signIn()">Sign In</button>
+      <div class="auth-switch">Don't have an account? <a onclick="authManager.showRegister()">Create one</a></div>
+    </div>
+
+    <!-- Register Panel -->
+    <div id="auth-register" class="hidden">
+      <div class="auth-title">Create account</div>
+      <div class="auth-sub">Start splitting expenses in seconds</div>
+      <div class="auth-error" id="register-error"></div>
+      <div class="form-group">
+        <label>Display Name</label>
+        <input class="input" id="reg-name" type="text" placeholder="Your name" autocomplete="name">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input class="input" id="reg-email" type="email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-password-wrap">
+          <input class="input" id="reg-password" type="password" placeholder="Min 8 characters"
+            autocomplete="new-password" oninput="checkPwStrength(this.value)">
+          <button class="pw-toggle" onclick="togglePw('reg-password',this)" tabindex="-1">👁</button>
+        </div>
+        <div class="pw-strength"><div class="pw-strength-bar" id="pw-bar"></div></div>
+        <div class="info-text" id="pw-hint">Use 8+ characters with numbers or symbols</div>
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <div class="input-password-wrap">
+          <input class="input" id="reg-password2" type="password" placeholder="Re-enter password" autocomplete="new-password">
+          <button class="pw-toggle" onclick="togglePw('reg-password2',this)" tabindex="-1">👁</button>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="register-btn" onclick="authManager.register()">Create Account</button>
+      <div class="auth-switch">Already have an account? <a onclick="authManager.showSignIn()">Sign in</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     MAIN APP — shown when signed in
+     ================================================================ -->
+<div id="main-app" class="app hidden">
+
+  <!-- Sync progress bar -->
+  <div class="sync-bar" id="sync-bar"></div>
+
+  <!-- Inline sync error -->
+  <div class="sync-error-bar hidden" id="sync-err-bar">
+    ⚠ <span id="sync-err-msg">Sync error</span>
+    <button onclick="syncManager.syncNow()">↻ Retry</button>
+  </div>
+
+  <!-- Global pending sync indicator (clickable) -->
+  <div class="pending-sync-banner hidden" id="pending-banner" onclick="syncManager.syncNow()">
+    <span>🔄</span>
+    <span id="pending-banner-msg">Pending changes — click to sync</span>
+    <span style="margin-left:auto;font-size:11px;opacity:.7">tap to sync now</span>
+  </div>
+
+  <!-- Offline banner -->
+  <div class="offline-banner hidden" id="offline-banner">
+    📡 You're offline — changes saved locally and will sync when reconnected.
+  </div>
+
+  <!-- Data safety banner -->
+  <div class="safety-banner" id="safety-banner">
+    🔒 Your data is stored locally and backed up to the cloud when signed in. Offline changes sync automatically.
+    <button class="dismiss-btn" onclick="uiManager.dismissSafetyBanner()">×</button>
+  </div>
+
+  <!-- Header -->
   <header class="header">
-    <div class="logo" onclick="showDashboard()" style="cursor:pointer">
+    <div class="logo" onclick="showDashboard()">
       <div class="logo-icon">₹</div>
       <span>SplitEase</span>
     </div>
-    <div class="header-actions">
-      <button class="btn btn-ghost btn-icon" onclick="openImportExportModal()" title="Import / Export">⇅</button>
+    <div class="header-right">
+      <button class="sync-pill local" id="sync-pill" onclick="openSettingsModal()" title="Sync status">
+        <span class="sync-dot"></span>
+        <span id="sync-label">Local only</span>
+      </button>
+      <button class="btn btn-ghost btn-icon" onclick="openImportExportModal()" title="Import/Export">⇅</button>
+      <button class="btn btn-ghost btn-icon" onclick="openSettingsModal()" title="Settings">⚙</button>
+      <div class="user-avatar" id="user-avatar" onclick="openSettingsModal()" title="Account">?</div>
       <button class="dark-toggle" onclick="toggleDark()" title="Toggle dark mode"></button>
     </div>
   </header>
 
-  <!-- MAIN -->
+  <!-- Main content -->
   <main class="main">
 
-    <!-- DASHBOARD VIEW -->
+    <!-- DASHBOARD -->
     <div id="view-dashboard" class="view active">
       <div class="page-header">
         <div>
           <div class="page-title">Your Groups</div>
-          <div class="page-subtitle">Manage shared expenses across groups</div>
+          <div class="page-subtitle" id="dashboard-subtitle">Manage shared expenses</div>
         </div>
         <button class="btn btn-primary" onclick="openCreateGroupModal()">＋ New Group</button>
       </div>
       <div id="groups-container"></div>
     </div>
 
-    <!-- GROUP VIEW -->
+    <!-- GROUP DETAIL -->
     <div id="view-group" class="view">
       <div class="breadcrumb">
         <a onclick="showDashboard()">← Dashboard</a>
         <span>/</span>
-        <span id="group-breadcrumb-name"></span>
+        <span id="group-breadcrumb"></span>
       </div>
       <div class="group-header">
         <div>
-          <div class="page-title" id="group-view-name"></div>
-          <div class="page-subtitle" id="group-view-meta"></div>
+          <div class="page-title" id="group-title"></div>
+          <div class="page-subtitle" id="group-subtitle"></div>
         </div>
         <div class="group-header-actions">
           <button class="btn btn-secondary btn-sm" onclick="openManageMembersModal()">👥 Members</button>
-          <button class="btn btn-secondary btn-sm" onclick="downloadPDF()">⬇ PDF</button>
-          <button class="btn btn-primary btn-sm" onclick="openAddTransactionModal()">＋ Add Expense</button>
+          <button class="btn btn-secondary btn-sm" onclick="downloadReport()">⬇ Report</button>
+          <button class="btn btn-primary btn-sm" onclick="openAddTransactionModal(null)">＋ Add Expense</button>
         </div>
       </div>
-
-      <!-- Summary Cards -->
       <div class="summary-grid" id="summary-cards"></div>
-
-      <!-- Tabs -->
       <div class="tabs">
-        <button class="tab active" onclick="switchTab('transactions')">Transactions</button>
-        <button class="tab" onclick="switchTab('balances')">Balances</button>
-        <button class="tab" onclick="switchTab('settle')">Settle Up</button>
-        <button class="tab" onclick="switchTab('analytics')">Analytics</button>
+        <button class="tab active" data-tab="transactions" onclick="switchTab(this)">Transactions</button>
+        <button class="tab" data-tab="balances"     onclick="switchTab(this)">Balances</button>
+        <button class="tab" data-tab="settle"       onclick="switchTab(this)">Settle Up</button>
+        <button class="tab" data-tab="analytics"    onclick="switchTab(this)">Analytics</button>
       </div>
-
-      <!-- Tab Content: Transactions -->
       <div id="tab-transactions">
         <div class="search-row">
-          <div class="search-input-wrap" style="flex:1">
+          <div class="search-wrap" style="flex:1">
             <span class="search-icon">🔍</span>
-            <input class="input" placeholder="Search transactions…" oninput="renderTransactions()" id="tx-search" style="padding-left:36px">
+            <input class="input" id="tx-search" placeholder="Search transactions…" oninput="renderTransactions()" style="padding-left:36px">
           </div>
           <select class="input sort-select" id="tx-sort" onchange="renderTransactions()">
             <option value="date-desc">Latest First</option>
@@ -653,32 +763,16 @@
         </div>
         <div id="transactions-list"></div>
       </div>
-
-      <!-- Tab Content: Balances -->
-      <div id="tab-balances" class="hidden">
-        <div id="balances-content"></div>
-      </div>
-
-      <!-- Tab Content: Settle -->
-      <div id="tab-settle" class="hidden">
-        <div id="settle-content"></div>
-      </div>
-
-      <!-- Tab Content: Analytics -->
-      <div id="tab-analytics" class="hidden">
-        <div id="analytics-content"></div>
-      </div>
+      <div id="tab-balances"  class="hidden"><div id="balances-content"></div></div>
+      <div id="tab-settle"    class="hidden"><div id="settle-content"></div></div>
+      <div id="tab-analytics" class="hidden"><div id="analytics-content"></div></div>
     </div>
 
   </main>
 </div>
 
-<!-- Toast Container -->
 <div class="toast-container" id="toast-container"></div>
-
-<!-- MODALS (rendered dynamically) -->
-<div id="modal-container"></div>
-
+<div id="modal-root"></div>
 
 <script>
 // ============================================================
@@ -694,1141 +788,1995 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <script>
-// ============================================================
-//  STATE MANAGEMENT
-// ============================================================
-const STATE = {
-  groups: [],       // Array of group objects
-  activeGroupId: null,
-  darkMode: false,
-  activeTab: 'transactions'
+'use strict';
+/* ================================================================
+   FIREBASE CONFIGURATION — replace with your project values
+   ================================================================ */
+const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyAwuI9Hw868h46atsF7zrRoeZ3E9gMX3is",
+    authDomain: "react-employee.firebaseapp.com",
+    databaseURL: "https://react-employee.firebaseio.com",
+    projectId: "react-employee",
+    storageBucket: "react-employee.firebasestorage.app",
+    messagingSenderId: "22432575677",
+    appId: "1:22432575677:web:e1c7cfe768c6fe4beb07d4"
 };
 
-// Group structure: { id, name, members[], transactions[], createdAt }
-// Transaction structure: { id, desc, amount, paidBy, splitBetween[], date, updatedAt, emoji }
+/* ================================================================
+   APPLICATION STATE
+   ================================================================ */
+const STATE = {
+  user:           null,
+  groups:         [],
+  activeGroupId:  null,
+  darkMode:       false,
+  fontFamily:     'DM Sans',
+  activeTab:      'transactions',
+  lastSyncAt:     null,
+  pendingChanges: false,
+  backupEnabled:  false,
+  backupInterval: 120,
+  isSyncing:      false,
+  syncRetries:    0
+};
 
-// ============================================================
-//  STORAGE
-// ============================================================
-const Storage = {
-  KEYS: { groups: 'splitease_groups', dark: 'splitease_dark' },
+/* ================================================================
+   LOCAL CACHE MANAGER
+   All LocalStorage I/O. Scoped per user.
+   ================================================================ */
+const localCacheManager = (() => {
+  const K = s => `se_${STATE.user?.uid||'anon'}_${s}`;
 
-  load() {
+  function saveGroups() {
+    try { localStorage.setItem(K('groups'), JSON.stringify(STATE.groups)); }
+    catch(e) { showToast('Storage full — cannot save locally', 'error'); }
+  }
+
+  function loadGroups() {
     try {
-      const raw = localStorage.getItem(this.KEYS.groups);
-      STATE.groups = raw ? JSON.parse(raw) : [];
-      STATE.darkMode = localStorage.getItem(this.KEYS.dark) === '1';
-      if (STATE.darkMode) document.documentElement.classList.add('dark');
-    } catch (e) {
-      STATE.groups = [];
+      const r = localStorage.getItem(K('groups'));
+      return r ? JSON.parse(r) : [];
+    } catch { return []; }
+  }
+
+  function saveSettings() {
+    try {
+      localStorage.setItem(K('settings'), JSON.stringify({
+        darkMode: STATE.darkMode, fontFamily: STATE.fontFamily,
+        backupEnabled: STATE.backupEnabled, backupInterval: STATE.backupInterval,
+        lastSyncAt: STATE.lastSyncAt
+      }));
+    } catch {}
+  }
+
+  function loadSettings() {
+    try {
+      const raw = localStorage.getItem(K('settings'));
+      if (!raw) { if (window.applyFont) window.applyFont('DM Sans'); return; }
+      const s = JSON.parse(raw);
+      STATE.darkMode       = s.darkMode       ?? false;
+      STATE.fontFamily     = s.fontFamily     ?? 'DM Sans';
+      STATE.backupEnabled  = s.backupEnabled  ?? false;
+      STATE.backupInterval = s.backupInterval ?? 120;
+      STATE.lastSyncAt     = s.lastSyncAt     ?? null;
+      if (window.applyFont) window.applyFont(STATE.fontFamily);
+    } catch {}
+  }
+
+  function isBannerDismissed() {
+    try { return localStorage.getItem('se_safety_dismissed') === '1'; } catch { return false; }
+  }
+  function dismissBanner() {
+    try { localStorage.setItem('se_safety_dismissed', '1'); } catch {} }
+
+  return { saveGroups, loadGroups, saveSettings, loadSettings, isBannerDismissed, dismissBanner };
+})();
+
+/* ================================================================
+   FIREBASE SERVICE
+   ================================================================ */
+const firebaseService = (() => {
+  let _db = null, _auth = null;
+
+  function init() {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    _db   = firebase.firestore();
+    _auth = firebase.auth();
+    _db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+    return { db: _db, auth: _auth };
+  }
+
+  const uRef  = uid     => _db.collection('users').doc(uid);
+  const gRef  = (u,g)   => uRef(u).collection('groups').doc(g);
+  const txRef = (u,g,t) => gRef(u,g).collection('transactions').doc(t);
+
+  /* Auth */
+  async function signIn(email, pw) { return _auth.signInWithEmailAndPassword(email, pw); }
+  async function register(email, pw, name) {
+    const c = await _auth.createUserWithEmailAndPassword(email, pw);
+    await c.user.updateProfile({ displayName: name });
+    await uRef(c.user.uid).set({ email, displayName: name, createdAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    return c;
+  }
+  async function signOut() { return _auth.signOut(); }
+  function onAuthChange(cb) { return _auth.onAuthStateChanged(cb); }
+
+  /* ---- INCREMENTAL PULL: only records updated after lastSyncAt ---- */
+  async function pullChanges(uid, lastSyncAt) {
+    const groupsRef = uRef(uid).collection('groups');
+    let gQuery = lastSyncAt
+      ? groupsRef.where('updatedAt', '>', new Date(lastSyncAt))
+      : groupsRef.orderBy('createdAt', 'asc');
+
+    const groupsSnap = await gQuery.get();
+    const changedGroups = [];
+
+    for (const gDoc of groupsSnap.docs) {
+      const gData = gDoc.data();
+      // Fetch transactions for this group updated after lastSyncAt
+      let txQuery = gRef(uid, gDoc.id).collection('transactions');
+      if (lastSyncAt) txQuery = txQuery.where('updatedAt', '>', new Date(lastSyncAt));
+      const txSnap = await txQuery.get();
+      const transactions = txSnap.docs.map(t => ({ ...t.data(), id: t.id }));
+      changedGroups.push({ ...gData, id: gDoc.id, _changedTransactions: transactions });
     }
-  },
 
-  save() {
-    try {
-      localStorage.setItem(this.KEYS.groups, JSON.stringify(STATE.groups));
-      localStorage.setItem(this.KEYS.dark, STATE.darkMode ? '1' : '0');
-    } catch (e) {
-      showToast('Storage error', 'error');
+    // Also fetch ALL transactions for groups not yet known locally (first sync)
+    const localIds = new Set(STATE.groups.map(g => g.id));
+    const newGroupIds = changedGroups.filter(g => !localIds.has(g.id)).map(g => g.id);
+    for (const gid of newGroupIds) {
+      const idx = changedGroups.findIndex(g => g.id === gid);
+      const fullTxSnap = await gRef(uid, gid).collection('transactions').get();
+      changedGroups[idx]._changedTransactions = fullTxSnap.docs.map(t => ({ ...t.data(), id: t.id }));
+    }
+
+    return changedGroups;
+  }
+
+  /* ---- INCREMENTAL PUSH: only isDirty groups + transactions ---- */
+  async function pushChanges(uid) {
+    const now = firebase.firestore.FieldValue.serverTimestamp();
+
+    // Push dirty groups
+    const dirtyGroups = STATE.groups.filter(g => g.isDirty);
+    if (dirtyGroups.length > 0) {
+      const chunks = _chunk(dirtyGroups, 400);
+      for (const chunk of chunks) {
+        const b = _db.batch();
+        chunk.forEach(g => {
+          const { transactions, isDirty, ...meta } = g;
+          b.set(gRef(uid, g.id), { ...meta, updatedAt: now }, { merge: true });
+        });
+        await b.commit();
+      }
+    }
+
+    // Push dirty & deleted transactions per group
+    for (const group of STATE.groups) {
+      const dirtyTx = group.transactions.filter(tx => tx.isDirty || tx.deletedFlag);
+      if (!dirtyTx.length) continue;
+
+      const chunks = _chunk(dirtyTx, 400);
+      for (const chunk of chunks) {
+        const b = _db.batch();
+        chunk.forEach(tx => {
+          const ref = txRef(uid, group.id, tx.id);
+          if (tx.deletedFlag) {
+            b.delete(ref);
+          } else {
+            const { isDirty, ...txData } = tx;
+            b.set(ref, { ...txData, updatedAt: now }, { merge: true });
+          }
+        });
+        await b.commit();
+      }
+    }
+
+    // Handle group deletions (groups marked deletedFlag)
+    const deletedGroups = STATE.groups.filter(g => g.deletedFlag);
+    for (const g of deletedGroups) {
+      try {
+        const txSnap = await gRef(uid, g.id).collection('transactions').get();
+        if (!txSnap.empty) {
+          const b = _db.batch(); txSnap.docs.forEach(d => b.delete(d.ref)); await b.commit();
+        }
+        await gRef(uid, g.id).delete();
+      } catch(e) { console.warn('Delete group remote:', e); }
     }
   }
-};
 
-// ============================================================
-//  UTILITY FUNCTIONS
-// ============================================================
+  /* Old full-sync helpers kept for first-time load fallback */
+  async function pullAllData(uid) {
+    const groupsSnap = await uRef(uid).collection('groups').orderBy('createdAt','asc').get();
+    const groups = [];
+    for (const gDoc of groupsSnap.docs) {
+      const gData = gDoc.data();
+      const txSnap = await gRef(uid, gDoc.id).collection('transactions').get();
+      const transactions = txSnap.docs.map(t => ({ ...t.data(), id: t.id }));
+      transactions.sort((a,b) => new Date(b.date||b.createdAt||0) - new Date(a.date||a.createdAt||0));
+      groups.push({ ...gData, id: gDoc.id, transactions });
+    }
+    return groups;
+  }
+
+  function _chunk(arr, size) {
+    const out = [];
+    for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i,i+size));
+    return out;
+  }
+
+  return { init, signIn, register, signOut, onAuthChange, pullChanges, pushChanges, pullAllData };
+})();
+
+/* ================================================================
+   SYNC MANAGER — incremental delta sync with lock + timeout + retry
+   ================================================================ */
+const syncManager = (() => {
+  let _debounceTimer = null;
+  let _syncTimeout   = null;
+  const DEBOUNCE_MS  = 2500;
+  const TIMEOUT_MS   = 20000;
+  const MAX_RETRIES  = 3;
+
+  /* Called after every local mutation */
+  function onDataChanged() {
+    STATE.pendingChanges = true;
+    localCacheManager.saveGroups();
+    localCacheManager.saveSettings();
+    networkManager.updateSyncPill();
+    uiManager.updatePendingBanner();
+    clearTimeout(_debounceTimer);
+    _debounceTimer = setTimeout(syncNow, DEBOUNCE_MS);
+  }
+
+  /* Main incremental sync — push dirty, pull changed */
+  async function syncNow() {
+    if (STATE.isSyncing) { console.log('[sync] Already running — skipped'); return; }
+    if (!STATE.user)     { return; }
+    if (!navigator.onLine) { networkManager.updateSyncPill(); return; }
+
+    // Check if there is anything to sync
+    const hasDirty = STATE.groups.some(g => g.isDirty || g.deletedFlag ||
+      g.transactions.some(tx => tx.isDirty || tx.deletedFlag));
+    if (!hasDirty && !STATE.pendingChanges) {
+      // Nothing to push — still pull to stay current
+      STATE.pendingChanges = false;
+      networkManager.setSyncStatus('synced');
+      return;
+    }
+
+    STATE.isSyncing  = true;
+    STATE.syncRetries = STATE.syncRetries || 0;
+    _setSyncBar(true);
+    _hideError();
+    networkManager.setSyncStatus('syncing');
+
+    const timeoutPromise = new Promise((_, rej) => {
+      _syncTimeout = setTimeout(() => rej(new Error('SYNC_TIMEOUT')), TIMEOUT_MS);
+    });
+
+    try {
+      await Promise.race([_doSync(), timeoutPromise]);
+      clearTimeout(_syncTimeout);
+
+      // Success — clear dirty flags
+      _clearDirtyFlags();
+      STATE.pendingChanges = false;
+      STATE.lastSyncAt     = new Date().toISOString();
+      STATE.syncRetries    = 0;
+      localCacheManager.saveGroups();
+      localCacheManager.saveSettings();
+      networkManager.updateSyncPill();
+      uiManager.updatePendingBanner();
+      showToast('Synced ✓', 'success', 2000);
+
+    } catch(err) {
+      clearTimeout(_syncTimeout);
+      console.error('[sync error]', err);
+      STATE.syncRetries++;
+
+      if (STATE.syncRetries <= MAX_RETRIES) {
+        const delay = STATE.syncRetries * 5000;
+        _showError(`Sync failed (attempt ${STATE.syncRetries}/${MAX_RETRIES}) — retrying in ${delay/1000}s`);
+        networkManager.setSyncStatus('error');
+        setTimeout(syncNow, delay);
+      } else {
+        STATE.syncRetries = 0;
+        _showError('Sync failed after 3 attempts. Data is safe locally. Click Retry.');
+        networkManager.setSyncStatus('error');
+      }
+    } finally {
+      STATE.isSyncing = false;
+      _setSyncBar(false);
+    }
+  }
+
+  async function _doSync() {
+    const uid = STATE.user.uid;
+
+    // 1. PUSH dirty local changes first
+    await firebaseService.pushChanges(uid);
+
+    // 2. PULL changes from server since last sync
+    const changed = await firebaseService.pullChanges(uid, STATE.lastSyncAt);
+
+    // 3. Merge pulled changes into local state
+    resolveConflicts(changed);
+
+    // 4. Remove locally-deleted groups from state array (they've been pushed)
+    STATE.groups = STATE.groups.filter(g => !g.deletedFlag);
+  }
+
+  /* Merge remote changes into local state */
+  function resolveConflicts(remoteGroups) {
+    const localMap = new Map(STATE.groups.map(g => [g.id, g]));
+
+    for (const rg of remoteGroups) {
+      if (!localMap.has(rg.id)) {
+        // Brand new group from remote
+        const { _changedTransactions, ...meta } = rg;
+        STATE.groups.push({
+          ...meta,
+          transactions: (_changedTransactions||[]).filter(t => !t.deletedFlag),
+          isDirty: false
+        });
+      } else {
+        const lg = localMap.get(rg.id);
+
+        // Resolve group metadata: last updatedAt wins
+        const rTs = _toMs(rg.updatedAt);
+        const lTs = _toMs(lg.updatedAt);
+        if (rTs > lTs) {
+          lg.name    = rg.name;
+          lg.members = rg.members;
+          lg.updatedAt = rg.updatedAt;
+          lg.isDirty = false;
+        }
+
+        // Merge transactions
+        const localTxMap = new Map(lg.transactions.map(t => [t.id, t]));
+        for (const rt of (rg._changedTransactions||[])) {
+          if (rt.deletedFlag) {
+            // Remote deletion — remove locally unless local is newer
+            const lt = localTxMap.get(rt.id);
+            if (!lt || _toMs(rt.updatedAt) >= _toMs(lt.updatedAt)) {
+              localTxMap.delete(rt.id);
+            }
+          } else if (!localTxMap.has(rt.id)) {
+            localTxMap.set(rt.id, { ...rt, isDirty: false });
+          } else {
+            const lt = localTxMap.get(rt.id);
+            if (_toMs(rt.updatedAt) > _toMs(lt.updatedAt) && !lt.isDirty) {
+              localTxMap.set(rt.id, { ...rt, isDirty: false });
+            }
+          }
+        }
+        lg.transactions = [...localTxMap.values()]
+          .filter(t => !t.deletedFlag)
+          .sort((a,b) => new Date(b.date||0) - new Date(a.date||0));
+      }
+    }
+  }
+
+  /* Initial load on sign-in — full pull if no lastSyncAt */
+  async function initialLoad() {
+    if (!STATE.user || !navigator.onLine) return;
+    if (STATE.isSyncing) return;
+
+    STATE.isSyncing = true;
+    _setSyncBar(true);
+    networkManager.setSyncStatus('syncing');
+
+    const timeout = new Promise((_, rej) =>
+      setTimeout(() => rej(new Error('SYNC_TIMEOUT')), TIMEOUT_MS));
+
+    try {
+      await Promise.race([
+        (async () => {
+          let groups;
+          if (!STATE.lastSyncAt) {
+            // First ever load — full pull
+            groups = await firebaseService.pullAllData(STATE.user.uid);
+            STATE.groups = groups;
+          } else {
+            // Delta pull
+            const changed = await firebaseService.pullChanges(STATE.user.uid, STATE.lastSyncAt);
+            resolveConflicts(changed);
+          }
+          STATE.lastSyncAt = new Date().toISOString();
+          STATE.pendingChanges = false;
+          localCacheManager.saveGroups();
+          localCacheManager.saveSettings();
+        })(),
+        timeout
+      ]);
+      networkManager.updateSyncPill();
+    } catch(e) {
+      console.warn('[initialLoad]', e);
+      _showError('Could not load cloud data. Using local cache.');
+      networkManager.updateSyncPill();
+    } finally {
+      STATE.isSyncing = false;
+      _setSyncBar(false);
+    }
+  }
+
+  /* After successful sync, clear all isDirty flags */
+  function _clearDirtyFlags() {
+    STATE.groups.forEach(g => {
+      g.isDirty = false;
+      g.transactions.forEach(tx => { tx.isDirty = false; });
+    });
+  }
+
+  function _toMs(ts) {
+    if (!ts) return 0;
+    if (ts?.seconds) return ts.seconds * 1000;
+    return new Date(ts).getTime() || 0;
+  }
+
+  function _setSyncBar(on) {
+    document.getElementById('sync-bar').classList.toggle('active', on);
+  }
+  function _showError(msg) {
+    const bar = document.getElementById('sync-err-bar');
+    const msgEl = document.getElementById('sync-err-msg');
+    if (bar && msgEl) { msgEl.textContent = msg; bar.classList.remove('hidden'); }
+  }
+  function _hideError() {
+    const bar = document.getElementById('sync-err-bar');
+    if (bar) bar.classList.add('hidden');
+  }
+
+  return { onDataChanged, syncNow, initialLoad, resolveConflicts };
+})();
+
+/* ================================================================
+   BACKUP SCHEDULER
+   ================================================================ */
+const backupScheduler = (() => {
+  let _id = null;
+  function start() {
+    stop();
+    if (!STATE.backupEnabled) return;
+    _id = setInterval(() => {
+      if (!STATE.pendingChanges || !navigator.onLine || STATE.isSyncing) return;
+      syncManager.syncNow();
+    }, STATE.backupInterval * 1000);
+  }
+  function stop() { if (_id) { clearInterval(_id); _id = null; } }
+  function restart() { stop(); start(); }
+  return { start, stop, restart };
+})();
+
+/* ================================================================
+   NETWORK MANAGER
+   ================================================================ */
+const networkManager = (() => {
+  let _pillRefreshTimer = null;
+
+  function init() {
+    window.addEventListener('online', () => {
+      document.getElementById('offline-banner').classList.add('hidden');
+      showToast('Back online — syncing…', 'info', 2000);
+      if (STATE.user && STATE.pendingChanges) syncManager.syncNow();
+      updateSyncPill();
+    });
+    window.addEventListener('offline', () => {
+      document.getElementById('offline-banner').classList.remove('hidden');
+      showToast('Offline — changes saved locally', 'warning', 3000);
+      setSyncStatus('offline');
+    });
+    document.getElementById('offline-banner').classList.toggle('hidden', navigator.onLine);
+    updateSyncPill();
+    // Refresh "X mins ago" label every minute
+    _pillRefreshTimer = setInterval(updateSyncPill, 60_000);
+  }
+
+  function setSyncStatus(status) {
+    const pill  = document.getElementById('sync-pill');
+    const label = document.getElementById('sync-label');
+    if (!pill || !label) return;
+    const ago  = STATE.lastSyncAt ? _ago(STATE.lastSyncAt) : null;
+    const map  = {
+      synced:  ago ? `✓ ${ago}` : '✓ Synced',
+      pending: '● Pending',
+      offline: '○ Offline',
+      syncing: '↻ Syncing…',
+      error:   '✕ Sync error',
+      local:   'Local only',
+      nothing: '✓ Nothing to sync'
+    };
+    pill.className  = 'sync-pill ' + status;
+    label.textContent = map[status] || status;
+  }
+
+  function updateSyncPill() {
+    if (!navigator.onLine)    return setSyncStatus('offline');
+    if (!STATE.user)          return setSyncStatus('local');
+    if (STATE.isSyncing)      return setSyncStatus('syncing');
+    if (STATE.pendingChanges) return setSyncStatus('pending');
+    return setSyncStatus('synced');
+  }
+
+  function _ago(iso) {
+    const s = Math.round((Date.now() - new Date(iso)) / 1000);
+    if (s < 10)    return 'just now';
+    if (s < 60)    return `${s}s ago`;
+    if (s < 3600)  return `${Math.floor(s/60)}m ago`;
+    if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+    const d = Math.floor(s/86400);
+    return d === 1 ? 'yesterday' : `${d} days ago`;
+  }
+
+  return { init, setSyncStatus, updateSyncPill };
+})();
+
+/* ================================================================
+   AUTH MANAGER
+   ================================================================ */
+const authManager = (() => {
+  function showSignIn() {
+    document.getElementById('auth-signin').classList.remove('hidden');
+    document.getElementById('auth-register').classList.add('hidden');
+    _clrErrs();
+  }
+  function showRegister() {
+    document.getElementById('auth-signin').classList.add('hidden');
+    document.getElementById('auth-register').classList.remove('hidden');
+    _clrErrs();
+  }
+  function _clrErrs() {
+    document.querySelectorAll('.auth-error').forEach(e => { e.textContent = ''; e.classList.remove('show'); });
+  }
+  function _err(id, msg) { const e = document.getElementById(id); e.textContent = msg; e.classList.add('show'); }
+  function _friendly(code) {
+    return {
+      'auth/user-not-found': 'No account with this email.',
+      'auth/wrong-password': 'Incorrect password.',
+      'auth/invalid-email': 'Invalid email address.',
+      'auth/email-already-in-use': 'Email already registered. Sign in instead.',
+      'auth/weak-password': 'Password is too weak.',
+      'auth/too-many-requests': 'Too many attempts. Try again later.',
+      'auth/network-request-failed': 'Network error.',
+      'auth/invalid-credential': 'Invalid email or password.'
+    }[code] || 'An error occurred. Please try again.';
+  }
+  async function signIn() {
+    const email = document.getElementById('signin-email').value.trim();
+    const pw    = document.getElementById('signin-password').value;
+    if (!email || !pw) { _err('signin-error', 'Please fill in all fields'); return; }
+    const btn = document.getElementById('signin-btn');
+    btn.disabled = true; btn.textContent = 'Signing in…';
+    try { await firebaseService.signIn(email, pw); }
+    catch(e) { _err('signin-error', _friendly(e.code)); btn.disabled = false; btn.textContent = 'Sign In'; }
+  }
+  async function register() {
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const pw    = document.getElementById('reg-password').value;
+    const pw2   = document.getElementById('reg-password2').value;
+    if (!name || !email || !pw || !pw2) { _err('register-error', 'Fill in all fields'); return; }
+    if (pw.length < 8) { _err('register-error', 'Password must be ≥8 characters'); return; }
+    if (pw !== pw2)    { _err('register-error', 'Passwords do not match'); return; }
+    const btn = document.getElementById('register-btn');
+    btn.disabled = true; btn.textContent = 'Creating…';
+    try { await firebaseService.register(email, pw, name); }
+    catch(e) { _err('register-error', _friendly(e.code)); btn.disabled = false; btn.textContent = 'Create Account'; }
+  }
+  async function signOut() { await firebaseService.signOut(); }
+  return { showSignIn, showRegister, signIn, register, signOut };
+})();
+
+/* ================================================================
+   UI MANAGER
+   ================================================================ */
+const uiManager = (() => {
+  function onUserSignedIn(user) {
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('main-app').classList.remove('hidden');
+    localCacheManager.loadSettings();
+    STATE.groups = localCacheManager.loadGroups();
+    if (STATE.darkMode) document.documentElement.classList.add('dark');
+    const init = (user.displayName || user.email || '?').slice(0,2).toUpperCase();
+    const el = document.getElementById('user-avatar');
+    el.textContent = init; el.title = user.displayName || user.email;
+    if (localCacheManager.isBannerDismissed()) document.getElementById('safety-banner').classList.add('hidden');
+    document.getElementById('dashboard-subtitle').textContent =
+      `Welcome back, ${user.displayName || user.email.split('@')[0]}`;
+    renderDashboard();
+    networkManager.init();
+    backupScheduler.start();
+    syncManager.initialLoad().then(renderDashboard);
+  }
+
+  function onUserSignedOut() {
+    backupScheduler.stop();
+    STATE.user = null; STATE.groups = []; STATE.lastSyncAt = null; STATE.pendingChanges = false;
+    document.getElementById('main-app').classList.add('hidden');
+    document.getElementById('auth-screen').classList.remove('hidden');
+    authManager.showSignIn();
+    ['signin-email','signin-password','reg-name','reg-email','reg-password','reg-password2']
+      .forEach(id => { const e = document.getElementById(id); if(e) e.value = ''; });
+  }
+
+  function dismissSafetyBanner() {
+    document.getElementById('safety-banner').classList.add('hidden');
+    localCacheManager.dismissBanner();
+  }
+
+  /* Update the pending-sync banner with count of dirty items */
+  function updatePendingBanner() {
+    const banner = document.getElementById('pending-banner');
+    const msgEl  = document.getElementById('pending-banner-msg');
+    if (!banner || !msgEl) return;
+    let dirtyCount = 0;
+    STATE.groups.forEach(g => {
+      if (g.isDirty || g.deletedFlag) dirtyCount++;
+      g.transactions.forEach(tx => { if (tx.isDirty || tx.deletedFlag) dirtyCount++; });
+    });
+    if (dirtyCount > 0 && STATE.user) {
+      msgEl.textContent = `${dirtyCount} pending change${dirtyCount > 1 ? 's' : ''} — tap to sync`;
+      banner.classList.remove('hidden');
+    } else {
+      banner.classList.add('hidden');
+    }
+  }
+
+  return { onUserSignedIn, onUserSignedOut, dismissSafetyBanner, updatePendingBanner };
+})();
+
+/* ================================================================
+   UTILITIES
+   ================================================================ */
 const Utils = {
-  uid: () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36),
-
-  formatCurrency: (n) => '₹' + Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-
-  formatDate: (iso) => {
-    const d = new Date(iso);
-    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  uid() {
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c/4).toString(16));
   },
+  fmt:      n   => '₹' + Number(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}),
+  date:     iso => new Date(iso).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}),
+  dateTime: iso => new Date(iso).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) + ' ' +
+                   new Date(iso).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
+  initials: n   => (n||'').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase() || '?',
+  esc:      s   => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'),
+  escXML:   s   => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'),
 
-  formatDateTime: (iso) => {
-    const d = new Date(iso);
-    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) + ' ' +
-      d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-  },
-
-  initials: (name) => name.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase(),
-
-  // Returns a fun emoji for category guessing
-  guessEmoji: (desc) => {
-    desc = desc.toLowerCase();
-    if (/food|meal|lunch|dinner|breakfast|pizza|burger|eat|snack|restaurant|cafe/i.test(desc)) return '🍽️';
-    if (/transport|uber|ola|cab|taxi|auto|fuel|petrol|bus|train|flight|travel/i.test(desc)) return '🚗';
-    if (/movie|film|cinema|ticket|show|concert|event/i.test(desc)) return '🎬';
-    if (/hotel|stay|rent|accommodation/i.test(desc)) return '🏨';
-    if (/shop|grocery|mart|store|buy|purchase/i.test(desc)) return '🛍️';
-    if (/electricity|water|bill|utility|internet|wifi/i.test(desc)) return '⚡';
-    if (/drink|beer|wine|alcohol|coffee|tea/i.test(desc)) return '🍺';
-    if (/gift|birthday|party|celebrate/i.test(desc)) return '🎁';
-    if (/sport|gym|fitness|game/i.test(desc)) return '⚽';
+  emoji(d) {
+    d=(d||'').toLowerCase();
+    if(/food|meal|lunch|dinner|breakfast|pizza|burger|eat|snack|restaurant|cafe/i.test(d)) return '🍽️';
+    if(/transport|uber|ola|cab|taxi|auto|fuel|petrol|bus|train|flight|travel/i.test(d))   return '🚗';
+    if(/movie|film|cinema|ticket|show|concert|event/i.test(d))  return '🎬';
+    if(/hotel|stay|rent|accommodation/i.test(d))                return '🏨';
+    if(/shop|grocery|mart|store|buy|purchase/i.test(d))         return '🛍️';
+    if(/electricity|water|bill|utility|internet|wifi/i.test(d)) return '⚡';
+    if(/drink|beer|wine|alcohol|coffee|tea/i.test(d))           return '🍺';
+    if(/gift|birthday|party|celebrat/i.test(d))                 return '🎁';
+    if(/sport|gym|fitness|game/i.test(d))                       return '⚽';
     return '💰';
   },
 
-  deepClone: (obj) => JSON.parse(JSON.stringify(obj)),
-
-  sanitize: (str) => String(str).replace(/</g, '&lt;').replace(/>/g, '&gt;'),
-
-  // Compute balances per member in a group
-  computeBalances(group) {
-    const balances = {};
-    group.members.forEach(m => balances[m] = 0);
-    group.transactions.forEach(tx => {
-      const share = tx.amount / tx.splitBetween.length;
-      // Payer gets credit
-      if (balances[tx.paidBy] !== undefined) balances[tx.paidBy] += tx.amount;
-      // Each person owes their share
-      tx.splitBetween.forEach(m => {
-        if (balances[m] !== undefined) balances[m] -= share;
-      });
-    });
-    return balances;
+  memberColor(name) {
+    const p = ['#c84b31','#2d7a5e','#2563a8','#7c3aed','#c4860a','#0891b2','#be185d','#065f46','#9a3412','#1e40af'];
+    let h=0; for(let i=0;i<(name||'').length;i++) h=(name||'').charCodeAt(i)+((h<<5)-h);
+    return p[Math.abs(h)%p.length];
   },
 
-  // Simplify debts — minimum transactions algorithm
+  groupEmoji(name) {
+    if(/trip|travel|tour|vacation|goa/i.test(name)) return '✈️';
+    if(/home|house|flat|room|rent/i.test(name))     return '🏠';
+    if(/office|work|team/i.test(name))              return '💼';
+    if(/party|birthday|celebrat/i.test(name))       return '🎉';
+    if(/food|meal|dinner|lunch/i.test(name))        return '🍽️';
+    return '👥';
+  },
+
+  getMainSubMembers(group) {
+    const normM = memberManager.normalize(group.members);
+    const mainSubMembers = [];
+    const mainMembers = normM.filter(m => !m.parentId);
+    const subMembers = normM.filter(m => m.parentId);
+
+    mainMembers.forEach(mainMember => {
+      const childMembers = subMembers.filter(m => m.parentId === mainMember.id);
+      mainSubMembers.push(mainMember);
+      mainSubMembers.push(...childMembers);
+    });
+
+    return mainSubMembers;
+  },
+
+  /* Compute balances supporting participants[] (new) and splitBetween[] (legacy) */
+  computeBalances(group) {
+    const b = {};
+    // Include main members and sub-members
+
+    const allMembers = memberManager.normalize(group.members);
+
+    Utils.getMainSubMembers(group).forEach(m => { b[m.id || m] = 0; });
+    group.transactions.forEach(tx => {
+      if (tx.deletedFlag) return;
+      const paidBy = tx.paidBy;
+      if (b[paidBy] !== undefined) b[paidBy] += tx.amount;
+
+      if (tx.participants && tx.participants.length) {
+        // New model: participants with shareCount or customAmount
+        const total = tx.amount;
+        if (tx.splitType === 'custom') {
+          tx.participants.forEach(p => {
+            if (b[p.memberId] !== undefined) {
+              const findMember = allMembers.find(m => m.id === p.memberId);
+              if (findMember) {
+                  // consider a Parent member share if sub member is present
+                  const memberId = findMember.parentId ? findMember.parentId : p.memberId;
+                  b[memberId] -= (p.customAmount || 0);
+              }
+            }
+          });
+        } else if (tx.splitType === 'share') {
+          const totalShares = tx.participants.reduce((s, p) => s + (p.shareCount || 1), 0);
+          tx.participants.forEach(p => {
+            const share = total * (p.shareCount || 1) / totalShares;
+            if (b[p.memberId] !== undefined) {
+              const findMember = allMembers.find(m => m.id === p.memberId);
+              if (findMember) {
+                  // consider a Parent member share if sub member is present
+                  const memberId = findMember.parentId ? findMember.parentId : p.memberId;
+                  b[memberId] -= share;
+              }
+            }
+          });
+        } else {
+          // equal
+          const share = total / tx.participants.length;
+          tx.participants.forEach(p => {
+            if (b[p.memberId] !== undefined) {
+                const findMember = allMembers.find(m => m.id === p.memberId);
+                if (findMember) {
+                    // consider a Parent member share if sub member is present
+                    const memberId = findMember.parentId ? findMember.parentId : p.memberId;
+                    b[memberId] -= share;
+                }
+            }
+          });
+        }
+      } else if (tx.splitBetween && tx.splitBetween.length) {
+        // Legacy model
+        const share = tx.amount / tx.splitBetween.length;
+        tx.splitBetween.forEach(m => { if(b[m] !== undefined) b[m] -= share; });
+      }
+    });
+    return b;
+  },
+
   computeSettlements(balances) {
     const credits = [], debts = [];
-    Object.entries(balances).forEach(([name, amt]) => {
-      if (amt > 0.009) credits.push({ name, amt });
-      else if (amt < -0.009) debts.push({ name, amt: -amt });
+    Object.entries(balances).forEach(([name,amt]) => {
+      if (amt >  0.009) credits.push({name,amt});
+      if (amt < -0.009) debts.push({name,amt:-amt});
     });
-    credits.sort((a, b) => b.amt - a.amt);
-    debts.sort((a, b) => b.amt - a.amt);
-    const settlements = [];
-    let i = 0, j = 0;
-    while (i < credits.length && j < debts.length) {
-      const min = Math.min(credits[i].amt, debts[j].amt);
-      settlements.push({ from: debts[j].name, to: credits[i].name, amount: min });
-      credits[i].amt -= min;
-      debts[j].amt -= min;
-      if (credits[i].amt < 0.009) i++;
-      if (debts[j].amt < 0.009) j++;
+    credits.sort((a,b)=>b.amt-a.amt); debts.sort((a,b)=>b.amt-a.amt);
+    const out=[]; let i=0,j=0;
+    while(i<credits.length && j<debts.length){
+      const min=Math.min(credits[i].amt,debts[j].amt);
+      out.push({from:debts[j].name,to:credits[i].name,amount:min});
+      credits[i].amt-=min; debts[j].amt-=min;
+      if(credits[i].amt<0.009) i++;
+      if(debts[j].amt <0.009) j++;
     }
-    return settlements;
+    return out;
+  },
+
+  /* Member helpers — supports both string and {id,name,parentId} formats */
+  memberName: (m) => m?.name || m,
+  memberId:   (m) => m?.id   || m,
+  memberIsMain: (m) => !m?.parentId,
+  getSubMembers: (members, parentId) => members.filter(m => m?.parentId === parentId),
+  getMainMembers: (members) => members.filter(m => !m?.parentId),
+  normMembers(members) {
+    // Normalize to {id, name, parentId} objects
+    return members.map(m => typeof m === 'string' ? { id: m, name: m, parentId: null } : m);
   }
 };
 
-// ============================================================
-//  GROUP CRUD
-// ============================================================
+/* ================================================================
+   MEMBER MANAGER — sub-member support
+   ================================================================ */
+const memberManager = {
+  /* Convert old string members array to new structured format */
+  normalize(members) {
+    return members.map(m => typeof m === 'string'
+      ? { id: m, name: m, parentId: null }
+      : { id: m.id || m.name, name: m.name, parentId: m.parentId || null }
+    );
+  },
+
+  addMember(members, name, parentId = null) {
+    const id = Utils.uid();
+    return [...members, { id, name: name.trim(), parentId }];
+  },
+
+  removeMember(members, id) {
+    // Also remove sub-members of this member
+    return members.filter(m => m.id !== id && m.parentId !== id);
+  },
+
+  /* Render hierarchical member tree for modal */
+  renderTree(members, onRemove) {
+    const norm = this.normalize(members);
+    const mains = norm.filter(m => !m.parentId);
+    let html = '<div class="member-tree">';
+    mains.forEach(m => {
+      const subs = norm.filter(s => s.parentId === m.id);
+      html += `<div class="member-tree-item" data-id="${m.id}">
+        <div class="chip-avatar" style="background:${Utils.memberColor(m.name)}">${Utils.initials(m.name)}</div>
+        <span class="member-name">${Utils.esc(m.name)}</span>
+        <button class="add-sub-btn" onclick="openAddSubMemberModal('${m.id}','${Utils.esc(m.name)}')" title="Add sub-member">+ sub</button>
+        <button class="btn btn-ghost btn-sm" onclick="${onRemove}('${m.id}')" style="padding:2px 6px;font-size:13px">×</button>
+      </div>`;
+      subs.forEach(s => {
+        html += `<div class="member-tree-item sub" data-id="${s.id}">
+          <div class="chip-avatar" style="background:${Utils.memberColor(s.name)}">${Utils.initials(s.name)}</div>
+          <span class="member-name">${Utils.esc(s.name)}</span>
+          <span class="sub-badge">sub of ${Utils.esc(m.name)}</span>
+          <button class="btn btn-ghost btn-sm" onclick="${onRemove}('${s.id}')" style="padding:2px 6px;font-size:13px">×</button>
+        </div>`;
+      });
+    });
+    html += '</div>';
+    return html;
+  }
+};
+
+/* ================================================================
+   GROUPS CRUD
+   All mutations set isDirty=true and call syncManager.onDataChanged()
+   ================================================================ */
 const Groups = {
-  getActive: () => STATE.groups.find(g => g.id === STATE.activeGroupId),
+  active: () => STATE.groups.find(g => g.id === STATE.activeGroupId),
 
   create(name, members) {
-    const g = { id: Utils.uid(), name: name.trim(), members: members.map(m => m.trim()).filter(Boolean), transactions: [], createdAt: new Date().toISOString() };
+    const now = new Date().toISOString();
+    const normMembers = memberManager.normalize(members);
+    const g = {
+      id: Utils.uid(), name: name.trim(),
+      members: normMembers,
+      transactions: [],
+      createdAt: now, updatedAt: now,
+      isDirty: true
+    };
     STATE.groups.unshift(g);
-    Storage.save();
+    syncManager.onDataChanged();
     return g;
   },
 
   delete(id) {
-    STATE.groups = STATE.groups.filter(g => g.id !== id);
-    Storage.save();
+    const g = STATE.groups.find(g => g.id === id);
+    if (g) {
+      // Mark for deletion — will be removed from state after successful push
+      g.deletedFlag = true;
+      g.isDirty = true;
+    }
+    syncManager.onDataChanged();
+    renderDashboard();
   },
 
-  update(id, data) {
+  update(id, patch) {
     const g = STATE.groups.find(g => g.id === id);
-    if (g) Object.assign(g, data);
-    Storage.save();
+    if (g) {
+      Object.assign(g, patch, { updatedAt: new Date().toISOString(), isDirty: true });
+    }
+    syncManager.onDataChanged();
   }
 };
 
-// ============================================================
-//  TRANSACTION CRUD
-// ============================================================
+/* ================================================================
+   TRANSACTIONS CRUD
+   Supports new participants[] model and legacy splitBetween[] model
+   ================================================================ */
 const Transactions = {
   add(group, data) {
+    const now = new Date().toISOString();
     const tx = {
       id: Utils.uid(),
       desc: data.desc,
-      amount: parseFloat(data.amount),
+      amount: +data.amount,
       paidBy: data.paidBy,
-      splitBetween: data.splitBetween,
-      date: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      emoji: Utils.guessEmoji(data.desc)
+      splitType: data.splitType || 'equal',
+      participants: data.participants || null,
+      splitBetween: data.splitBetween || [],  // keep for backward compat
+      date: now, updatedAt: now,
+      emoji: Utils.emoji(data.desc),
+      isDirty: true,
+      deletedFlag: false
     };
     group.transactions.unshift(tx);
-    Storage.save();
+    group.updatedAt = now;
+    group.isDirty = true;
+    syncManager.onDataChanged();
     return tx;
   },
 
   update(group, id, data) {
-    const tx = group.transactions.find(t => t.id === id);
-    if (!tx) return;
+    const tx = group.transactions.find(t => t.id === id); if (!tx) return;
+    const now = new Date().toISOString();
     Object.assign(tx, {
-      desc: data.desc,
-      amount: parseFloat(data.amount),
+      desc: data.desc, amount: +data.amount,
       paidBy: data.paidBy,
-      splitBetween: data.splitBetween,
-      updatedAt: new Date().toISOString(),
-      emoji: Utils.guessEmoji(data.desc)
+      splitType: data.splitType || 'equal',
+      participants: data.participants || null,
+      splitBetween: data.splitBetween || [],
+      updatedAt: now, emoji: Utils.emoji(data.desc),
+      isDirty: true
     });
-    Storage.save();
+    group.updatedAt = now;
+    group.isDirty = true;
+    syncManager.onDataChanged();
     return tx;
   },
 
   delete(group, id) {
-    group.transactions = group.transactions.filter(t => t.id !== id);
-    Storage.save();
+    const tx = group.transactions.find(t => t.id === id);
+    if (tx) {
+      // Mark for remote deletion; will be filtered from UI but kept for sync
+      tx.deletedFlag = true;
+      tx.isDirty = true;
+      tx.updatedAt = new Date().toISOString();
+    }
+    group.updatedAt = new Date().toISOString();
+    group.isDirty = true;
+    syncManager.onDataChanged();
   },
 
-  getSorted(transactions, sort, search) {
-    let list = [...transactions];
+  sorted(txns, sort, search) {
+    // Filter out deleted
+    let list = txns.filter(t => !t.deletedFlag);
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(t => t.desc.toLowerCase().includes(q) || t.paidBy.toLowerCase().includes(q));
     }
-    switch (sort) {
-      case 'date-asc': list.sort((a, b) => new Date(a.date) - new Date(b.date)); break;
-      case 'amount-desc': list.sort((a, b) => b.amount - a.amount); break;
-      case 'amount-asc': list.sort((a, b) => a.amount - b.amount); break;
-      default: list.sort((a, b) => new Date(b.date) - new Date(a.date));
-    }
+    if      (sort==='date-asc')    list.sort((a,b) => new Date(a.date)-new Date(b.date));
+    else if (sort==='amount-desc') list.sort((a,b) => b.amount-a.amount);
+    else if (sort==='amount-asc')  list.sort((a,b) => a.amount-b.amount);
+    else list.sort((a,b) => new Date(b.date)-new Date(a.date));
     return list;
+  },
+
+  /* Compute per-person share for display */
+  perPersonShare(tx) {
+    if (!tx.participants || !tx.participants.length) {
+      const cnt = (tx.splitBetween||[]).length || 1;
+      return { type:'equal', amount: tx.amount/cnt };
+    }
+    if (tx.splitType === 'equal') {
+      return { type:'equal', amount: tx.amount/tx.participants.length };
+    }
+    return { type:'custom' };
   }
 };
 
-// ============================================================
-//  TOAST NOTIFICATIONS
-// ============================================================
-function showToast(msg, type = 'default', duration = 3000) {
-  const container = document.getElementById('toast-container');
-  const icons = { success: '✓', error: '✕', warning: '⚠', default: 'ℹ' };
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `<span>${icons[type] || icons.default}</span><span>${Utils.sanitize(msg)}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => {
-    toast.style.animation = 'toastOut 0.3s ease forwards';
-    setTimeout(() => toast.remove(), 300);
-  }, duration);
-}
+/* ================================================================
+   REPORT MANAGER — supports sub-members and custom splits
+   ================================================================ */
+const reportManager = {
+  computeBalancesForGroup(group) {
+    return Utils.computeBalances(group);
+  },
 
-// ============================================================
-//  MODAL SYSTEM
-// ============================================================
-function openModal(html, onClose) {
-  const container = document.getElementById('modal-container');
-  container.innerHTML = `<div class="modal-overlay" id="active-modal">${html}</div>`;
-  const overlay = document.getElementById('active-modal');
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) closeModal();
+  /* Per-member aggregated spending (paid + owed), sub-members aggregated to parent */
+  memberStats(group) {
+    const norm = memberManager.normalize(group.members);
+    const paid = {}, owed = {};
+    norm.forEach(m => { paid[m.id] = 0; owed[m.id] = 0; });
+
+    group.transactions.filter(tx => !tx.deletedFlag).forEach(tx => {
+      if (paid[tx.paidBy] !== undefined) paid[tx.paidBy] += tx.amount;
+
+      const participants = tx.participants;
+      if (participants && participants.length) {
+        if (tx.splitType === 'custom') {
+          participants.forEach(p => { if(owed[p.memberId]!==undefined) owed[p.memberId] += p.customAmount||0; });
+        } else if (tx.splitType === 'share') {
+          const totalShares = participants.reduce((s,p) => s+(p.shareCount||1), 0);
+          participants.forEach(p => {
+            const share = tx.amount * (p.shareCount||1) / totalShares;
+            if(owed[p.memberId]!==undefined) owed[p.memberId] += share;
+          });
+        } else {
+          const share = tx.amount / participants.length;
+          participants.forEach(p => { if(owed[p.memberId]!==undefined) owed[p.memberId] += share; });
+        }
+      } else {
+        const share = tx.amount / (tx.splitBetween||[]).length || tx.amount;
+        (tx.splitBetween||[]).forEach(m => { if(owed[m]!==undefined) owed[m] += share; });
+      }
+    });
+
+    // Aggregate sub-members into their parent
+    const mains = norm.filter(m => !m.parentId);
+    mains.forEach(m => {
+      const subs = norm.filter(s => s.parentId === m.id);
+      subs.forEach(s => {
+        paid[m.id] = (paid[m.id]||0) + (paid[s.id]||0);
+        owed[m.id] = (owed[m.id]||0) + (owed[s.id]||0);
+      });
+    });
+
+    return { paid, owed, members: norm };
+  }
+};
+
+/* ================================================================
+   TOAST NOTIFICATIONS
+   ================================================================ */
+function showToast(msg, type='default', ms=3200) {
+  const icons = {success:'✓',error:'✕',warning:'⚠',info:'ℹ',default:'·'};
+  const el = Object.assign(document.createElement('div'), {
+    className: `toast ${type}`,
+    innerHTML: `<span>${icons[type]||'·'}</span><span>${Utils.esc(msg)}</span>`
   });
-  document.addEventListener('keydown', escHandler);
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => {
+    el.style.animation = 'toastOut .3s ease forwards';
+    setTimeout(() => el.remove(), 300);
+  }, ms);
 }
 
-function escHandler(e) {
-  if (e.key === 'Escape') closeModal();
+/* ================================================================
+   MODAL SYSTEM
+   ================================================================ */
+function openModal(html) {
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `<div class="modal-overlay" id="modal-overlay">${html}</div>`;
+  document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target.id === 'modal-overlay') closeModal();
+  });
+  document.addEventListener('keydown', _escKey);
 }
+function _escKey(e) { if(e.key==='Escape') closeModal(); }
+function closeModal() { document.getElementById('modal-root').innerHTML=''; document.removeEventListener('keydown',_escKey); }
 
-function closeModal() {
-  document.getElementById('modal-container').innerHTML = '';
-  document.removeEventListener('keydown', escHandler);
-}
-
-function openConfirm(title, msg, onConfirm) {
-  openModal(`
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">${Utils.sanitize(title)}</div>
-      </div>
-      <p class="confirm-msg">${msg}</p>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-danger" onclick="confirmAction()">Delete</button>
-      </div>
+function openConfirm(title, body, onConfirm) {
+  openModal(`<div class="modal">
+    <div class="modal-header"><div class="modal-title">${Utils.esc(title)}</div></div>
+    <p class="confirm-msg">${body}</p>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="_doConfirm()">Delete</button>
     </div>
-  `);
-  window._confirmCb = onConfirm;
+  </div>`);
+  window._doConfirm = () => { closeModal(); onConfirm(); };
 }
 
-window.confirmAction = () => { closeModal(); if (window._confirmCb) window._confirmCb(); };
-
-// ============================================================
-//  VIEWS
-// ============================================================
+/* ================================================================
+   VIEWS
+   ================================================================ */
 function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById(`view-${name}`).classList.add('active');
+  document.getElementById('view-'+name).classList.add('active');
 }
+function showDashboard() { STATE.activeGroupId=null; showView('dashboard'); renderDashboard(); }
+function showGroup(id)   { STATE.activeGroupId=id; STATE.activeTab='transactions'; showView('group'); renderGroup(); }
 
-function showDashboard() {
-  STATE.activeGroupId = null;
-  showView('dashboard');
-  renderDashboard();
-}
-
-function showGroup(id) {
-  STATE.activeGroupId = id;
-  STATE.activeTab = 'transactions';
-  showView('group');
-  renderGroup();
-}
-
-// ============================================================
-//  DASHBOARD RENDER
-// ============================================================
+/* ================================================================
+   DASHBOARD RENDER
+   ================================================================ */
 function renderDashboard() {
-  const container = document.getElementById('groups-container');
-  if (!STATE.groups.length) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">🗂️</div>
-        <div class="empty-state-title">No groups yet</div>
-        <p>Create your first group to start splitting expenses</p>
-        <button class="btn btn-primary mt-16" onclick="openCreateGroupModal()">＋ Create Group</button>
-      </div>
-    `;
-    return;
+  const c = document.getElementById('groups-container');
+  // Filter out deletedFlag groups from display
+  const visibleGroups = STATE.groups.filter(g => !g.deletedFlag);
+  if (!visibleGroups.length) {
+    c.innerHTML = `<div class="empty-state">
+      <div class="empty-state-icon">🗂️</div>
+      <div class="empty-state-title">No groups yet</div>
+      <p>Create your first group to start splitting expenses</p><br>
+      <button class="btn btn-primary" onclick="openCreateGroupModal()">＋ Create Group</button>
+    </div>`; return;
   }
-  container.innerHTML = `<div class="groups-grid">${STATE.groups.map(g => renderGroupCard(g)).join('')}</div>`;
+  c.innerHTML = `<div class="groups-grid">${visibleGroups.map(renderGroupCard).join('')}</div>`;
 }
 
 function renderGroupCard(g) {
-  const total = g.transactions.reduce((s, t) => s + t.amount, 0);
-  const avatars = g.members.slice(0, 4).map(m =>
-    `<div class="member-avatar-sm" style="background:${memberColor(m)}">${Utils.initials(m)}</div>`
+  const total   = g.transactions.filter(t=>!t.deletedFlag).reduce((s,t)=>s+t.amount,0);
+  const normMembers = memberManager.normalize(g.members);
+  const mainMembers = normMembers.filter(m => !m.parentId);
+  const dirtyTxCount = g.transactions.filter(t => t.isDirty && !t.deletedFlag).length;
+  const pendingBadge = (g.isDirty || dirtyTxCount > 0)
+    ? `<span class="group-pending-badge">⏳ ${dirtyTxCount || ''}${g.isDirty && !dirtyTxCount?'':''}</span>` : '';
+  const avatars = mainMembers.slice(0,4).map(m =>
+    `<div class="member-avatar-sm" style="background:${Utils.memberColor(m.name)}">${Utils.initials(m.name)}</div>`
   ).join('');
-  const extra = g.members.length > 4 ? `<div class="member-avatar-sm" style="background:var(--text3)">+${g.members.length - 4}</div>` : '';
-
-  return `
-    <div class="card card-hover group-card" onclick="showGroup('${g.id}')">
-      <div class="group-card-header">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div class="group-avatar">${groupEmoji(g.name)}</div>
-          <div>
-            <div class="group-name">${Utils.sanitize(g.name)}</div>
-            <div class="group-meta">${g.members.length} member${g.members.length !== 1 ? 's' : ''} · ${g.transactions.length} expense${g.transactions.length !== 1 ? 's' : ''}</div>
-          </div>
-        </div>
-        <div class="tx-actions" onclick="event.stopPropagation()">
-          <button class="btn btn-ghost btn-icon btn-sm" onclick="openEditGroupModal('${g.id}')" title="Edit">✎</button>
-          <button class="btn btn-ghost btn-icon btn-sm" onclick="confirmDeleteGroup('${g.id}')" title="Delete">🗑</button>
+  const extra = mainMembers.length > 4 ? `<div class="member-avatar-sm" style="background:var(--text3)">+${mainMembers.length-4}</div>` : '';
+  const visibleTxCount = g.transactions.filter(t => !t.deletedFlag).length;
+  return `<div class="card card-hover group-card" onclick="showGroup('${g.id}')">
+    <div class="group-card-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="group-avatar">${Utils.groupEmoji(g.name)}</div>
+        <div>
+          <div class="group-name">${Utils.esc(g.name)}${pendingBadge}</div>
+          <div class="group-meta">${mainMembers.length} member${mainMembers.length!==1?'s':''} · ${visibleTxCount} expense${visibleTxCount!==1?'s':''}</div>
         </div>
       </div>
-      <div style="display:flex;gap:4px">${avatars}${extra}</div>
-      <div class="group-stats">
-        <div class="group-stat">
-          <div class="group-stat-val">${Utils.formatCurrency(total)}</div>
-          <div class="group-stat-label">Total Spent</div>
-        </div>
-        <div class="group-stat">
-          <div class="group-stat-val">${g.members.length}</div>
-          <div class="group-stat-label">Members</div>
-        </div>
-        <div class="group-stat">
-          <div class="group-stat-val">${g.transactions.length}</div>
-          <div class="group-stat-label">Expenses</div>
-        </div>
+      <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="openEditGroupModal('${g.id}')" title="Edit">✎</button>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="confirmDeleteGroup('${g.id}')" title="Delete">🗑</button>
       </div>
     </div>
-  `;
+    <div style="display:flex;gap:4px">${avatars}${extra}</div>
+    <div class="group-stats">
+      <div class="group-stat"><div class="group-stat-val">${Utils.fmt(total)}</div><div class="group-stat-label">Total Spent</div></div>
+      <div class="group-stat"><div class="group-stat-val">${normMembers.length}</div><div class="group-stat-label">Members</div></div>
+      <div class="group-stat"><div class="group-stat-val">${visibleTxCount}</div><div class="group-stat-label">Expenses</div></div>
+    </div>
+  </div>`;
 }
 
-function groupEmoji(name) {
-  const n = name.toLowerCase();
-  if (/trip|travel|tour|vacation|goa|trip/i.test(n)) return '✈️';
-  if (/home|house|flat|room|rent/i.test(n)) return '🏠';
-  if (/office|work|team/i.test(n)) return '💼';
-  if (/party|birthday|celebration/i.test(n)) return '🎉';
-  if (/food|meal|lunch|dinner/i.test(n)) return '🍽️';
-  return '👥';
-}
-
-function memberColor(name) {
-  const colors = ['#c84b31','#2d7a5e','#2563a8','#7c3aed','#c4860a','#0891b2','#be185d','#065f46'];
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
-  return colors[Math.abs(h) % colors.length];
-}
-
-// ============================================================
-//  GROUP VIEW RENDER
-// ============================================================
+/* ================================================================
+   GROUP VIEW
+   ================================================================ */
 function renderGroup() {
-  const g = Groups.getActive();
-  if (!g) { showDashboard(); return; }
-
-  document.getElementById('group-breadcrumb-name').textContent = g.name;
-  document.getElementById('group-view-name').textContent = g.name;
-  document.getElementById('group-view-meta').textContent =
-    `${g.members.length} member${g.members.length !== 1 ? 's' : ''} · Created ${Utils.formatDate(g.createdAt)}`;
-
+  const g = Groups.active(); if (!g) { showDashboard(); return; }
+  const normMembers = memberManager.normalize(g.members);
+  const mainMembers = normMembers.filter(m => !m.parentId);
+  document.getElementById('group-breadcrumb').textContent = g.name;
+  document.getElementById('group-title').textContent    = g.name;
+  document.getElementById('group-subtitle').textContent = `${normMembers.length} members (${mainMembers.length} main) · Created ${Utils.date(g.createdAt)}`;
   renderSummaryCards(g);
   renderTransactions();
-  renderBalances();
-  renderSettle();
-  renderAnalytics();
 }
 
 function renderSummaryCards(g) {
-  const total = g.transactions.reduce((s, t) => s + t.amount, 0);
-  const avg = g.members.length ? (total / g.members.length) : 0;
-  const balances = Utils.computeBalances(g);
-  const maxDebt = Math.min(...Object.values(balances));
-  const maxCredit = Math.max(...Object.values(balances));
-
+  const activeTx = g.transactions.filter(t => !t.deletedFlag);
+  const total = activeTx.reduce((s,t)=>s+t.amount,0);
+  const normMembers = memberManager.normalize(g.members);
+  const avg = normMembers.length ? total/normMembers.length : 0;
+  const bals = Utils.computeBalances(g);
+  const vals = Object.values(bals);
+  const maxD = vals.length ? Math.min(...vals) : 0;
+  const maxC = vals.length ? Math.max(...vals) : 0;
+  const dirtyCount = g.transactions.filter(t => t.isDirty && !t.deletedFlag).length;
+  const dirtyBadge = dirtyCount > 0
+    ? `<div class="summary-card" style="border-color:var(--yellow)">
+        <div class="summary-card-val" style="color:var(--yellow);font-size:18px">${dirtyCount}</div>
+        <div class="summary-card-label" style="color:var(--yellow)">Pending Sync</div>
+      </div>` : '';
   document.getElementById('summary-cards').innerHTML = `
-    <div class="summary-card">
-      <div class="summary-card-val">${Utils.formatCurrency(total)}</div>
-      <div class="summary-card-label">Total Spent</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-card-val">${Utils.formatCurrency(avg)}</div>
-      <div class="summary-card-label">Per Person (avg)</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-card-val" style="color:var(--accent)">${Utils.formatCurrency(Math.abs(maxDebt))}</div>
-      <div class="summary-card-label">Largest Debt</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-card-val" style="color:var(--green)">${Utils.formatCurrency(maxCredit)}</div>
-      <div class="summary-card-label">Largest Credit</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-card-val">${g.transactions.length}</div>
-      <div class="summary-card-label">Expenses</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-card-val">${g.members.length}</div>
-      <div class="summary-card-label">Members</div>
-    </div>
-  `;
+    <div class="summary-card"><div class="summary-card-val">${Utils.fmt(total)}</div><div class="summary-card-label">Total Spent</div></div>
+    <div class="summary-card"><div class="summary-card-val">${Utils.fmt(avg)}</div><div class="summary-card-label">Per Person</div></div>
+    <div class="summary-card"><div class="summary-card-val" style="color:var(--accent)">${Utils.fmt(Math.abs(maxD))}</div><div class="summary-card-label">Largest Debt</div></div>
+    <div class="summary-card"><div class="summary-card-val" style="color:var(--green)">${Utils.fmt(maxC)}</div><div class="summary-card-label">Largest Credit</div></div>
+    <div class="summary-card"><div class="summary-card-val">${activeTx.length}</div><div class="summary-card-label">Expenses</div></div>
+    <div class="summary-card"><div class="summary-card-val">${normMembers.length}</div><div class="summary-card-label">Members</div></div>
+    ${dirtyBadge}`;
 }
 
 function renderTransactions() {
-  const g = Groups.getActive();
-  if (!g) return;
+  const g = Groups.active(); if (!g) return;
   const search = document.getElementById('tx-search').value;
-  const sort = document.getElementById('tx-sort').value;
-  const list = Transactions.getSorted(g.transactions, sort, search);
-  const container = document.getElementById('transactions-list');
-
+  const sort   = document.getElementById('tx-sort').value;
+  const list   = Transactions.sorted(g.transactions, sort, search);
+  const c = document.getElementById('transactions-list');
   if (!list.length) {
-    container.innerHTML = `
-      <div class="empty-state" style="padding:40px">
-        <div class="empty-state-icon">📝</div>
-        <div class="empty-state-title">${search ? 'No results found' : 'No expenses yet'}</div>
-        <p>${search ? 'Try a different search term' : 'Add your first expense'}</p>
-      </div>
-    `;
-    return;
+    c.innerHTML = `<div class="empty-state" style="padding:40px">
+      <div class="empty-state-icon">📝</div>
+      <div class="empty-state-title">${search?'No results':'No expenses yet'}</div>
+      <p>${search?'Try a different search term':'Add your first expense'}</p>
+    </div>`; return;
   }
+  c.innerHTML = `<div class="transactions-list">${list.map(tx => {
+    const share = Transactions.perPersonShare(tx);
+    const shareLabel = share.type==='equal' ? `${Utils.fmt(share.amount)}/person` : 'custom split';
+    const dirtyIndicator = tx.isDirty
+      ? `<span class="tx-dirty-dot" title="Pending sync"></span>` : '';
+    const cardClass = tx.isDirty ? 'card transaction-card tx-card-dirty' : 'card transaction-card';
 
-  container.innerHTML = `<div class="transactions-list">${list.map(tx => renderTxCard(tx, g)).join('')}</div>`;
-}
+    // Participant display
+    let participantDisplay = '';
+    if (tx.participants && tx.participants.length) {
+      const g2 = Groups.active();
+      const normM = memberManager.normalize(g2?.members||[]);
+      participantDisplay = tx.participants.slice(0,4).map(p => {
+        const m = normM.find(m => m.id === p.memberId) || { name: p.memberId };
+        const shareAmt = tx.splitType==='custom' ? Utils.fmt(p.customAmount||0) :
+          tx.splitType==='share' ? `${p.shareCount||1}x` : '';
+        return `<span class="tx-share-pill">${Utils.esc(m.name)}${shareAmt?' ('+shareAmt+')':''}</span>`;
+      }).join('');
+      if (tx.participants.length > 4) participantDisplay += `<span class="tx-share-pill">+${tx.participants.length-4}</span>`;
+    } else {
+      participantDisplay = (tx.splitBetween||[]).slice(0,3).map(m =>
+        `<span class="tx-share-pill">${Utils.esc(m)}</span>`
+      ).join('');
+      if ((tx.splitBetween||[]).length > 3) participantDisplay += `<span class="tx-share-pill">+${tx.splitBetween.length-3}</span>`;
+    }
 
-function renderTxCard(tx, g) {
-  const share = (tx.amount / tx.splitBetween.length);
-  const updatedInfo = tx.updatedAt !== tx.date ? ` · Updated ${Utils.formatDateTime(tx.updatedAt)}` : '';
-  return `
-    <div class="card transaction-card">
-      <div class="tx-icon">${tx.emoji || '💰'}</div>
+    return `<div class="${cardClass}">
+      <div class="tx-icon">${tx.emoji||'💰'}</div>
       <div class="tx-body">
-        <div class="tx-desc">${Utils.sanitize(tx.desc)}</div>
+        <div class="tx-desc" style="display:flex;align-items:center;gap:6px">${dirtyIndicator}${Utils.esc(tx.desc)}</div>
         <div class="tx-meta">
-          <span>👤 ${Utils.sanitize(tx.paidBy)}</span>
-          <span>🗓 ${Utils.formatDateTime(tx.date)}${updatedInfo}</span>
-          <span>Split: ${tx.splitBetween.map(m => Utils.sanitize(m)).join(', ')}</span>
+          <span>👤 ${Utils.esc(tx.paidBy)}</span>
+          <span>🗓 ${Utils.dateTime(tx.date)}</span>
         </div>
+        <div class="tx-share-pills">${participantDisplay}</div>
       </div>
       <div class="tx-amount">
-        <div class="tx-amount-val">${Utils.formatCurrency(tx.amount)}</div>
-        <div class="tx-per-person">${Utils.formatCurrency(share)}/person</div>
+        <div class="tx-amount-val">${Utils.fmt(tx.amount)}</div>
+        <div class="tx-per-person">${shareLabel}</div>
       </div>
       <div class="tx-actions">
-        <button class="btn btn-ghost btn-icon btn-sm" onclick="openEditTransactionModal('${tx.id}')" title="Edit">✎</button>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="openAddTransactionModal('${tx.id}')" title="Edit">✎</button>
         <button class="btn btn-ghost btn-icon btn-sm" onclick="confirmDeleteTransaction('${tx.id}')" title="Delete">🗑</button>
       </div>
-    </div>
-  `;
+    </div>`;
+  }).join('')}</div>`;
 }
 
 function renderBalances() {
-  const g = Groups.getActive();
-  if (!g) return;
-  const balances = Utils.computeBalances(g);
-
-  const rows = Object.entries(balances).map(([name, amt]) => {
-    const cls = amt > 0.009 ? 'positive' : amt < -0.009 ? 'negative' : 'neutral';
-    const label = amt > 0.009 ? 'Gets back' : amt < -0.009 ? 'Owes' : 'Settled';
-    return `
-      <div class="balance-row">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div class="chip-avatar" style="background:${memberColor(name)};width:32px;height:32px;font-size:13px">${Utils.initials(name)}</div>
-          <div>
-            <div class="balance-member">${Utils.sanitize(name)}</div>
-            <div class="text-sm text-muted">${label}</div>
-          </div>
-        </div>
-        <div class="balance-amount ${cls}">${amt >= 0 ? '+' : ''}${Utils.formatCurrency(amt)}</div>
-      </div>
-    `;
-  }).join('');
-
+  const g = Groups.active(); if (!g) return;
+  const b = Utils.computeBalances(g);
+  const normM = memberManager.normalize(g.members);
   document.getElementById('balances-content').innerHTML = `
     <div class="section-title">Balance Sheet</div>
-    <div class="balance-list">${rows || '<div class="text-muted">No balances yet</div>'}</div>
-  `;
+    <div class="balance-list">${Object.entries(b).map(([id,amt]) => {
+      const member = normM.find(m => m.id === id) || { name: id, parentId: null };
+      const isSubMember = member.parentId;
+      if (isSubMember) return '';
+      const cls   = amt>0.009?'positive':amt<-0.009?'negative':'neutral';
+      const label = amt>0.009?'Gets back':amt<-0.009?'Owes':'Settled';
+      const subBadge = member.parentId ? '<span class="group-pending-badge" style="background:var(--blue-bg);color:var(--blue);border-color:#c7ddf7">sub</span>' : '';
+      return `<div class="balance-row" style="${member.parentId?'margin-left:24px;opacity:.85':''}">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="chip-avatar" style="background:${Utils.memberColor(member.name)};width:32px;height:32px;font-size:13px">${Utils.initials(member.name)}</div>
+          <div><div style="font-weight:600">${Utils.esc(member.name)} ${subBadge}</div><div class="text-sm text-muted">${label}</div></div>
+        </div>
+        <div class="balance-amount ${cls}">${amt>=0?'+':''}${Utils.fmt(amt)}</div>
+      </div>`;
+    }).join('')}</div>`;
 }
 
 function renderSettle() {
-  const g = Groups.getActive();
-  if (!g) return;
-  const balances = Utils.computeBalances(g);
-  const settlements = Utils.computeSettlements(balances);
-
-  const rows = settlements.map(s => `
-    <div class="settlement-row">
-      <div class="chip-avatar" style="background:${memberColor(s.from)}">${Utils.initials(s.from)}</div>
-      <strong>${Utils.sanitize(s.from)}</strong>
-      <span class="settlement-arrow">→</span>
-      <div class="chip-avatar" style="background:${memberColor(s.to)}">${Utils.initials(s.to)}</div>
-      <strong>${Utils.sanitize(s.to)}</strong>
-      <span style="flex:1;text-align:right;font-weight:700;font-family:var(--font-mono);color:var(--green)">${Utils.formatCurrency(s.amount)}</span>
-    </div>
-  `).join('');
-
+  const g = Groups.active(); if (!g) return;
+  const s = Utils.computeSettlements(Utils.computeBalances(g));
+  const normM = memberManager.normalize(g.members);
+  const getName = id => normM.find(m => m.id === id)?.name || id;
   document.getElementById('settle-content').innerHTML = `
     <div class="section-title">Minimum Settlements Required</div>
-    ${settlements.length ? `
-      <div class="info-text" style="margin-bottom:12px">This is the minimum number of transactions needed to settle all debts</div>
-      <div class="settlement-list">${rows}</div>
-    ` : `<div class="card" style="text-align:center;padding:32px;color:var(--text3)">✅ All settled up!</div>`}
-  `;
+    ${s.length
+      ? `<div class="info-text" style="margin-bottom:12px">Fewest transactions to settle all debts</div>
+         <div class="settlement-list">${s.map(x=>`<div class="settlement-row">
+           <div class="chip-avatar" style="background:${Utils.memberColor(getName(x.from))}">${Utils.initials(getName(x.from))}</div>
+           <strong>${Utils.esc(getName(x.from))}</strong>
+           <span style="color:var(--green);font-size:18px">→</span>
+           <div class="chip-avatar" style="background:${Utils.memberColor(getName(x.to))}">${Utils.initials(getName(x.to))}</div>
+           <strong>${Utils.esc(getName(x.to))}</strong>
+           <span style="flex:1;text-align:right;font-weight:700;font-family:var(--font-mono);color:var(--green)">${Utils.fmt(x.amount)}</span>
+         </div>`).join('')}</div>`
+      : `<div class="card" style="text-align:center;padding:32px;color:var(--text3)">✅ All settled up!</div>`}`;
 }
 
 function renderAnalytics() {
-  const g = Groups.getActive();
-  if (!g) return;
-  const total = g.transactions.reduce((s, t) => s + t.amount, 0);
-
-  // Spending per member (how much paid by each)
-  const paidBy = {};
-  const owedBy = {};
-  g.members.forEach(m => { paidBy[m] = 0; owedBy[m] = 0; });
-  g.transactions.forEach(tx => {
-    if (paidBy[tx.paidBy] !== undefined) paidBy[tx.paidBy] += tx.amount;
-    const share = tx.amount / tx.splitBetween.length;
-    tx.splitBetween.forEach(m => { if (owedBy[m] !== undefined) owedBy[m] += share; });
-  });
-
-  const maxPaid = Math.max(...Object.values(paidBy), 1);
-  const maxOwed = Math.max(...Object.values(owedBy), 1);
-
-  const paidRows = Object.entries(paidBy).map(([name, amt]) => `
-    <div class="bar-row">
-      <div class="bar-label"><span>${Utils.sanitize(name)}</span><span class="font-mono">${Utils.formatCurrency(amt)}</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${(amt/maxPaid*100).toFixed(1)}%;background:${memberColor(name)}"></div></div>
-    </div>
-  `).join('');
-
-  const owedRows = Object.entries(owedBy).map(([name, amt]) => `
-    <div class="bar-row">
-      <div class="bar-label"><span>${Utils.sanitize(name)}</span><span class="font-mono">${Utils.formatCurrency(amt)}</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${(amt/maxOwed*100).toFixed(1)}%;background:${memberColor(name)}"></div></div>
-    </div>
-  `).join('');
-
-  // Category breakdown
-  const cats = {};
-  g.transactions.forEach(tx => {
-    const e = tx.emoji || '💰';
-    cats[e] = (cats[e] || 0) + tx.amount;
-  });
-  const catRows = Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([e, amt]) => `
-    <div class="balance-row">
-      <span style="font-size:20px">${e}</span>
-      <span class="font-mono" style="font-weight:700">${Utils.formatCurrency(amt)}</span>
-      <span class="badge badge-gray">${((amt/total)*100).toFixed(1)}%</span>
-    </div>
-  `).join('');
-
+  const g = Groups.active(); if (!g) return;
+  const { paid, owed, members } = reportManager.memberStats(g);
+  const mainMembers = members.filter(m => !m.parentId);
+  const total = g.transactions.filter(t=>!t.deletedFlag).reduce((s,t)=>s+t.amount,0);
+  const maxP = Math.max(...mainMembers.map(m=>paid[m.id]||0),1);
+  const maxO = Math.max(...mainMembers.map(m=>owed[m.id]||0),1);
+  const bars = (getter,max) => mainMembers.map(m => {
+    const a = getter(m.id)||0;
+    return `<div class="bar-row"><div class="bar-label"><span>${Utils.esc(m.name)}</span><span class="font-mono">${Utils.fmt(a)}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(a/max*100).toFixed(1)}%;background:${Utils.memberColor(m.name)}"></div></div></div>`;
+  }).join('');
+  const cats={};
+  g.transactions.filter(t=>!t.deletedFlag).forEach(tx=>{const e=tx.emoji||'💰';cats[e]=(cats[e]||0)+tx.amount;});
   document.getElementById('analytics-content').innerHTML = `
     <div class="analytics-grid">
-      <div class="card">
-        <div class="section-title">Amount Paid By</div>
-        <div class="bar-chart">${paidRows}</div>
-      </div>
-      <div class="card">
-        <div class="section-title">Amount Owed By</div>
-        <div class="bar-chart">${owedRows}</div>
-      </div>
+      <div class="card"><div class="section-title">Paid By</div><div class="bar-chart">${bars(id=>paid[id],maxP)}</div></div>
+      <div class="card"><div class="section-title">Owes</div><div class="bar-chart">${bars(id=>owed[id],maxO)}</div></div>
     </div>
-    <div class="card mt-16">
-      <div class="section-title">Category Breakdown</div>
-      <div class="balance-list mt-8">${catRows || '<div class="text-muted">No data</div>'}</div>
-    </div>
-  `;
+    <div class="card mt-16"><div class="section-title">Category Breakdown</div>
+      <div class="balance-list mt-8">${Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([e,a])=>
+        `<div class="balance-row"><span style="font-size:20px">${e}</span>
+         <span class="font-mono" style="font-weight:700">${Utils.fmt(a)}</span>
+         <span class="badge badge-gray">${total?((a/total)*100).toFixed(1)+'%':'—'}</span></div>`
+      ).join('')||'<div class="text-muted">No data yet</div>'}</div>
+    </div>`;
 }
 
-// ============================================================
-//  TABS
-// ============================================================
-function switchTab(name) {
-  STATE.activeTab = name;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-
-  const tabs = ['transactions', 'balances', 'settle', 'analytics'];
-  tabs.forEach(t => {
-    const el = document.getElementById(`tab-${t}`);
-    if (el) el.classList.toggle('hidden', t !== name);
+/* ================================================================
+   TABS
+   ================================================================ */
+function switchTab(btn) {
+  const name = btn.dataset.tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['transactions','balances','settle','analytics'].forEach(t=>{
+    const el=document.getElementById('tab-'+t);
+    if(el) el.classList.toggle('hidden',t!==name);
   });
-
-  if (name === 'balances') renderBalances();
-  else if (name === 'settle') renderSettle();
-  else if (name === 'analytics') renderAnalytics();
-  else if (name === 'transactions') renderTransactions();
+  if(name==='balances')    renderBalances();
+  if(name==='settle')      renderSettle();
+  if(name==='analytics')   renderAnalytics();
+  if(name==='transactions')renderTransactions();
 }
 
-// ============================================================
-//  CREATE GROUP MODAL
-// ============================================================
-function openCreateGroupModal() {
-  openModal(`
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">Create New Group</div>
-        <button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button>
-      </div>
-      <div class="form-group">
-        <label>Group Name</label>
-        <input class="input" id="new-group-name" placeholder="e.g. Goa Trip, Flatmates…" autofocus>
-      </div>
-      <div class="form-group">
-        <label>Add Members</label>
-        <div style="display:flex;gap:8px">
-          <input class="input" id="new-member-input" placeholder="Member name" onkeydown="if(event.key==='Enter'){addMemberChip();event.preventDefault();}">
-          <button class="btn btn-secondary" onclick="addMemberChip()">Add</button>
-        </div>
-        <div class="member-chips" id="member-chips-create"></div>
-        <div class="info-text">Press Enter or click Add to add a member</div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="submitCreateGroup()">Create Group</button>
-      </div>
+/* ================================================================
+   MEMBER CHIP HELPERS (for simple string-based member input)
+   ================================================================ */
+function renderChips(cid) {
+  const el = document.getElementById(cid); if(!el) return;
+  const members = memberManager.normalize(window._members||[]);
+  el.innerHTML = memberManager.renderTree(members, '_removeChip');
+}
+window._removeChip = (id) => {
+  window._members = memberManager.removeMember(memberManager.normalize(window._members||[]), id);
+  renderChips('mbr-chips');
+};
+function addChip(inputId, cid) {
+  const inp = document.getElementById(inputId); const name = inp.value.trim();
+  if(!name) return;
+  const norm = memberManager.normalize(window._members||[]);
+  if(norm.some(m => m.name === name)){showToast('Already added','warning');return;}
+  window._members = memberManager.addMember(norm, name, null);
+  inp.value=''; renderChips(cid); inp.focus();
+}
+
+function openAddSubMemberModal(parentId, parentName) {
+  const cid = 'mbr-chips';
+  openModal(`<div class="modal" style="max-width:360px">
+    <div class="modal-header"><div class="modal-title">Add Sub-Member</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
+    <p class="text-sm text-muted" style="margin-bottom:14px">Adding a sub-member under <strong>${Utils.esc(parentName)}</strong>. Sub-members can be included in expense splits and their balances are aggregated under their parent.</p>
+    <div class="form-group"><label>Sub-Member Name</label>
+      <input class="input" id="sub-name" placeholder="e.g. Spouse, Child…" autofocus>
     </div>
-  `);
-  window._tempMembers = [];
-}
-
-function addMemberChip(containerIdOverride) {
-  const input = document.getElementById('new-member-input');
-  const name = input.value.trim();
-  if (!name) return;
-  if (window._tempMembers.includes(name)) { showToast('Member already added', 'warning'); return; }
-  window._tempMembers.push(name);
-  input.value = '';
-  renderMemberChips('member-chips-create', window._tempMembers, (m) => {
-    window._tempMembers = window._tempMembers.filter(x => x !== m);
-    renderMemberChips('member-chips-create', window._tempMembers, arguments.callee);
-  });
-  input.focus();
-}
-
-function renderMemberChips(containerId, members, onRemove) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
-  el.innerHTML = members.map(m => `
-    <div class="member-chip">
-      <div class="chip-avatar" style="background:${memberColor(m)}">${Utils.initials(m)}</div>
-      ${Utils.sanitize(m)}
-      <span class="member-chip-remove" onclick="removeTempMember('${Utils.sanitize(m)}','${containerId}')">×</span>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="_addSubMember('${parentId}')">Add Sub-Member</button>
     </div>
-  `).join('');
+  </div>`);
 }
-
-window.removeTempMember = (name, containerId) => {
-  window._tempMembers = window._tempMembers.filter(m => m !== name);
-  renderMemberChips(containerId, window._tempMembers, null);
+window._addSubMember = (parentId) => {
+  const name = document.getElementById('sub-name')?.value.trim();
+  if(!name){showToast('Name required','error');return;}
+  window._members = memberManager.addMember(memberManager.normalize(window._members||[]), name, parentId);
+  const norm = memberManager.normalize(window._members||[]); // My Changes
+  Groups.update(window._editGroupId,{members:norm}); // My Changes
+  closeModal();
+  renderChips('mbr-chips');
 };
 
-function submitCreateGroup() {
-  const name = document.getElementById('new-group-name').value.trim();
-  if (!name) { showToast('Please enter a group name', 'error'); return; }
-  if (!window._tempMembers.length) { showToast('Please add at least one member', 'error'); return; }
-  Groups.create(name, [...window._tempMembers]);
-  closeModal();
-  renderDashboard();
-  showToast('Group created!', 'success');
-}
-
-// ============================================================
-//  EDIT GROUP MODAL
-// ============================================================
-function openEditGroupModal(id) {
-  const g = STATE.groups.find(g => g.id === id);
-  if (!g) return;
-  window._editGroupId = id;
-  window._tempMembers = [...g.members];
-
-  openModal(`
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">Edit Group</div>
-        <button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button>
-      </div>
-      <div class="form-group">
-        <label>Group Name</label>
-        <input class="input" id="edit-group-name" value="${Utils.sanitize(g.name)}" autofocus>
-      </div>
-      <div class="form-group">
-        <label>Members</label>
-        <div style="display:flex;gap:8px">
-          <input class="input" id="new-member-input" placeholder="Add member" onkeydown="if(event.key==='Enter'){addMemberChip();event.preventDefault();}">
-          <button class="btn btn-secondary" onclick="addMemberChip()">Add</button>
-        </div>
-        <div class="member-chips" id="member-chips-create"></div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="submitEditGroup()">Save Changes</button>
-      </div>
+/* ================================================================
+   CREATE / EDIT GROUP MODALS
+   ================================================================ */
+function openCreateGroupModal(){
+  window._members=[];
+  openModal(`<div class="modal">
+    <div class="modal-header"><div class="modal-title">Create New Group</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
+    <div class="form-group"><label>Group Name</label><input class="input" id="grp-name" placeholder="e.g. Goa Trip, Flatmates…" autofocus></div>
+    <div class="form-group">
+      <label>Members</label>
+      <div style="display:flex;gap:8px"><input class="input" id="mbr-input" placeholder="Member name" onkeydown="if(event.key==='Enter'){addChip('mbr-input','mbr-chips');event.preventDefault();}"><button class="btn btn-secondary" onclick="addChip('mbr-input','mbr-chips')">Add</button></div>
+      <div id="mbr-chips" style="margin-top:8px"></div>
+      <div class="info-text">Press Enter or click Add. Use "+ sub" to add sub-members.</div>
     </div>
-  `);
-
-  renderMemberChips('member-chips-create', window._tempMembers, null);
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="_submitCreateGroup()">Create Group</button></div>
+  </div>`);
 }
+window._submitCreateGroup=()=>{
+  const name=document.getElementById('grp-name').value.trim();
+  if(!name){showToast('Group name required','error');return;}
+  const norm = memberManager.normalize(window._members||[]);
+  if(!norm.filter(m=>!m.parentId).length){showToast('Add at least one member','error');return;}
+  Groups.create(name,norm); closeModal(); renderDashboard(); showToast('Group created!','success');
+};
 
-function submitEditGroup() {
-  const name = document.getElementById('edit-group-name').value.trim();
-  if (!name) { showToast('Group name required', 'error'); return; }
-  if (!window._tempMembers.length) { showToast('At least one member required', 'error'); return; }
-  Groups.update(window._editGroupId, { name, members: [...window._tempMembers] });
-  closeModal();
-  renderDashboard();
-  showToast('Group updated!', 'success');
-}
-
-// ============================================================
-//  DELETE GROUP
-// ============================================================
-function confirmDeleteGroup(id) {
-  const g = STATE.groups.find(g => g.id === id);
-  if (!g) return;
-  openConfirm(
-    'Delete Group',
-    `Are you sure you want to delete <span class="confirm-highlight">"${Utils.sanitize(g.name)}"</span>? This will permanently remove all ${g.transactions.length} transactions. This action cannot be undone.`,
-    () => {
-      Groups.delete(id);
-      renderDashboard();
-      showToast('Group deleted', 'default');
-    }
-  );
-}
-
-// ============================================================
-//  MANAGE MEMBERS MODAL
-// ============================================================
-function openManageMembersModal() {
-  const g = Groups.getActive();
-  if (!g) return;
-  window._editGroupId = g.id;
-  window._tempMembers = [...g.members];
-
-  openModal(`
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">Manage Members</div>
-        <button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button>
-      </div>
-      <div class="form-group">
-        <label>Add Member</label>
-        <div style="display:flex;gap:8px">
-          <input class="input" id="new-member-input" placeholder="Member name" onkeydown="if(event.key==='Enter'){addMemberChip();event.preventDefault();}">
-          <button class="btn btn-secondary" onclick="addMemberChip()">Add</button>
-        </div>
-      </div>
-      <div class="member-chips" id="member-chips-create"></div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="submitManageMembers()">Save</button>
-      </div>
+function openEditGroupModal(id){
+  const g=STATE.groups.find(g=>g.id===id); if(!g) return;
+  window._editGroupId=id;
+  window._members=memberManager.normalize(g.members);
+  openModal(`<div class="modal">
+    <div class="modal-header"><div class="modal-title">Edit Group</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
+    <div class="form-group"><label>Group Name</label><input class="input" id="grp-name-edit" value="${Utils.esc(g.name)}" autofocus></div>
+    <div class="form-group">
+      <label>Members</label>
+      <div style="display:flex;gap:8px"><input class="input" id="mbr-input" placeholder="Add member" onkeydown="if(event.key==='Enter'){addChip('mbr-input','mbr-chips');event.preventDefault();}"><button class="btn btn-secondary" onclick="addChip('mbr-input','mbr-chips')">Add</button></div>
+      <div id="mbr-chips" style="margin-top:8px"></div>
     </div>
-  `);
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="_submitEditGroup()">Save</button></div>
+  </div>`);
+  renderChips('mbr-chips');
+}
+window._submitEditGroup=()=>{
+  const name=document.getElementById('grp-name-edit').value.trim();
+  if(!name){showToast('Name required','error');return;}
+  Groups.update(window._editGroupId,{name,members:[...window._members]});
+  closeModal(); renderDashboard(); showToast('Updated!','success');
+};
 
-  renderMemberChips('member-chips-create', window._tempMembers, null);
+function confirmDeleteGroup(id){
+  const g=STATE.groups.find(g=>g.id===id); if(!g) return;
+  const txCount = g.transactions.filter(t=>!t.deletedFlag).length;
+  openConfirm('Delete Group',`Delete <span class="confirm-hl">"${Utils.esc(g.name)}"</span>? This removes all ${txCount} expenses and cannot be undone.`,
+    ()=>{ Groups.delete(id); showToast('Group deleted','default'); });
 }
 
-function submitManageMembers() {
-  if (!window._tempMembers.length) { showToast('Need at least one member', 'error'); return; }
-  Groups.update(window._editGroupId, { members: [...window._tempMembers] });
-  closeModal();
-  renderGroup();
-  showToast('Members updated!', 'success');
+/* ================================================================
+   MANAGE MEMBERS MODAL
+   ================================================================ */
+function openManageMembersModal(){
+  const g=Groups.active(); if(!g) return;
+  window._editGroupId=g.id;
+  window._members=memberManager.normalize(g.members);
+  openModal(`<div class="modal">
+    <div class="modal-header"><div class="modal-title">Manage Members</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
+    <div class="form-group">
+      <label>Add Member</label>
+      <div style="display:flex;gap:8px"><input class="input" id="mbr-input" placeholder="Member name" onkeydown="if(event.key==='Enter'){addChip('mbr-input','mbr-chips');event.preventDefault();}"><button class="btn btn-secondary" onclick="addChip('mbr-input','mbr-chips')">Add</button></div>
+    </div>
+    <div id="mbr-chips" style="margin-top:8px"></div>
+    <div class="info-text mt-8">Use "+ sub" button to add sub-members under a member.</div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="_submitMembers()">Save</button></div>
+  </div>`);
+  renderChips('mbr-chips');
 }
+window._submitMembers=()=>{
+  const norm = memberManager.normalize(window._members||[]);
+  if(!norm.filter(m=>!m.parentId).length){showToast('Need at least one main member','error');return;}
+  Groups.update(window._editGroupId,{members:norm});
+  closeModal(); renderGroup(); showToast('Members updated!','success');
+};
 
-// ============================================================
-//  ADD TRANSACTION MODAL
-// ============================================================
-function openAddTransactionModal(editId) {
-  const g = Groups.getActive();
-  if (!g) return;
-  const isEdit = !!editId;
-  const tx = isEdit ? g.transactions.find(t => t.id === editId) : null;
+/* ================================================================
+   ADD / EDIT TRANSACTION MODAL — multi-share + custom split
+   ================================================================ */
+let _splitMode = 'equal'; // 'equal' | 'share' | 'custom'
 
-  const memberOptions = g.members.map(m =>
-    `<option value="${Utils.sanitize(m)}" ${tx && tx.paidBy === m ? 'selected' : ''}>${Utils.sanitize(m)}</option>`
+function openAddTransactionModal(editId){
+  const g = Groups.active(); if(!g) return;
+  const tx = editId ? g.transactions.find(t=>t.id===editId) : null;
+  _splitMode = tx?.splitType || 'equal';
+
+  const normM = memberManager.normalize(g.members);
+  const paidByOpts = normM.map(m =>
+    `<option value="${Utils.esc(m.id)}" ${tx&&tx.paidBy===m.id?'selected':''}>${Utils.esc(m.name)}${m.parentId?' (sub)':''}</option>`
   ).join('');
 
-  const splitChecks = g.members.map(m => {
-    const checked = !tx || tx.splitBetween.includes(m) ? 'checked' : '';
-    return `
-      <label class="checkbox-label">
-        <input type="checkbox" class="split-check" value="${Utils.sanitize(m)}" ${checked} onchange="updateSplitPreview()">
-        <div class="chip-avatar" style="background:${memberColor(m)};width:24px;height:24px;font-size:10px">${Utils.initials(m)}</div>
-        ${Utils.sanitize(m)}
-      </label>
-    `;
-  }).join('');
-
-  openModal(`
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">${isEdit ? 'Edit Expense' : 'Add Expense'}</div>
-        <button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button>
-      </div>
-      <div class="form-group">
-        <label>Description</label>
-        <input class="input" id="tx-desc" placeholder="e.g. Dinner, Cab, Groceries…" value="${tx ? Utils.sanitize(tx.desc) : ''}" autofocus>
-      </div>
-      <div class="form-group">
-        <label>Amount (₹)</label>
-        <input class="input" id="tx-amount" type="number" placeholder="0.00" min="0" step="0.01" value="${tx ? tx.amount : ''}" oninput="updateSplitPreview()">
-      </div>
-      <div class="form-group">
-        <label>Paid By</label>
-        <select class="select" id="tx-paid-by">${memberOptions}</select>
-      </div>
-      <div class="form-group">
-        <div class="select-all-row">
-          <label style="margin:0">Split Between</label>
-          <button class="btn btn-ghost btn-sm" onclick="toggleSelectAll()">Toggle All</button>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:2px">${splitChecks}</div>
-        <div class="split-preview" id="split-preview">Select members to split</div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="submitTransaction('${editId || ''}')">
-          ${isEdit ? 'Save Changes' : 'Add Expense'}
-        </button>
-      </div>
+  openModal(`<div class="modal" style="max-width:560px">
+    <div class="modal-header"><div class="modal-title">${tx?'Edit':'Add'} Expense</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
+    <div class="form-group"><label>Description</label><input class="input" id="tx-desc" placeholder="e.g. Dinner, Cab…" value="${tx?Utils.esc(tx.desc):''}" autofocus></div>
+    <div style="display:flex;gap:10px">
+      <div class="form-group" style="flex:1"><label>Amount (₹)</label><input class="input" id="tx-amt" type="number" placeholder="0.00" min="0" step="0.01" value="${tx?tx.amount:''}" oninput="_refreshSplitPreview()"></div>
+      <div class="form-group" style="flex:1"><label>Paid By</label><select class="select" id="tx-paidby">${paidByOpts}</select></div>
     </div>
-  `);
+    <div class="form-group">
+      <label>Split Mode</label>
+      <div class="split-mode-tabs">
+        <button class="split-mode-btn ${_splitMode==='equal'?'active':''}" onclick="_setSplitMode('equal')">⚖ Equal</button>
+        <button class="split-mode-btn ${_splitMode==='share'?'active':''}" onclick="_setSplitMode('share')">✕ Shares</button>
+        <button class="split-mode-btn ${_splitMode==='custom'?'active':''}" onclick="_setSplitMode('custom')">✏ Custom ₹</button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <label style="margin:0;font-size:11px;color:var(--text2);text-transform:none;letter-spacing:0">Participants</label>
+        <button class="btn btn-ghost btn-sm" onclick="_toggleAllParticipants()">Toggle All</button>
+      </div>
+      <div id="participants-container"></div>
+      <div class="split-preview-box" id="split-preview">Select participants</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="_submitTx('${editId||''}')">${tx?'Save Changes':'Add Expense'}</button>
+    </div>
+  </div>`);
 
-  updateSplitPreview();
-  window._editTxId = editId || null;
+  _renderParticipants(tx);
+  _refreshSplitPreview();
 }
 
-function openEditTransactionModal(id) {
-  openAddTransactionModal(id);
+function _renderParticipants(tx) {
+  const g = Groups.active(); if(!g) return;
+  const container = document.getElementById('participants-container'); if(!container) return;
+  //const normM = memberManager.normalize(g.members);
+  const prevParts = tx?.participants || null;
+  const prevSplit = tx?.splitBetween || [];
+
+  // const mainSubMemebers = [];
+
+  // const mainMembers = normM.filter(m => !m.parentId);
+  // const subMembers = normM.filter(m => m.parentId);
+
+  // mainMembers.forEach(mainMember => {
+  //   const childMembers = subMembers.filter(m => m.parentId === mainMember.id);
+  //   mainSubMemebers.push(mainMember);
+  //   mainSubMemebers.push(...childMembers);
+  // });
+
+
+
+  container.innerHTML = Utils.getMainSubMembers(g).map(m => {
+    let isChecked;
+    if (prevParts) {
+      isChecked = prevParts.some(p => p.memberId === m.id);
+    } else {
+      isChecked = !tx || prevSplit.includes(m.id) || prevSplit.includes(m.name);
+    }
+    const shareVal = prevParts?.find(p=>p.memberId===m.id)?.shareCount || 1;
+    const customVal = prevParts?.find(p=>p.memberId===m.id)?.customAmount || '';
+    const indent = m.parentId ? 'margin-left:24px;' : '';
+
+    if (_splitMode === 'equal') {
+      return `<div class="split-member-row" style="${indent}">
+        <input type="checkbox" class="pchk" value="${Utils.esc(m.id)}" data-name="${Utils.esc(m.name)}" ${isChecked?'checked':''} onchange="_refreshSplitPreview()" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer">
+        <div class="chip-avatar" style="background:${Utils.memberColor(m.name)};width:22px;height:22px;border-radius:50%;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">${Utils.initials(m.name)}</div>
+        <div class="split-member-name">${Utils.esc(m.name)}${m.parentId?'<span class="group-pending-badge" style="background:var(--blue-bg);color:var(--blue);border-color:#c7ddf7;margin-left:4px">sub</span>':''}</div>
+      </div>`;
+    } else if (_splitMode === 'share') {
+      return `<div class="split-member-row" style="${indent}">
+        <input type="checkbox" class="pchk" value="${Utils.esc(m.id)}" data-name="${Utils.esc(m.name)}" ${isChecked?'checked':''} onchange="_refreshSplitPreview()" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer">
+        <div class="chip-avatar" style="background:${Utils.memberColor(m.name)};width:22px;height:22px;border-radius:50%;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">${Utils.initials(m.name)}</div>
+        <div class="split-member-name">${Utils.esc(m.name)}${m.parentId?'<span class="group-pending-badge" style="background:var(--blue-bg);color:var(--blue);border-color:#c7ddf7;margin-left:4px">sub</span>':''}</div>
+        <input class="split-input-sm" type="number" min="1" step="1" value="${shareVal}" placeholder="Shares" data-mid="${Utils.esc(m.id)}" oninput="_refreshSplitPreview()">
+        <span style="font-size:11px;color:var(--text3)">shares</span>
+      </div>`;
+    } else {
+      return `<div class="split-member-row" style="${indent}">
+        <input type="checkbox" class="pchk" value="${Utils.esc(m.id)}" data-name="${Utils.esc(m.name)}" ${isChecked?'checked':''} onchange="_refreshSplitPreview()" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer">
+        <div class="chip-avatar" style="background:${Utils.memberColor(m.name)};width:22px;height:22px;border-radius:50%;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">${Utils.initials(m.name)}</div>
+        <div class="split-member-name">${Utils.esc(m.name)}${m.parentId?'<span class="group-pending-badge" style="background:var(--blue-bg);color:var(--blue);border-color:#c7ddf7;margin-left:4px">sub</span>':''}</div>
+        <input class="split-input-sm" type="number" min="0" step="0.01" value="${customVal}" placeholder="₹ amount" data-mid="${Utils.esc(m.id)}" oninput="_refreshSplitPreview()">
+        <span style="font-size:11px;color:var(--text3)">₹</span>
+      </div>`;
+    }
+  }).join('');
 }
 
-function toggleSelectAll() {
-  const checks = document.querySelectorAll('.split-check');
-  const allChecked = [...checks].every(c => c.checked);
+window._setSplitMode = (mode) => {
+  _splitMode = mode;
+  document.querySelectorAll('.split-mode-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['equal','share','custom'][i] === mode);
+  });
+  const g = Groups.active();
+  const editId = document.querySelector('[onclick^="_submitTx"]')?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+  const tx = editId ? g?.transactions.find(t=>t.id===editId) : null;
+  _renderParticipants(tx);
+  _refreshSplitPreview();
+};
+
+window._toggleAllParticipants = () => {
+  const checks = [...document.querySelectorAll('.pchk')];
+  const allChecked = checks.every(c => c.checked);
   checks.forEach(c => c.checked = !allChecked);
-  updateSplitPreview();
-}
+  _refreshSplitPreview();
+};
 
-function updateSplitPreview() {
-  const amt = parseFloat(document.getElementById('tx-amount').value) || 0;
-  const checks = [...document.querySelectorAll('.split-check')].filter(c => c.checked);
-  const preview = document.getElementById('split-preview');
-  if (!preview) return;
-  if (!checks.length) { preview.innerHTML = '<span style="color:var(--accent)">Select at least one member</span>'; return; }
-  const share = amt / checks.length;
-  preview.innerHTML = `Splitting <strong>${Utils.formatCurrency(amt)}</strong> equally → <strong>${Utils.formatCurrency(share)}</strong> per person among ${checks.length} member${checks.length !== 1 ? 's' : ''}`;
-}
+window._refreshSplitPreview = () => {
+  const amt = parseFloat(document.getElementById('tx-amt')?.value) || 0;
+  const sel = [...document.querySelectorAll('.pchk')].filter(c => c.checked);
+  const preview = document.getElementById('split-preview'); if(!preview) return;
 
-function submitTransaction(editId) {
-  const desc = document.getElementById('tx-desc').value.trim();
-  const amount = parseFloat(document.getElementById('tx-amount').value);
-  const paidBy = document.getElementById('tx-paid-by').value;
-  const splitBetween = [...document.querySelectorAll('.split-check')].filter(c => c.checked).map(c => c.value);
+  if (!sel.length) { preview.innerHTML = '<span class="split-warn">Select at least one participant</span>'; return; }
 
-  if (!desc) { showToast('Description required', 'error'); return; }
-  if (!amount || amount <= 0) { showToast('Enter a valid amount', 'error'); return; }
-  if (!splitBetween.length) { showToast('Select at least one person to split', 'error'); return; }
-
-  const g = Groups.getActive();
-  if (editId) {
-    Transactions.update(g, editId, { desc, amount, paidBy, splitBetween });
-    showToast('Expense updated!', 'success');
+  if (_splitMode === 'equal') {
+    const share = amt / sel.length;
+    preview.innerHTML = `Splitting <strong>${Utils.fmt(amt)}</strong> equally → <strong>${Utils.fmt(share)}</strong> × ${sel.length} people`;
+  } else if (_splitMode === 'share') {
+    const inputs = [...document.querySelectorAll('.split-input-sm')];
+    const selIds = sel.map(c => c.value);
+    let totalShares = 0;
+    inputs.forEach(inp => { if(selIds.includes(inp.dataset.mid)) totalShares += parseFloat(inp.value)||1; });
+    const lines = sel.map(c => {
+      const inp = inputs.find(i => i.dataset.mid === c.value);
+      const sh = parseFloat(inp?.value)||1;
+      const shareAmt = totalShares ? amt*sh/totalShares : 0;
+      return `${c.dataset.name||c.value}: ${sh} share${sh!==1?'s':''} = <strong>${Utils.fmt(shareAmt)}</strong>`;
+    }).join(' · ');
+    preview.innerHTML = lines;
   } else {
-    Transactions.add(g, { desc, amount, paidBy, splitBetween });
-    showToast('Expense added!', 'success');
+    const inputs = [...document.querySelectorAll('.split-input-sm')];
+    const selIds = sel.map(c => c.value);
+    let assigned = 0;
+    inputs.forEach(inp => { if(selIds.includes(inp.dataset.mid)) assigned += parseFloat(inp.value)||0; });
+    const diff = amt - assigned;
+    const ok = Math.abs(diff) < 0.01;
+    preview.innerHTML = `Assigned <strong>${Utils.fmt(assigned)}</strong> of <strong>${Utils.fmt(amt)}</strong> ${ok ? '<span class="split-ok">✓ balanced</span>' : `<span class="split-warn">${diff>0?'Remaining: '+Utils.fmt(diff):'Over by: '+Utils.fmt(-diff)}</span>`}`;
+  }
+};
+
+window._submitTx = (editId) => {
+  const desc  = document.getElementById('tx-desc').value.trim();
+  const amt   = parseFloat(document.getElementById('tx-amt').value);
+  const paidBy = document.getElementById('tx-paidby').value;
+  const selEls = [...document.querySelectorAll('.pchk')].filter(c => c.checked);
+  const inputs = [...document.querySelectorAll('.split-input-sm')];
+
+  if(!desc)        { showToast('Description required','error'); return; }
+  if(!amt||amt<=0) { showToast('Enter a valid amount','error'); return; }
+  if(!selEls.length){ showToast('Select at least one participant','error'); return; }
+
+  let participants = [];
+  if (_splitMode === 'equal') {
+    participants = selEls.map(c => ({ memberId: c.value, shareCount: 1 }));
+  } else if (_splitMode === 'share') {
+    const selIds = selEls.map(c => c.value);
+    participants = selEls.map(c => {
+      const inp = inputs.find(i => i.dataset.mid === c.value);
+      return { memberId: c.value, shareCount: parseFloat(inp?.value)||1 };
+    });
+  } else {
+    // custom
+    const selIds = selEls.map(c => c.value);
+    let total = 0;
+    participants = selEls.map(c => {
+      const inp = inputs.find(i => i.dataset.mid === c.value);
+      const v = parseFloat(inp?.value)||0;
+      total += v;
+      return { memberId: c.value, customAmount: v };
+    });
+    if (Math.abs(total - amt) > 0.01) {
+      showToast(`Custom amounts must sum to ${Utils.fmt(amt)}`, 'error'); return;
+    }
   }
 
-  closeModal();
-  renderGroup();
+  // Backward compat: also set splitBetween
+  const splitBetween = selEls.map(c => c.value);
+
+  const g = Groups.active();
+  const data = { desc, amount: amt, paidBy, splitType: _splitMode, participants, splitBetween };
+  if (editId) {
+    Transactions.update(g, editId, data); showToast('Expense updated!','success');
+  } else {
+    Transactions.add(g, data); showToast('Expense added!','success');
+  }
+  closeModal(); renderGroup();
+};
+
+function confirmDeleteTransaction(id){
+  const g = Groups.active(); const tx = g?.transactions.find(t=>t.id===id); if(!tx) return;
+  openConfirm('Delete Expense',`Delete <span class="confirm-hl">"${Utils.esc(tx.desc)}"</span> (${Utils.fmt(tx.amount)})? Cannot be undone.`,
+    ()=>{ Transactions.delete(g,id); renderGroup(); showToast('Deleted','default'); });
 }
 
-function confirmDeleteTransaction(id) {
-  const g = Groups.getActive();
-  const tx = g.transactions.find(t => t.id === id);
-  if (!tx) return;
-  openConfirm(
-    'Delete Expense',
-    `Delete <span class="confirm-highlight">"${Utils.sanitize(tx.desc)}"</span> (${Utils.formatCurrency(tx.amount)})? This cannot be undone.`,
-    () => {
-      Transactions.delete(g, id);
-      renderGroup();
-      showToast('Expense deleted', 'default');
-    }
-  );
-}
+/* ================================================================
+   SETTINGS MODAL
+   ================================================================ */
+function openSettingsModal(){
+  const user = STATE.user;
+  const ago  = STATE.lastSyncAt ? _timeAgo(STATE.lastSyncAt) : null;
+  const syncDesc = !navigator.onLine ? '○ Offline'
+    : STATE.pendingChanges ? '● Changes pending sync'
+    : ago ? `✓ Last synced ${ago}` : 'Not synced yet';
 
-// ============================================================
-//  IMPORT / EXPORT
-// ============================================================
-function openImportExportModal() {
-  openModal(`
-    <div class="modal modal-wide">
-      <div class="modal-header">
-        <div class="modal-title">Import / Export</div>
-        <button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <div class="card" style="background:var(--surface2)">
-          <div class="section-title">Export Data</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
-            <button class="btn btn-primary" onclick="exportXML('all')">⬇ Export All Groups (XML)</button>
-            ${STATE.activeGroupId ? `<button class="btn btn-secondary" onclick="exportXML('active')">⬇ Export Current Group (XML)</button>` : ''}
-          </div>
-        </div>
-        <div class="card" style="background:var(--surface2)">
-          <div class="section-title">Import Data</div>
-          <p class="text-sm text-muted" style="margin-bottom:12px">Import groups from a previously exported XML file. Existing data will be merged.</p>
-          <input type="file" id="import-file" accept=".xml" onchange="importXML(event)" style="display:none">
-          <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">📂 Choose XML File</button>
-          <div id="import-status" style="margin-top:12px"></div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+  openModal(`<div class="modal modal-wide">
+    <div class="modal-header"><div class="modal-title">⚙ Settings</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">👤 Account</div>
+      <div class="settings-row">
+        <div><div class="settings-label">${Utils.esc(user?.displayName||'User')}</div><div class="settings-desc">${Utils.esc(user?.email||'')}</div></div>
+        <button class="btn btn-danger btn-sm" onclick="_settingsSignOut()">Sign Out</button>
       </div>
     </div>
-  `);
+
+    <div class="settings-section">
+      <div class="settings-section-title">☁ Cloud Sync (Incremental)</div>
+      <div class="settings-row">
+        <div><div class="settings-label">Sync Status</div><div class="settings-desc">${syncDesc}</div></div>
+        <button class="btn btn-secondary btn-sm" onclick="_settingsSyncNow()">↻ Sync Now</button>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-label">Auto Backup</div><div class="settings-desc">Every ${STATE.backupInterval}s when online</div></div>
+        <label class="toggle-wrap">
+          <input type="checkbox" id="backup-toggle" ${STATE.backupEnabled?'checked':''} onchange="_toggleBackup(this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="settings-row" id="interval-row" style="${STATE.backupEnabled?'':'opacity:.4;pointer-events:none'}">
+        <div><div class="settings-label">Backup Interval</div><div class="settings-desc">Seconds (30–3600)</div></div>
+        <input class="input" id="backup-interval" type="number" min="30" max="3600" value="${STATE.backupInterval}" style="width:80px" onchange="_changeInterval(this.value)">
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">🎨 Appearance</div>
+      <div class="settings-row"><div class="settings-label">Dark Mode</div><button class="dark-toggle" onclick="toggleDark()"></button></div>
+      <div class="settings-row">
+        <div><div class="settings-label">Font Family</div><div class="settings-desc">Change the app's body font</div></div>
+        <select class="select" id="font-select" style="width:140px" onchange="window._changeFont(this.value)">
+          <option value="DM Sans"          ${STATE.fontFamily==='DM Sans'?'selected':''}>DM Sans</option>
+          <option value="Inter"            ${STATE.fontFamily==='Inter'?'selected':''}>Inter</option>
+          <option value="Roboto"           ${STATE.fontFamily==='Roboto'?'selected':''}>Roboto</option>
+          <option value="Playfair Display" ${STATE.fontFamily==='Playfair Display'?'selected':''}>Playfair Display</option>
+          <option value="system-ui"        ${STATE.fontFamily==='system-ui'?'selected':''}>System Font</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="settings-section">
+      <div class="settings-section-title">🔒 Data Safety</div>
+      <div class="settings-row">
+        <div style="font-size:13px;color:var(--text2);line-height:1.6">
+          Data is stored locally and synced incrementally to Firebase. Only changed records are pushed/pulled — efficient and fast.
+        </div>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-label">Manual Backup</div><div class="settings-desc">Download all data as JSON</div></div>
+        <button class="btn btn-secondary btn-sm" onclick="exportJSON('all');closeModal()">⬇ Backup JSON</button>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Close</button></div>
+  </div>`);
+}
+window._settingsSignOut  = async () => { closeModal(); await authManager.signOut(); };
+window._settingsSyncNow  = async () => { closeModal(); await syncManager.syncNow(); openSettingsModal(); };
+window._toggleBackup     = (on) => {
+  STATE.backupEnabled = on; localCacheManager.saveSettings(); backupScheduler.restart();
+  const row = document.getElementById('interval-row');
+  if(row) row.style = on ? '' : 'opacity:.4;pointer-events:none';
+};
+window._changeInterval = (val) => {
+  STATE.backupInterval = Math.max(30, Math.min(3600, parseInt(val)||120));
+  localCacheManager.saveSettings(); backupScheduler.restart();
+};
+
+function _timeAgo(iso) {
+  const s = Math.round((Date.now() - new Date(iso))/1000);
+  if (s < 10)    return 'just now';
+  if (s < 60)    return `${s}s ago`;
+  if (s < 3600)  return `${Math.floor(s/60)}m ago`;
+  if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+  const d = Math.floor(s/86400);
+  return d===1 ? 'yesterday' : `${d} days ago`;
 }
 
-function exportXML(scope) {
-  let groups = scope === 'active' ? [Groups.getActive()] : STATE.groups;
-  groups = groups.filter(Boolean);
-  if (!groups.length) { showToast('No data to export', 'warning'); return; }
-
-  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<splitease>\n';
-  groups.forEach(g => {
-    xml += `  <group id="${g.id}" createdAt="${g.createdAt}">\n`;
-    xml += `    <name>${escXML(g.name)}</name>\n`;
-    xml += `    <members>\n`;
-    g.members.forEach(m => xml += `      <member>${escXML(m)}</member>\n`);
-    xml += `    </members>\n`;
-    xml += `    <transactions>\n`;
-    g.transactions.forEach(tx => {
-      xml += `      <transaction id="${tx.id}" date="${tx.date}" updatedAt="${tx.updatedAt}">\n`;
-      xml += `        <desc>${escXML(tx.desc)}</desc>\n`;
-      xml += `        <amount>${tx.amount}</amount>\n`;
-      xml += `        <paidBy>${escXML(tx.paidBy)}</paidBy>\n`;
-      xml += `        <emoji>${escXML(tx.emoji || '💰')}</emoji>\n`;
-      xml += `        <splitBetween>\n`;
-      tx.splitBetween.forEach(m => xml += `          <member>${escXML(m)}</member>\n`);
-      xml += `        </splitBetween>\n`;
-      xml += `      </transaction>\n`;
-    });
-    xml += `    </transactions>\n`;
-    xml += `  </group>\n`;
-  });
-  xml += '</splitease>';
-
-  const blob = new Blob([xml], { type: 'application/xml' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `splitease-export-${new Date().toISOString().slice(0,10)}.xml`;
-  a.click();
-  showToast('Exported successfully!', 'success');
+/* ================================================================
+   IMPORT / EXPORT
+   ================================================================ */
+function openImportExportModal(){
+  const activeBtn = STATE.activeGroupId
+    ? `<button class="btn btn-secondary" onclick="exportXML('active')">⬇ Current Group (XML)</button>
+       <button class="btn btn-secondary" onclick="exportJSON('active')">⬇ Current Group (JSON)</button>` : '';
+  openModal(`<div class="modal modal-wide">
+    <div class="modal-header"><div class="modal-title">Import / Export</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
+    <div class="card" style="background:var(--surface2);margin-bottom:16px">
+      <div class="section-title">Export</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+        <button class="btn btn-primary" onclick="exportJSON('all')">⬇ All Groups (JSON)</button>
+        <button class="btn btn-secondary" onclick="exportXML('all')">⬇ All Groups (XML)</button>
+        ${activeBtn}
+      </div>
+    </div>
+    <div class="card" style="background:var(--surface2)">
+      <div class="section-title">Import</div>
+      <p class="text-sm text-muted" style="margin-bottom:12px">Supports JSON and XML. Duplicates are skipped; data is merged.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <input type="file" id="f-json" accept=".json" onchange="importJSON(event)" style="display:none">
+        <input type="file" id="f-xml"  accept=".xml"  onchange="importXML(event)"  style="display:none">
+        <button class="btn btn-primary"   onclick="document.getElementById('f-json').click()">📂 Import JSON</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('f-xml').click()">📂 Import XML</button>
+      </div>
+      <div id="import-status" style="margin-top:12px"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Close</button></div>
+  </div>`);
 }
 
-function escXML(str) {
-  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+function exportJSON(scope){
+  const groups=(scope==='active'?[Groups.active()]:STATE.groups).filter(Boolean).filter(g=>!g.deletedFlag);
+  if(!groups.length){showToast('No data to export','warning');return;}
+  const a=Object.assign(document.createElement('a'),{
+    href:URL.createObjectURL(new Blob([JSON.stringify({version:3,exportedAt:new Date().toISOString(),groups},null,2)],{type:'application/json'})),
+    download:`splitease-${new Date().toISOString().slice(0,10)}.json`
+  }); a.click(); showToast('JSON downloaded!','success');
 }
-
-function importXML(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(e.target.result, 'application/xml');
-      const err = doc.querySelector('parsererror');
-      if (err) throw new Error('Invalid XML');
-
-      const groups = doc.querySelectorAll('group');
-      if (!groups.length) throw new Error('No groups found in XML');
-
-      let imported = 0;
-      groups.forEach(gEl => {
-        const id = gEl.getAttribute('id') || Utils.uid();
-        if (STATE.groups.find(g => g.id === id)) return; // skip duplicate
-
-        const name = gEl.querySelector('name')?.textContent || 'Unnamed Group';
-        const members = [...gEl.querySelectorAll('members > member')].map(m => m.textContent);
-        const transactions = [...gEl.querySelectorAll('transaction')].map(txEl => ({
-          id: txEl.getAttribute('id') || Utils.uid(),
-          desc: txEl.querySelector('desc')?.textContent || '',
-          amount: parseFloat(txEl.querySelector('amount')?.textContent || '0'),
-          paidBy: txEl.querySelector('paidBy')?.textContent || '',
-          emoji: txEl.querySelector('emoji')?.textContent || '💰',
-          splitBetween: [...txEl.querySelectorAll('splitBetween > member')].map(m => m.textContent),
-          date: txEl.getAttribute('date') || new Date().toISOString(),
-          updatedAt: txEl.getAttribute('updatedAt') || new Date().toISOString()
-        }));
-
-        // Validation
-        if (!members.length) return;
-        if (!name.trim()) return;
-
-        STATE.groups.push({ id, name, members, transactions, createdAt: gEl.getAttribute('createdAt') || new Date().toISOString() });
-        imported++;
+function importJSON(event){
+  const file=event.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!Array.isArray(data.groups)) throw new Error('Invalid JSON');
+      let n=0;
+      data.groups.forEach(g=>{
+        if(!g.id||!g.name||!Array.isArray(g.members)) return;
+        if(STATE.groups.find(x=>x.id===g.id)) return;
+        // Normalize members
+        g.members = memberManager.normalize(g.members);
+        g.isDirty = true;
+        STATE.groups.push(g); n++;
       });
-
-      Storage.save();
-      document.getElementById('import-status').innerHTML = `<span style="color:var(--green);font-weight:600">✓ Imported ${imported} group(s) successfully</span>`;
-      renderDashboard();
-      showToast(`Imported ${imported} group(s)!`, 'success');
-    } catch (err) {
-      document.getElementById('import-status').innerHTML = `<span style="color:var(--accent);font-weight:600">✕ Import failed: ${err.message}</span>`;
-      showToast('Import failed: ' + err.message, 'error');
+      syncManager.onDataChanged(); renderDashboard();
+      const el=document.getElementById('import-status');
+      if(el) el.innerHTML=`<span style="color:var(--green);font-weight:600">✓ Imported ${n} group(s)</span>`;
+      showToast(`Imported ${n} group(s)!`,'success');
+    }catch(err){
+      const el=document.getElementById('import-status');
+      if(el) el.innerHTML=`<span style="color:var(--accent);font-weight:600">✕ ${Utils.esc(err.message)}</span>`;
+      showToast('Import failed: '+err.message,'error');
     }
   };
-  reader.readAsText(file);
+  r.readAsText(file);
+}
+function exportXML(scope){
+  const groups=(scope==='active'?[Groups.active()]:STATE.groups).filter(Boolean).filter(g=>!g.deletedFlag);
+  if(!groups.length){showToast('No data to export','warning');return;}
+  let xml='<?xml version="1.0" encoding="UTF-8"?>\n<splitease>\n';
+  groups.forEach(g=>{
+    xml+=`  <group id="${g.id}" createdAt="${g.createdAt}" updatedAt="${g.updatedAt||''}">\n    <n>${Utils.escXML(g.name)}</n>\n    <members>\n`;
+    memberManager.normalize(g.members).forEach(m=>xml+=`      <member id="${m.id}" parentId="${m.parentId||''}">${Utils.escXML(m.name)}</member>\n`);
+    xml+=`    </members>\n    <transactions>\n`;
+    g.transactions.filter(t=>!t.deletedFlag).forEach(tx=>{
+      xml+=`      <transaction id="${tx.id}" date="${tx.date}" updatedAt="${tx.updatedAt}" splitType="${tx.splitType||'equal'}">\n`;
+      xml+=`        <desc>${Utils.escXML(tx.desc)}</desc>\n        <amount>${tx.amount}</amount>\n`;
+      xml+=`        <paidBy>${Utils.escXML(tx.paidBy)}</paidBy>\n        <emoji>${Utils.escXML(tx.emoji||'💰')}</emoji>\n`;
+      if(tx.participants){
+        xml+=`        <participants>${tx.participants.map(p=>`<p mid="${p.memberId}" sc="${p.shareCount||1}" ca="${p.customAmount||0}"/>`).join('')}</participants>\n`;
+      }
+      xml+=`      </transaction>\n`;
+    });
+    xml+=`    </transactions>\n  </group>\n`;
+  });
+  xml+='</splitease>';
+  const a=Object.assign(document.createElement('a'),{
+    href:URL.createObjectURL(new Blob([xml],{type:'application/xml'})),
+    download:`splitease-${new Date().toISOString().slice(0,10)}.xml`
+  }); a.click(); showToast('XML exported!','success');
+}
+function importXML(event){
+  const file=event.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const doc=new DOMParser().parseFromString(e.target.result,'application/xml');
+      if(doc.querySelector('parsererror')) throw new Error('Invalid XML');
+      const gEls=doc.querySelectorAll('group'); if(!gEls.length) throw new Error('No groups found');
+      let n=0;
+      gEls.forEach(gEl=>{
+        const id=gEl.getAttribute('id')||Utils.uid();
+        if(STATE.groups.find(g=>g.id===id)) return;
+        const name=gEl.querySelector('name')?.textContent||'Unnamed';
+        const rawMembers=[...gEl.querySelectorAll('members > member')].map(m=>({
+          id: m.getAttribute('id')||m.textContent,
+          name: m.textContent,
+          parentId: m.getAttribute('parentId')||null
+        }));
+        if(!rawMembers.length) return;
+        STATE.groups.push({
+          id, name, members: rawMembers, isDirty: true,
+          createdAt:gEl.getAttribute('createdAt')||new Date().toISOString(),
+          updatedAt:gEl.getAttribute('updatedAt')||new Date().toISOString(),
+          transactions:[...gEl.querySelectorAll('transaction')].map(txEl=>{
+            const pEls=[...txEl.querySelectorAll('participants > p')];
+            return {
+              id:txEl.getAttribute('id')||Utils.uid(),
+              desc:txEl.querySelector('desc')?.textContent||'',
+              amount:parseFloat(txEl.querySelector('amount')?.textContent||'0'),
+              paidBy:txEl.querySelector('paidBy')?.textContent||'',
+              emoji:txEl.querySelector('emoji')?.textContent||'💰',
+              splitType:txEl.getAttribute('splitType')||'equal',
+              participants:pEls.length?pEls.map(p=>({memberId:p.getAttribute('mid'),shareCount:parseFloat(p.getAttribute('sc')||'1'),customAmount:parseFloat(p.getAttribute('ca')||'0')})):null,
+              splitBetween:[],
+              date:txEl.getAttribute('date')||new Date().toISOString(),
+              updatedAt:txEl.getAttribute('updatedAt')||new Date().toISOString(),
+              isDirty:true, deletedFlag:false
+            };
+          })
+        }); n++;
+      });
+      syncManager.onDataChanged(); renderDashboard();
+      const el=document.getElementById('import-status');
+      if(el) el.innerHTML=`<span style="color:var(--green);font-weight:600">✓ Imported ${n} group(s)</span>`;
+      showToast(`Imported ${n} group(s)!`,'success');
+    }catch(err){
+      const el=document.getElementById('import-status');
+      if(el) el.innerHTML=`<span style="color:var(--accent);font-weight:600">✕ ${Utils.esc(err.message)}</span>`;
+      showToast('Import failed: '+err.message,'error');
+    }
+  };
+  r.readAsText(file);
 }
 
-// ============================================================
-//  PDF DOWNLOAD (pure JS, no external libs)
-// ============================================================
-function downloadPDF() {
-  const g = Groups.getActive();
-  if (!g) return;
-
-  // Build HTML for the PDF (print-optimized)
-  const total = g.transactions.reduce((s, t) => s + t.amount, 0);
-  const balances = Utils.computeBalances(g);
-  const settlements = Utils.computeSettlements(balances);
-
-  const txRows = g.transactions.map((tx, i) => `
-    <tr style="background:${i % 2 === 0 ? '#fff' : '#faf9f7'}">
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">${tx.emoji} ${tx.desc}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc;text-align:right;font-weight:700">₹${tx.amount.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">${tx.paidBy}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">${tx.splitBetween.join(', ')}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">${Utils.formatDate(tx.date)}</td>
-    </tr>
-  `).join('');
-
-  const balanceRows = Object.entries(balances).map(([name, amt]) => `
-    <tr>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">${name}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc;font-weight:700;color:${amt >= 0 ? '#2d7a5e' : '#c84b31'}">
-        ${amt >= 0 ? '+' : ''}₹${amt.toLocaleString('en-IN', {minimumFractionDigits:2})}
-      </td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">${amt > 0.009 ? 'Gets Back' : amt < -0.009 ? 'Owes' : 'Settled'}</td>
-    </tr>
-  `).join('');
-
-  const settlementRows = settlements.map(s => `
-    <tr>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">${s.from}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">→</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc">${s.to}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e8e4dc;font-weight:700;color:#2d7a5e">₹${s.amount.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
-    </tr>
-  `).join('');
-
-  const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <title>${g.name} — SplitEase Report</title>
-      <style>
-        body { font-family: Georgia, serif; color: #1a1714; margin: 40px; font-size: 13px; }
-        h1 { font-size: 28px; color: #c84b31; margin-bottom: 4px; }
-        h2 { font-size: 16px; margin: 24px 0 10px; color: #1a1714; border-bottom: 2px solid #c84b31; padding-bottom: 6px; }
-        .meta { color: #5c564e; font-size: 12px; margin-bottom: 24px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
-        th { background: #c84b31; color: #fff; padding: 10px 12px; text-align: left; font-size: 12px; }
-        .summary-box { background: #fdf0ed; border: 1px solid #f3c5bc; border-radius: 8px; padding: 16px 24px; margin-bottom: 24px; display: inline-block; }
-        .summary-box .val { font-size: 28px; font-weight: bold; color: #c84b31; }
-        @media print { body { margin: 20px; } }
-      </style>
-    </head>
-    <body>
-      <h1>SplitEase — ${g.name}</h1>
-      <div class="meta">Generated on ${new Date().toLocaleDateString('en-IN', {weekday:'long', year:'numeric', month:'long', day:'numeric'})} · ${g.members.length} members · ${g.transactions.length} transactions</div>
-      <div class="summary-box">
-        <div style="font-size:12px;color:#5c564e;margin-bottom:4px">TOTAL SPENT</div>
-        <div class="val">₹${total.toLocaleString('en-IN', {minimumFractionDigits:2})}</div>
-      </div>
-      <div style="margin-bottom:8px"><strong>Members:</strong> ${g.members.join(', ')}</div>
-
-      <h2>Transactions</h2>
-      <table>
-        <thead><tr><th>Description</th><th>Amount</th><th>Paid By</th><th>Split Between</th><th>Date</th></tr></thead>
-        <tbody>${txRows}</tbody>
-      </table>
-
-      <h2>Balance Sheet</h2>
-      <table>
-        <thead><tr><th>Member</th><th>Balance</th><th>Status</th></tr></thead>
-        <tbody>${balanceRows}</tbody>
-      </table>
-
-      <h2>Settlement Plan</h2>
-      ${settlements.length ? `
-      <table>
-        <thead><tr><th>Payer</th><th></th><th>Receiver</th><th>Amount</th></tr></thead>
-        <tbody>${settlementRows}</tbody>
-      </table>` : '<p style="color:#2d7a5e;font-weight:bold">✅ All settled up!</p>'}
-    </body>
-    </html>
-  `;
-
-  const w = window.open('', '_blank');
-  w.document.write(html);
-  w.document.close();
-  setTimeout(() => { w.focus(); w.print(); }, 500);
-  showToast('PDF ready — use browser print dialog to save', 'success', 5000);
+/* ================================================================
+   REPORT DOWNLOAD
+   ================================================================ */
+function downloadReport(){
+  const g=Groups.active(); if(!g) return;
+  const activeTx = g.transactions.filter(t=>!t.deletedFlag);
+  const total=activeTx.reduce((s,t)=>s+t.amount,0);
+  const balances=Utils.computeBalances(g);
+  const settlements=Utils.computeSettlements(balances);
+  const normM=memberManager.normalize(g.members);
+  const getName=id=>normM.find(m=>m.id===id)?.name||id;
+  const txRows=activeTx.map((tx,i)=>{
+    const sp=Transactions.perPersonShare(tx);
+    const spLabel=sp.type==='equal'?Utils.fmt(sp.amount)+'/person':'custom';
+    return `<tr style="background:${i%2?'#faf9f7':'#fff'}"><td>${tx.emoji} ${tx.desc}</td><td style="text-align:right;font-weight:bold">₹${tx.amount.toLocaleString('en-IN',{minimumFractionDigits:2})}</td><td>${getName(tx.paidBy)}</td><td>${tx.splitType||'equal'} (${spLabel})</td><td>${Utils.date(tx.date)}</td></tr>`;
+  }).join('');
+  const bRows=Object.entries(balances).map(([id,a])=>`<tr><td>${getName(id)}</td><td style="font-weight:bold;color:${a>=0?'#2d7a5e':'#c84b31'}">${a>=0?'+':''}₹${a.toLocaleString('en-IN',{minimumFractionDigits:2})}</td><td>${a>0.009?'Gets Back':a<-0.009?'Owes':'Settled'}</td></tr>`).join('');
+  const sRows=settlements.map(s=>`<tr><td>${getName(s.from)}</td><td>→</td><td>${getName(s.to)}</td><td style="font-weight:bold;color:#2d7a5e">₹${s.amount.toLocaleString('en-IN',{minimumFractionDigits:2})}</td></tr>`).join('');
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${g.name} — SplitEase</title>
+  <style>body{font-family:Georgia,serif;color:#1a1714;margin:40px;font-size:13px}h1{font-size:28px;color:#c84b31}h2{font-size:16px;margin:24px 0 10px;border-bottom:2px solid #c84b31;padding-bottom:6px}table{width:100%;border-collapse:collapse;margin-bottom:8px}th{background:#c84b31;color:#fff;padding:8px 12px;text-align:left}td{padding:8px 12px;border-bottom:1px solid #e8e4dc}.box{background:#fdf0ed;border:1px solid #f3c5bc;border-radius:8px;padding:16px 24px;margin:16px 0;display:inline-block}.val{font-size:28px;font-weight:bold;color:#c84b31}.tip{background:#eef4fb;border:1px solid #c7ddf7;border-radius:8px;padding:12px 16px;margin-bottom:24px;font-size:13px;color:#2563a8}@media print{.tip{display:none}body{margin:20px}}</style>
+  </head><body>
+  <div class="tip">💡 Press <strong>Ctrl+P</strong> → set destination to <strong>"Save as PDF"</strong></div>
+  <h1>SplitEase — ${g.name}</h1>
+  <p style="color:#5c564e;font-size:12px">Generated ${new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})} · ${normM.length} members · ${activeTx.length} transactions</p>
+  <div class="box"><div style="font-size:11px;color:#5c564e;margin-bottom:4px">TOTAL SPENT</div><div class="val">₹${total.toLocaleString('en-IN',{minimumFractionDigits:2})}</div></div>
+  <p><strong>Members:</strong> ${normM.map(m=>m.name+(m.parentId?' (sub)':'')).join(', ')}</p>
+  <h2>Transactions</h2><table><thead><tr><th>Description</th><th>Amount</th><th>Paid By</th><th>Split</th><th>Date</th></tr></thead><tbody>${txRows}</tbody></table>
+  <h2>Balances</h2><table><thead><tr><th>Member</th><th>Balance</th><th>Status</th></tr></thead><tbody>${bRows}</tbody></table>
+  <h2>Settlement Plan</h2>${settlements.length?`<table><thead><tr><th>Payer</th><th></th><th>Receiver</th><th>Amount</th></tr></thead><tbody>${sRows}</tbody></table>`:'<p style="color:#2d7a5e;font-weight:bold">✅ All settled up!</p>'}
+  </body></html>`;
+  const a=Object.assign(document.createElement('a'),{
+    href:URL.createObjectURL(new Blob([html],{type:'text/html'})),
+    download:`splitease-${g.name.replace(/\s+/g,'-')}-${new Date().toISOString().slice(0,10)}.html`
+  }); a.click(); showToast('Report downloaded — open in browser → Ctrl+P → Save as PDF','success',6000);
 }
 
-// ============================================================
-//  DARK MODE
-// ============================================================
-function toggleDark() {
-  STATE.darkMode = !STATE.darkMode;
-  document.documentElement.classList.toggle('dark', STATE.darkMode);
-  Storage.save();
+/* ================================================================
+   DARK MODE + FONTS
+   ================================================================ */
+function toggleDark(){
+  STATE.darkMode=!STATE.darkMode;
+  document.documentElement.classList.toggle('dark',STATE.darkMode);
+  if(STATE.user) localCacheManager.saveSettings();
 }
 
-// ============================================================
-//  INIT
-// ============================================================
-function init() {
-  Storage.load();
-  renderDashboard();
+window.applyFont = (val) => {
+  if (!val) val = 'DM Sans';
+  if (val !== 'system-ui') {
+    const id = 'font-' + val.replace(/\s+/g, '-');
+    if (!document.getElementById(id)) {
+      const link = document.createElement('link');
+      link.id = id; link.rel = 'stylesheet';
+      link.href = `https://fonts.googleapis.com/css2?family=${val.replace(/\s+/g, '+')}:wght@400;500;600;700&display=swap`;
+      document.head.appendChild(link);
+    }
+  }
+  document.documentElement.style.setProperty('--font-body', `"${val}", 'Segoe UI', sans-serif`);
+};
+window._changeFont = (val) => {
+  STATE.fontFamily = val; localCacheManager.saveSettings(); applyFont(val);
+};
+
+/* ================================================================
+   AUTH HELPERS
+   ================================================================ */
+function togglePw(inputId, btn){
+  const inp=document.getElementById(inputId);
+  inp.type = inp.type==='password' ? 'text' : 'password';
+  btn.textContent = inp.type==='text' ? '🙈' : '👁';
+}
+function checkPwStrength(pw){
+  const bar=document.getElementById('pw-bar'); const hint=document.getElementById('pw-hint');
+  if(!bar) return;
+  let s=0;
+  if(pw.length>=8) s++; if(pw.length>=12) s++;
+  if(/[0-9]/.test(pw)) s++; if(/[^A-Za-z0-9]/.test(pw)) s++;
+  if(/[A-Z]/.test(pw)&&/[a-z]/.test(pw)) s++;
+  const pct=[0,25,50,75,100][Math.min(s,4)];
+  bar.style.width=pct+'%'; bar.style.background=['#dc2626','#f97316','#eab308','#84cc16','#22c55e'][Math.min(s,4)];
+  if(hint) hint.textContent=pw.length===0?'Use 8+ characters':['Too short','Weak','Fair','Good','Strong'][Math.min(s,4)];
 }
 
-init();
+/* ================================================================
+   APP BOOTSTRAP
+   ================================================================ */
+(function init(){
+  firebaseService.init();
+
+  firebaseService.onAuthChange(user => {
+    if (user) { STATE.user = user; uiManager.onUserSignedIn(user); }
+    else       { uiManager.onUserSignedOut(); }
+  });
+
+  document.getElementById('signin-password').addEventListener('keydown', e => {
+    if(e.key==='Enter') authManager.signIn();
+  });
+  document.getElementById('signin-email').addEventListener('keydown', e => {
+    if(e.key==='Enter') document.getElementById('signin-password').focus();
+  });
+  document.getElementById('reg-password2').addEventListener('keydown', e => {
+    if(e.key==='Enter') authManager.register();
+  });
+})();
 </script>
 </body>
 </html>
