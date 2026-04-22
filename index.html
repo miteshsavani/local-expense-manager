@@ -2714,6 +2714,15 @@ function closeAddSubMemberModal() {
   else if (window._lastModal === 'edit') openEditGroupModal(window._editGroupId, true);
   else if (window._lastModal === 'manage') openManageMembersModal(true);
 }
+window._addSubMember = (parentId) => {
+  const name = document.getElementById('sub-name')?.value.trim();
+  if(!name){showToast('Name required','error');return;}
+  window._members = memberManager.addMember(memberManager.normalize(window._members||[]), name, parentId);
+  const norm = memberManager.normalize(window._members||[]); // My Changes
+  Groups.update(window._editGroupId,{members:norm}); // My Changes
+  closeModal();
+  renderChips('mbr-chips');
+};
 
 function openEditMemberNameModal(id) {
   // Capture current form state if in Create/Edit modal
@@ -2738,6 +2747,13 @@ function openEditMemberNameModal(id) {
     </div>
   </div>`);
 }
+window._submitCreateGroup=()=>{
+  const name=document.getElementById('grp-name').value.trim();
+  if(!name){showToast('Group name required','error');return;}
+  const norm = memberManager.normalize(window._members||[]);
+  if(!norm.filter(m=>!m.parentId).length){showToast('Add at least one member','error');return;}
+  Groups.create(name,norm); closeModal(); renderDashboard(); showToast('Group created!','success');
+};
 
 window._saveMemberName = (id) => {
   const name = document.getElementById('edit-member-name')?.value.trim();
