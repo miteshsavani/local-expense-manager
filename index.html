@@ -188,6 +188,46 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
   color:var(--blue);font-size:18px;line-height:1;padding:0;
 }
 
+/* Sync disabled banner */
+.sync-disabled-banner{
+  display:flex;align-items:center;gap:10px;padding:10px 24px;
+  background:var(--yellow-bg);border-bottom:1px solid #f5d87a;
+  font-size:13px;color:var(--yellow);flex-wrap:wrap;
+}
+.sync-disabled-banner.hidden{display:none!important}
+.sync-disabled-banner .dismiss-sync-banner{
+  margin-left:auto;cursor:pointer;background:none;border:none;
+  color:var(--yellow);font-size:18px;line-height:1;padding:0;
+}
+
+/* Data safety warning when sync off */
+.sync-off-safety-banner{
+  display:flex;align-items:center;gap:10px;padding:8px 24px;
+  background:var(--accent-bg);border-bottom:1px solid #f5b9ae;
+  font-size:12px;color:var(--accent);flex-wrap:wrap;
+}
+.sync-off-safety-banner.hidden{display:none!important}
+
+/* Custom split reset button */
+.split-reset-btn{
+  font-size:11px;color:var(--blue);background:var(--blue-bg);
+  border:1px solid #c7ddf7;border-radius:var(--radius2);
+  padding:3px 10px;cursor:pointer;font-family:var(--font-body);
+  font-weight:600;transition:all var(--tr);
+}
+.split-reset-btn:hover{background:var(--blue);color:#fff;}
+
+/* Manual edit indicator on split input */
+.split-input-sm.manual-edit{
+  border-color:var(--blue);
+  background:var(--blue-bg);
+}
+
+/* Disabled sync now button style */
+.btn-hdr:disabled,.btn-hdr.disabled-offline{
+  opacity:.4;cursor:not-allowed;pointer-events:none;
+}
+
 /* ================================================================
    BUTTONS
    ================================================================ */
@@ -259,7 +299,7 @@ label{
 /* ================================================================
    TOAST
    ================================================================ */
-.toast-container{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:2000}
+.toast-container{position:fixed;top:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:2000}
 .toast{
   background:var(--text);color:var(--bg);padding:12px 18px;
   border-radius:var(--radius2);font-size:13px;font-weight:500;
@@ -476,7 +516,7 @@ label{
   .group-header,.page-header{flex-direction:column;gap:12px}
   .logo span{display:none}
   .sync-pill span:last-child{display:none}
-  .stale-banner,.offline-banner,.safety-banner{padding:10px 16px}
+  .stale-banner,.offline-banner,.safety-banner,.sync-disabled-banner,.sync-off-safety-banner{padding:10px 16px}
   .modal{padding:20px;border-radius:var(--radius2)}
   .transaction-card{padding:12px 14px; gap:12px}
   .tx-icon{width:36px; height:36px; min-width:36px; font-size:16px}
@@ -575,6 +615,15 @@ label{
 }
 .split-member-row:last-child { border-bottom:none; }
 .split-member-name { flex:1;font-size:13px; }
+.share-btn {
+  padding: 4px 6px; font-size: 11px; font-family: var(--font-body);
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 4px; cursor: pointer; color: var(--text2);
+  transition: all var(--tr); font-weight: 600;
+}
+.share-btn.active {
+  background: var(--accent); color: #fff; border-color: var(--accent);
+}
 .split-input-sm {
   width:88px;background:var(--surface2);border:1px solid var(--border);
   border-radius:var(--radius2);padding:5px 8px;font-size:13px;
@@ -892,6 +941,21 @@ label{
     <button class="dismiss-btn" onclick="uiManager.dismissSafetyBanner()">×</button>
   </div>
 
+  <!-- Sync disabled banner (Feature #4) -->
+  <div class="sync-disabled-banner hidden" id="sync-disabled-banner">
+    ⚠ <span>Sync is disabled. Changes will not be backed up.</span>
+    <div style="margin-left: auto;">
+      <button class="btn btn-sm" style="background:var(--yellow);color:#fff;border:none;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:11px;font-weight:600" onclick="uiManager.setSyncEnabled(true);document.getElementById('hdr-sync-toggle').checked=true">Enable Sync</button>
+      <button class="btn btn-secondary" style="border-radius:6px;padding:4px 12px;cursor:pointer;font-size:11px;font-weight:600" onclick="uiManager.dismissBanner('sync-disabled-banner')">Close</button>
+    </div>
+  </div>
+
+  <!-- Data safety message when sync is off (Feature #5) -->
+  <div class="sync-off-safety-banner hidden" id="sync-off-safety-banner">
+    ⚠ <span>Your new changes may be lost if browser data is cleared.</span>
+    <button class="btn btn-secondary" style="margin-left:auto;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:11px;font-weight:600" onclick="uiManager.dismissBanner('sync-off-safety-banner')">Close</button>
+  </div>
+
   <!-- Header -->
   <header class="header">
     <div class="logo" onclick="showDashboard()">
@@ -915,7 +979,7 @@ label{
         </label>
       </div>
 
-      <button id="hdr-sync-now-btn" class="btn-hdr" onclick="syncManager.syncNow(true)" data-tip="Sync Now" data-tip-pos="bottom">🔄</button>
+      <button id="hdr-sync-now-btn" class="btn-hdr" onclick="syncManager.syncNow(true)" data-tip="Sync Now" data-tip-pos="bottom" aria-label="Sync Now">🔄</button>
 
       <button class="sync-pill local" id="sync-pill" onclick="openSettingsModal()" data-tip="Sync status — click for settings" data-tip-pos="bottom">
         <span class="sync-dot"></span>
@@ -1539,6 +1603,7 @@ const networkManager = (() => {
   function init() {
     window.addEventListener('online', () => {
       document.getElementById('offline-banner').classList.add('hidden');
+      _updateSyncNowButton();
       if (!STATE.isGuest && STATE.syncEnabled) {
         showToast('Back online — syncing…', 'info', 2000);
         if (STATE.user && STATE.pendingChanges) syncManager.syncNow();
@@ -1547,13 +1612,31 @@ const networkManager = (() => {
     });
     window.addEventListener('offline', () => {
       document.getElementById('offline-banner').classList.remove('hidden');
+      _updateSyncNowButton();
       showToast('Offline — changes saved locally', 'warning', 3000);
       setSyncStatus('offline');
     });
     document.getElementById('offline-banner').classList.toggle('hidden', navigator.onLine);
+    _updateSyncNowButton();
     updateSyncPill();
     // Refresh "X mins ago" label every minute
     _pillRefreshTimer = setInterval(updateSyncPill, 60_000);
+  }
+
+  /* Feature #2: Disable Sync Now button when offline */
+  function _updateSyncNowButton() {
+    const btn = document.getElementById('hdr-sync-now-btn');
+    if (!btn) return;
+    const isOffline = !navigator.onLine;
+    btn.disabled = isOffline || !STATE.syncEnabled;
+    btn.classList.toggle('disabled-offline', isOffline);
+    if (isOffline) {
+      btn.setAttribute('data-tip', 'Offline — cannot sync');
+    } else if (!STATE.syncEnabled) {
+      btn.setAttribute('data-tip', 'Sync is disabled');
+    } else {
+      btn.setAttribute('data-tip', 'Sync Now');
+    }
   }
 
   function setSyncStatus(status) {
@@ -1576,12 +1659,25 @@ const networkManager = (() => {
 
   function updateSyncPill() {
     if (STATE.isGuest) return; // no pill for guest
+    _updateSyncNowButton();
+    _updateSyncBanners();
     if (!navigator.onLine)     return setSyncStatus('offline');
     if (!STATE.user)           return setSyncStatus('local');
     if (!STATE.syncEnabled)    return setSyncStatus('local');
     if (STATE.isSyncing)       return setSyncStatus('syncing');
     if (STATE.pendingChanges)  return setSyncStatus('pending');
     return setSyncStatus('synced');
+  }
+
+  /* Feature #4 & #5: Update sync disabled + data safety banners */
+  function _updateSyncBanners() {
+    const disabledBanner = document.getElementById('sync-disabled-banner');
+    const safetyBanner = document.getElementById('sync-off-safety-banner');
+    if (!disabledBanner || !safetyBanner) return;
+
+    const showBanners = STATE.user && !STATE.isGuest && !STATE.syncEnabled;
+    disabledBanner.classList.toggle('hidden', !showBanners);
+    safetyBanner.classList.toggle('hidden', !showBanners);
   }
 
   function _ago(iso) {
@@ -1826,7 +1922,10 @@ const uiManager = (() => {
     renderDashboard();
     networkManager.init();
     backupScheduler.start();
-    syncManager.initialLoad().then(renderDashboard);
+    // Feature #3: Load syncEnabled from Firebase, then initial sync
+    uiManager.loadSyncEnabledFromFirebase().then(() => {
+      syncManager.initialLoad().then(renderDashboard);
+    });
   }
 
   function onGuestSignedIn() {
@@ -1889,6 +1988,7 @@ const uiManager = (() => {
   }
 
   /* User-controlled sync master toggle (dashboard) */
+  /* Feature #3: Persist syncEnabled to Firebase user profile */
   function setSyncEnabled(on) {
     STATE.syncEnabled = on;
     localCacheManager.saveSettings();
@@ -1897,7 +1997,37 @@ const uiManager = (() => {
     if (on && STATE.pendingChanges && navigator.onLine) {
       syncManager.syncNow();
     }
+    // Feature #3: Persist to Firebase
+    _persistSyncEnabledToFirebase(on);
     showToast(on ? 'Sync enabled' : 'Sync paused — working offline', on ? 'success' : 'warning', 2000);
+  }
+
+  /* Feature #3: Save syncEnabled to Firebase user profile */
+  function _persistSyncEnabledToFirebase(enabled) {
+    if (!STATE.user || STATE.isGuest) return;
+    try {
+      const db = firebase.firestore();
+      db.collection('users').doc(STATE.user.uid).set(
+        { syncEnabled: enabled, syncUpdatedAt: firebase.firestore.FieldValue.serverTimestamp() },
+        { merge: true }
+      ).catch(e => console.warn('Failed to persist syncEnabled to Firebase:', e));
+    } catch(e) { console.warn('Firebase syncEnabled persist error:', e); }
+  }
+
+  /* Feature #3: Load syncEnabled from Firebase user profile on sign-in */
+  async function loadSyncEnabledFromFirebase() {
+    if (!STATE.user || STATE.isGuest) return;
+    try {
+      const db = firebase.firestore();
+      const doc = await db.collection('users').doc(STATE.user.uid).get();
+      if (doc.exists && doc.data().syncEnabled !== undefined) {
+        const remoteSyncEnabled = doc.data().syncEnabled;
+        STATE.syncEnabled = remoteSyncEnabled;
+        localCacheManager.saveSettings();
+        _updateSyncToggleBar();
+        networkManager.updateSyncPill();
+      }
+    } catch(e) { console.warn('Failed to load syncEnabled from Firebase:', e); }
   }
 
   function _updateSyncToggleBar() {
@@ -1911,7 +2041,7 @@ const uiManager = (() => {
     document.getElementById('hdr-sync-area').classList.remove('hidden');
     if (syncBtn) {
       syncBtn.classList.remove('hidden');
-      syncBtn.disabled = !STATE.syncEnabled;
+      syncBtn.disabled = !STATE.syncEnabled || !navigator.onLine;
     }
     if (toggle) toggle.checked = STATE.syncEnabled;
     
@@ -1994,10 +2124,16 @@ const uiManager = (() => {
     }, 1000);
   }
 
+  function dismissBanner(bannerId) {
+    const banner = document.getElementById(bannerId);
+    banner.classList.add('hidden');
+  }
+
   return {
     onUserSignedIn, onGuestSignedIn, onUserSignedOut,
     dismissSafetyBanner, updatePendingBanner,
-    showAuthFromGuest, setSyncEnabled, showGuestWarning
+    showAuthFromGuest, setSyncEnabled, showGuestWarning,
+    loadSyncEnabledFromFirebase, dismissBanner
   };
 })()
 
@@ -2890,12 +3026,23 @@ window._submitMembers=()=>{
 /* ================================================================
    ADD / EDIT TRANSACTION MODAL — multi-share + custom split
    ================================================================ */
-let _splitMode = 'equal'; // 'equal' | 'share' | 'custom'
+let _splitMode = 'custom'; // 'equal' | 'custom' // I have hide the equal option
+/* Feature #1: Track custom multipliers or manual specific amounts */
+let _customManualState = {}; // Tracks manual amounts or multipliers
 
 function openAddTransactionModal(editId){
   const g = Groups.active(); if(!g) return;
   const tx = editId ? g.transactions.find(t=>t.id===editId) : null;
-  _splitMode = tx?.splitType || 'equal';
+  _splitMode = tx?.splitType || _splitMode;
+  if (_splitMode === 'share') _splitMode = 'custom'; // Migrate old 'share' to 'custom'
+  _customManualState = {}; // Reset manual flags on open
+
+  // If editing a custom split, mark all existing custom amounts as manual
+  if (tx && tx.splitType === 'custom' && tx.participants) {
+    tx.participants.forEach(p => {
+      if (p.customAmount > 0) _customManualState[p.memberId] = { type: 'fixed' };
+    });
+  }
 
   const normM = memberManager.normalize(g.members);
   const paidByOpts = normM.map(m =>
@@ -2910,15 +3057,19 @@ function openAddTransactionModal(editId){
       <div class="form-group" style="flex:1"><label>Paid By</label><select class="select" id="tx-paidby">${paidByOpts}</select></div>
     </div>
     <div class="form-group">
+      <!--
       <label>Split Mode</label>
       <div class="split-mode-tabs">
         <button class="split-mode-btn ${_splitMode==='equal'?'active':''}" onclick="_setSplitMode('equal')">⚖ Equal</button>
-        <button class="split-mode-btn ${_splitMode==='share'?'active':''}" onclick="_setSplitMode('share')">✕ Shares</button>
         <button class="split-mode-btn ${_splitMode==='custom'?'active':''}" onclick="_setSplitMode('custom')">✏ Custom ₹</button>
       </div>
+      -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
         <label style="margin:0;font-size:11px;color:var(--text2);text-transform:none;letter-spacing:0">Participants</label>
-        <button class="btn btn-ghost btn-sm" onclick="_toggleAllParticipants()">Toggle All</button>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="split-reset-btn" id="custom-reset-btn" onclick="_resetCustomSplit()" style="display:${_splitMode==='custom'?'inline-block':'none'}">↻ Reset Split</button>
+          <button class="btn btn-ghost btn-sm" onclick="_toggleAllParticipants()">Toggle All</button>
+        </div>
       </div>
       <div id="participants-container"></div>
       <div class="split-preview-box" id="split-preview">Select participants</div>
@@ -2968,23 +3119,27 @@ function _renderParticipants(tx) {
       return `<div class="split-member-row" style="${indent}">
         <input type="checkbox" class="pchk" value="${Utils.esc(m.id)}" data-name="${Utils.esc(m.name)}" ${isChecked?'checked':''} onchange="_refreshSplitPreview()" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer">
         <div class="chip-avatar" style="background:${Utils.memberColor(m.name)};width:22px;height:22px;border-radius:50%;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">${Utils.initials(m.name)}</div>
-        <div class="split-member-name">${Utils.esc(m.name)}${m.parentId?'<span class="group-pending-badge" style="background:var(--blue-bg);color:var(--blue);border-color:#c7ddf7;margin-left:4px">sub</span>':''}</div>
-      </div>`;
-    } else if (_splitMode === 'share') {
-      return `<div class="split-member-row" style="${indent}">
-        <input type="checkbox" class="pchk" value="${Utils.esc(m.id)}" data-name="${Utils.esc(m.name)}" ${isChecked?'checked':''} onchange="_refreshSplitPreview()" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer">
-        <div class="chip-avatar" style="background:${Utils.memberColor(m.name)};width:22px;height:22px;border-radius:50%;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">${Utils.initials(m.name)}</div>
-        <div class="split-member-name">${Utils.esc(m.name)}${m.parentId?'<span class="group-pending-badge" style="background:var(--blue-bg);color:var(--blue);border-color:#c7ddf7;margin-left:4px">sub</span>':''}</div>
-        <input class="split-input-sm" type="number" min="1" step="1" value="${shareVal}" placeholder="Shares" data-mid="${Utils.esc(m.id)}" oninput="_refreshSplitPreview()">
-        <span style="font-size:11px;color:var(--text3)">shares</span>
+        <div class="split-member-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${Utils.esc(m.name)}</div>
       </div>`;
     } else {
+      // Feature #1: custom split with multipliers and fixed values tracking
+      const state = _customManualState[m.id];
+      const isManual = state !== undefined;
+      const manualClass = isManual ? ' manual-edit' : '';
+      const is0_5 = state?.type === 'multi' && state.value === 0.5;
+      const is2_0 = state?.type === 'multi' && state.value === 2;
+      const is1_0 = !isManual; // default is 1x for checked participants
+
       return `<div class="split-member-row" style="${indent}">
-        <input type="checkbox" class="pchk" value="${Utils.esc(m.id)}" data-name="${Utils.esc(m.name)}" ${isChecked?'checked':''} onchange="_refreshSplitPreview()" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer">
+        <input type="checkbox" class="pchk" value="${Utils.esc(m.id)}" data-name="${Utils.esc(m.name)}" ${isChecked?'checked':''} onchange="_onCustomParticipantToggle(this)" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer">
         <div class="chip-avatar" style="background:${Utils.memberColor(m.name)};width:22px;height:22px;border-radius:50%;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">${Utils.initials(m.name)}</div>
-        <div class="split-member-name">${Utils.esc(m.name)}${m.parentId?'<span class="group-pending-badge" style="background:var(--blue-bg);color:var(--blue);border-color:#c7ddf7;margin-left:4px">sub</span>':''}</div>
-        <input class="split-input-sm" type="number" min="0" step="0.01" value="${customVal}" placeholder="₹ amount" data-mid="${Utils.esc(m.id)}" oninput="_refreshSplitPreview()">
-        <span style="font-size:11px;color:var(--text3)">₹</span>
+        <div class="split-member-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${Utils.esc(m.name)}</div>
+        <div style="display:flex;gap:4px;align-items:center;">
+          <button class="share-btn ${is0_5?'active':''}" onclick="_setCustomMultiplier('${Utils.esc(m.id)}', 0.5)">0.5x</button>
+          <button class="share-btn ${is1_0?'active':''}" onclick="_setCustomMultiplier('${Utils.esc(m.id)}', 1)">1x</button>
+          <button class="share-btn ${is2_0?'active':''}" onclick="_setCustomMultiplier('${Utils.esc(m.id)}', 2)">2x</button>
+          <input class="split-input-sm${manualClass}" type="number" min="0" step="0.01" value="${customVal}" placeholder="₹ amt" data-mid="${Utils.esc(m.id)}" oninput="_onCustomAmountInput(this)" style="width:72px">
+        </div>
       </div>`;
     }
   }).join('');
@@ -2992,9 +3147,13 @@ function _renderParticipants(tx) {
 
 window._setSplitMode = (mode) => {
   _splitMode = mode;
+  _customManualState = {}; // Reset manual flags when switching modes
   document.querySelectorAll('.split-mode-btn').forEach((b,i) => {
-    b.classList.toggle('active', ['equal','share','custom'][i] === mode);
+    b.classList.toggle('active', ['equal','custom'][i] === mode);
   });
+  // Show/hide reset button
+  const resetBtn = document.getElementById('custom-reset-btn');
+  if (resetBtn) resetBtn.style.display = mode === 'custom' ? 'inline-block' : 'none';
   const g = Groups.active();
   const editId = document.querySelector('[onclick^="_submitTx"]')?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
   const tx = editId ? g?.transactions.find(t=>t.id===editId) : null;
@@ -3009,8 +3168,205 @@ window._toggleAllParticipants = () => {
   _refreshSplitPreview();
 };
 
+window._setCustomMultiplier = (mid, val) => {
+  if (val === 1) {
+    delete _customManualState[mid];
+  } else {
+    _customManualState[mid] = { type: 'multi', value: val };
+  }
+  _autoAdjustCustomSplit();
+  _refreshSplitPreview();
+};
+
+window._onCustomAmountInput = (inputEl) => {
+  const mid = inputEl.dataset.mid;
+  _customManualState[mid] = { type: 'fixed' };
+  _autoAdjustCustomSplit();
+  _refreshSplitPreview();
+};
+
+window._onCustomParticipantToggle = () => {
+  _autoAdjustCustomSplit();
+  _refreshSplitPreview();
+};
+
+window._resetCustomSplit = () => {
+  _customManualState = {};
+  _autoAdjustCustomSplit();
+  _refreshSplitPreview();
+  showToast('Split reset to equal (1x)', 'info', 1500);
+};
+
+/* Feature #1: Auto-adjust non-manual custom amounts to fill remaining */
+function _autoAdjustCustomSplit_old() {
+  if (_splitMode !== 'custom') return;
+  const amt = parseFloat(document.getElementById('tx-amt')?.value) || 0;
+  const sel = [...document.querySelectorAll('.pchk')].filter(c => c.checked);
+  const inputs = [...document.querySelectorAll('.split-input-sm')];
+  const selIds = new Set(sel.map(c => c.value));
+  
+  let baseShare = sel.length > 0 ? amt / sel.length : 0;
+  let manualTotal = 0;
+  let autoInputs = [];
+
+
+  // re-calcuate the baseShare.
+  let actualShares = 0;
+  let actualRemainingAmount = amt;
+
+  inputs.forEach(inp => {
+    const mid = inp.dataset.mid;
+    if (!selIds.has(mid)) {
+       return;
+    }
+
+    const state = _customManualState[mid];
+    if (state && state.type === 'multi') {
+      actualShares += state.value;
+    } else if (state && state.type === 'fixed') {
+      actualRemainingAmount -= (inp.value) || 0;
+    } else {
+      console.warn('==========>>>>> Not found', {inp, state});
+    }
+  });
+
+  // Re adjust the baseShare
+  baseShare = sel.length > 0 ? actualRemainingAmount / actualShares.length : 0;
+
+
+
+  inputs.forEach(inp => {
+    const mid = inp.dataset.mid;
+    if (!selIds.has(mid)) {
+       inp.value = '';
+       inp.classList.remove('manual-edit');
+       return;
+    }
+    
+    const state = _customManualState[mid];
+    if (state && state.type === 'multi') {
+      const v = baseShare * state.value;
+      inp.value = v.toFixed(2);
+      manualTotal += v;
+      inp.classList.add('manual-edit');
+    } else if (state && state.type === 'fixed') {
+      manualTotal += parseFloat(inp.value) || 0;
+      inp.classList.add('manual-edit');
+    } else {
+      autoInputs.push(inp);
+    }
+    
+    const row = inp.closest('.split-member-row');
+    if (row) {
+      const btns = row.querySelectorAll('.share-btn');
+      if(btns.length >= 3) {
+        btns[0].classList.toggle('active', state?.type === 'multi' && state.value === 0.5);
+        btns[1].classList.toggle('active', !state);
+        btns[2].classList.toggle('active', state?.type === 'multi' && state.value === 2);
+      }
+    }
+  });
+
+  const remaining = amt - manualTotal;
+  if (autoInputs.length > 0) {
+    const autoShare = Math.max(0, remaining / autoInputs.length);
+    autoInputs.forEach(inp => {
+      inp.value = autoShare.toFixed(2);
+      inp.classList.remove('manual-edit');
+    });
+  }
+}
+
+function _autoAdjustCustomSplit() {
+  if (_splitMode !== 'custom') return;
+
+  const amt = parseFloat(document.getElementById('tx-amt')?.value) || 0;
+
+  const selected = [...document.querySelectorAll('.pchk')]
+    .filter(c => c.checked);
+
+  const inputs = [...document.querySelectorAll('.split-input-sm')];
+
+  const selectedIds = new Set(selected.map(c => c.value));
+
+  let manualTotal = 0;
+  let weightUsers = [];
+
+  // STEP 1: CLASSIFY USERS
+  inputs.forEach(inp => {
+    const mid = inp.dataset.mid;
+
+    if (!selectedIds.has(mid)) {
+      inp.value = '';
+      inp.classList.remove('manual-edit');
+      return;
+    }
+
+    const state = _customManualState[mid];
+
+    if (state && state.type === 'fixed') {
+      const val = parseFloat(inp.value) || 0;
+      manualTotal += val;
+      inp.classList.add('manual-edit');
+
+    } else {
+      // weight-based user
+      const weight = state?.type === 'multi' ? state.value : 1;
+      weightUsers.push({ inp, mid, weight });
+      inp.classList.remove('manual-edit');
+    }
+
+    // UI state update (buttons)
+    const row = inp.closest('.split-member-row');
+    if (row) {
+      const btns = row.querySelectorAll('.share-btn');
+      if (btns.length >= 3) {
+        btns[0].classList.toggle('active', state?.type === 'multi' && state.value === 0.5);
+        btns[1].classList.toggle('active', !state);
+        btns[2].classList.toggle('active', state?.type === 'multi' && state.value === 2);
+      }
+    }
+  });
+
+  // STEP 2: CALCULATE REMAINING
+  let remaining = amt - manualTotal;
+
+  if (remaining < 0) remaining = 0;
+
+  // STEP 3: CALCULATE TOTAL WEIGHT
+  const totalWeight = weightUsers.reduce((sum, u) => sum + u.weight, 0);
+
+  // STEP 4: DISTRIBUTE BASED ON WEIGHT
+  weightUsers.forEach(u => {
+    const value = totalWeight > 0
+      ? (u.weight / totalWeight) * remaining
+      : 0;
+
+    u.inp.value = value.toFixed(2);
+  });
+
+  // STEP 5: OPTIONAL VALIDATION UI (GOOD UX)
+  const assigned = manualTotal + weightUsers.reduce((sum, u) => sum + (parseFloat(u.inp.value) || 0), 0);
+
+  const statusEl = document.getElementById('split-status');
+  if (statusEl) {
+    if (Math.abs(assigned - amt) < 0.01) {
+      statusEl.innerText = `Assigned ₹${assigned.toFixed(2)} of ₹${amt.toFixed(2)} ✓ balanced`;
+      statusEl.className = 'balanced';
+    } else if (assigned > amt) {
+      statusEl.innerText = `Over by ₹${(assigned - amt).toFixed(2)}`;
+      statusEl.className = 'error';
+    } else {
+      statusEl.innerText = `Remaining ₹${(amt - assigned).toFixed(2)}`;
+      statusEl.className = 'warning';
+    }
+  }
+}
+
 window._refreshSplitPreview = () => {
   const amt = parseFloat(document.getElementById('tx-amt')?.value) || 0;
+  if (_splitMode === 'custom') _autoAdjustCustomSplit();
+
   const sel = [...document.querySelectorAll('.pchk')].filter(c => c.checked);
   const preview = document.getElementById('split-preview'); if(!preview) return;
 
@@ -3019,26 +3375,22 @@ window._refreshSplitPreview = () => {
   if (_splitMode === 'equal') {
     const share = amt / sel.length;
     preview.innerHTML = `Splitting <strong>${Utils.fmt(amt)}</strong> equally → <strong>${Utils.fmt(share)}</strong> × ${sel.length} people`;
-  } else if (_splitMode === 'share') {
-    const inputs = [...document.querySelectorAll('.split-input-sm')];
-    const selIds = sel.map(c => c.value);
-    let totalShares = 0;
-    inputs.forEach(inp => { if(selIds.includes(inp.dataset.mid)) totalShares += parseFloat(inp.value)||1; });
-    const lines = sel.map(c => {
-      const inp = inputs.find(i => i.dataset.mid === c.value);
-      const sh = parseFloat(inp?.value)||1;
-      const shareAmt = totalShares ? amt*sh/totalShares : 0;
-      return `${c.dataset.name||c.value}: ${sh} share${sh!==1?'s':''} = <strong>${Utils.fmt(shareAmt)}</strong>`;
-    }).join(' · ');
-    preview.innerHTML = lines;
   } else {
+    // Custom split preview with manual indicator
     const inputs = [...document.querySelectorAll('.split-input-sm')];
     const selIds = sel.map(c => c.value);
     let assigned = 0;
-    inputs.forEach(inp => { if(selIds.includes(inp.dataset.mid)) assigned += parseFloat(inp.value)||0; });
+    let manualCount = 0;
+    inputs.forEach(inp => {
+      if(selIds.includes(inp.dataset.mid)) {
+        assigned += parseFloat(inp.value)||0;
+        if (_customManualState[inp.dataset.mid]) manualCount++;
+      }
+    });
     const diff = amt - assigned;
     const ok = Math.abs(diff) < 0.01;
-    preview.innerHTML = `Assigned <strong>${Utils.fmt(assigned)}</strong> of <strong>${Utils.fmt(amt)}</strong> ${ok ? '<span class="split-ok">✓ balanced</span>' : `<span class="split-warn">${diff>0?'Remaining: '+Utils.fmt(diff):'Over by: '+Utils.fmt(-diff)}</span>`}`;
+    const manualInfo = manualCount > 0 ? ` · <span style="color:var(--blue);font-size:11px">${manualCount} manual edits</span>` : '';
+    preview.innerHTML = `Assigned <strong>${Utils.fmt(assigned)}</strong> of <strong>${Utils.fmt(amt)}</strong> ${ok ? '<span class="split-ok">✓ balanced</span>' : `<span class="split-warn">${diff>0?'Remaining: '+Utils.fmt(diff):'Over by: '+Utils.fmt(-diff)}</span>`}${manualInfo}`;
   }
 };
 
@@ -3056,12 +3408,6 @@ window._submitTx = (editId) => {
   let participants = [];
   if (_splitMode === 'equal') {
     participants = selEls.map(c => ({ memberId: c.value, shareCount: 1 }));
-  } else if (_splitMode === 'share') {
-    const selIds = selEls.map(c => c.value);
-    participants = selEls.map(c => {
-      const inp = inputs.find(i => i.dataset.mid === c.value);
-      return { memberId: c.value, shareCount: parseFloat(inp?.value)||1 };
-    });
   } else {
     // custom
     const selIds = selEls.map(c => c.value);
@@ -3113,7 +3459,7 @@ function openSettingsModal(){
       <div class="settings-section-title">☁ Cloud Sync</div>
       <div class="settings-row">
         <div><div class="settings-label">Sync Status</div><div class="settings-desc">${syncDesc}</div></div>
-        <button class="btn btn-secondary btn-sm" onclick="_settingsSyncNow()" ${!STATE.syncEnabled?'disabled':''}>↻ Sync Now</button>
+        <button class="btn btn-secondary btn-sm" onclick="_settingsSyncNow()" ${(!STATE.syncEnabled || !navigator.onLine)?'disabled':''}>${!navigator.onLine?'○ Offline':'↻ Sync Now'}</button>
       </div>
       <div class="settings-row">
         <div><div class="settings-label">Enable Sync</div><div class="settings-desc">Push/pull changes to Firebase</div></div>
