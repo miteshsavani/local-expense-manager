@@ -1,7 +1,7 @@
 /* ================================================================
    SYNC MANAGER — incremental delta sync with lock + timeout + retry
    ================================================================ */
-const syncManager = (() => {
+window.syncManager = (() => {
   let _debounceTimer = null;
   let _syncTimeout   = null;
   const DEBOUNCE_MS  = 2500;
@@ -241,7 +241,7 @@ const syncManager = (() => {
   return { onDataChanged, syncNow, initialLoad, resolveConflicts };
 })();
 
-const backupScheduler = (() => {
+window.backupScheduler = (() => {
   let _tickerId = null;
   let _countdown = 0;
 

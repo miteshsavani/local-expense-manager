@@ -1,7 +1,7 @@
 /* ================================================================
    CREATE / EDIT GROUP MODALS
    ================================================================ */
-function openCreateGroupModal(isResume){
+window.openCreateGroupModal = isResume => {
   if (!isResume) {
     window._members=[];
     window._tempGrpName = '';
@@ -27,7 +27,7 @@ window._submitCreateGroup=()=>{
   Groups.create(name,norm); closeModal(); renderDashboard(); showToast('Group created!','success');
 };
 
-function openEditGroupModal(id, isResume){
+window.openEditGroupModal = (id, isResume) => {
   const g=STATE.groups.find(g=>g.id===id); if(!g) return;
   if (!isResume) {
     window._editGroupId=id;
@@ -54,7 +54,7 @@ window._submitEditGroup=()=>{
   closeModal(); renderDashboard(); showToast('Updated!','success');
 };
 
-function confirmDeleteGroup(id){
+window.confirmDeleteGroup = id => {
   const g=STATE.groups.find(g=>g.id===id); if(!g) return;
   const txCount = g.transactions.filter(t=>!t.deletedFlag).length;
   openConfirm('Delete Group',`Delete <span class="confirm-hl">"${Utils.esc(g.name)}"</span>? This removes all ${txCount} expenses and cannot be undone.`,

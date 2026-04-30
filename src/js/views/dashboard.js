@@ -1,7 +1,7 @@
 /* ================================================================
    DASHBOARD RENDER
    ================================================================ */
-function renderDashboard() {
+window.renderDashboard = () => {
   const c = document.getElementById('groups-container');
   // Filter out deletedFlag groups from display
   const visibleGroups = STATE.groups.filter(g => !g.deletedFlag);
@@ -16,7 +16,7 @@ function renderDashboard() {
   c.innerHTML = `<div class="groups-grid">${visibleGroups.map(renderGroupCard).join('')}</div>`;
 }
 
-function renderGroupCard(g) {
+window.renderGroupCard = g => {
   const total   = g.transactions.filter(t=>!t.deletedFlag).reduce((s,t)=>s+t.amount,0);
   const normMembers = memberManager.normalize(g.members);
   const mainMembers = normMembers.filter(m => !m.parentId);

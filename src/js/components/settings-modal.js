@@ -1,7 +1,7 @@
 /* ================================================================
    SETTINGS MODAL
    ================================================================ */
-function openSettingsModal(){
+window.openSettingsModal = () => {
   const user = STATE.user;
   const ago  = STATE.lastSyncAt ? _timeAgo(STATE.lastSyncAt) : null;
   const syncDesc = !navigator.onLine ? '○ Offline'
@@ -107,7 +107,7 @@ window._changeInterval = (val) => {
   localCacheManager.saveSettings(); backupScheduler.restart();
 };
 
-function _timeAgo(iso) {
+window._timeAgo = iso => {
   const s = Math.round((Date.now() - new Date(iso))/1000);
   if (s < 10)    return 'just now';
   if (s < 60)    return `${s}s ago`;

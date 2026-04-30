@@ -1,7 +1,7 @@
 /* ================================================================
    MODAL SYSTEM
    ================================================================ */
-function openModal(html) {
+window.openModal = html => {
   const root = document.getElementById('modal-root');
   root.innerHTML = `<div class="modal-overlay" id="modal-overlay">${html}</div>`;
   document.getElementById('modal-overlay').addEventListener('click', e => {
@@ -9,10 +9,10 @@ function openModal(html) {
   });
   document.addEventListener('keydown', _escKey);
 }
-function _escKey(e) { if(e.key==='Escape') closeModal(); }
-function closeModal() { document.getElementById('modal-root').innerHTML=''; document.removeEventListener('keydown',_escKey); }
+window._escKey = e => { if(e.key==='Escape') closeModal(); }
+window.closeModal = () => { document.getElementById('modal-root').innerHTML=''; document.removeEventListener('keydown',_escKey); }
 
-function openConfirm(title, body, onConfirm) {
+window.openConfirm = (title, body, onConfirm) => {
   openModal(`<div class="modal">
     <div class="modal-header"><div class="modal-title">${Utils.esc(title)}</div></div>
     <p class="confirm-msg">${body}</p>

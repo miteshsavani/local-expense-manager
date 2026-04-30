@@ -1,0 +1,26 @@
+{
+  "name": "local-expense-manager",
+  "version": "1.0.0",
+  "description": "A lightweight, fully client-side expense sharing application built using pure HTML, CSS, and JavaScript in a single file. This app helps users manage group expenses, track balances, and settle debts—similar to Splitwise, but without any backend or external dependencies.",
+  "main": "service-worker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node scripts/build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/miteshsavani/local-expense-manager.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/miteshsavani/local-expense-manager/issues"
+  },
+  "homepage": "https://github.com/miteshsavani/local-expense-manager#readme",
+  "devDependencies": {
+    "clean-css": "^5.3.3",
+    "esbuild": "^0.28.0",
+    "javascript-obfuscator": "^5.4.2"
+  }
+}

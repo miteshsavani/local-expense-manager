@@ -1,7 +1,7 @@
 /* ================================================================
    AUTH MANAGER
    ================================================================ */
-const authManager = (() => {
+window.authManager = (() => {
   function showSignIn() {
     document.getElementById('auth-signin').classList.remove('hidden');
     document.getElementById('auth-register').classList.add('hidden');

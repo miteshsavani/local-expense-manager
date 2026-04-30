@@ -1,7 +1,7 @@
 /* ================================================================
    MANAGE MEMBERS MODAL
    ================================================================ */
-function openManageMembersModal(isResume){
+window.openManageMembersModal = isResume => {
   const g=Groups.active(); if(!g) return;
   if (!isResume) {
     window._editGroupId=g.id;

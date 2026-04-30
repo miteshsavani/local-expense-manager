@@ -1,7 +1,7 @@
 /* ================================================================
    TABS
    ================================================================ */
-function switchTab(btn) {
+window.switchTab = btn => {
   const name = btn.dataset.tab;
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');

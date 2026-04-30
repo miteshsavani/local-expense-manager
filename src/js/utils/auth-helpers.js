@@ -1,12 +1,13 @@
 /* ================================================================
    AUTH HELPERS
    ================================================================ */
-function togglePw(inputId, btn){
+window.togglePw = (inputId, btn) => {
   const inp=document.getElementById(inputId);
   inp.type = inp.type==='password' ? 'text' : 'password';
   btn.textContent = inp.type==='text' ? '🙈' : '👁';
 }
-function checkPwStrength(pw){
+
+window.checkPwStrength = pw => {
   const bar=document.getElementById('pw-bar'); const hint=document.getElementById('pw-hint');
   if(!bar) return;
   let s=0;
