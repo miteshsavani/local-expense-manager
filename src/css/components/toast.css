@@ -1,0 +1,17 @@
+/* ================================================================
+   TOAST
+   ================================================================ */
+.toast-container{position:fixed;top:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:2000}
+.toast{
+  background:var(--text);color:var(--bg);padding:12px 18px;
+  border-radius:var(--radius2);font-size:13px;font-weight:500;
+  box-shadow:var(--shadow2);display:flex;align-items:center;
+  gap:10px;animation:toastIn .25s ease;max-width:340px;
+}
+.toast.success{background:var(--green);color:#fff}
+.toast.error  {background:#dc2626;color:#fff}
+.toast.warning{background:var(--yellow);color:#fff}
+.toast.info   {background:var(--blue);color:#fff}
+@keyframes toastIn {from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateX(100%)}}
+

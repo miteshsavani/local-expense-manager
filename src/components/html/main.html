@@ -1,0 +1,181 @@
+<!-- ================================================================
+     MAIN APP — shown when signed in
+     ================================================================ -->
+<div id="main-app" class="app hidden">
+
+  <!-- Sync progress bar -->
+  <div class="sync-bar" id="sync-bar"></div>
+
+  <!-- Inline sync error -->
+  <div class="sync-error-bar hidden" id="sync-err-bar">
+    ⚠ <span id="sync-err-msg">Sync error</span>
+    <button onclick="syncManager.syncNow()">↻ Retry</button>
+  </div>
+
+  <!-- Global pending sync indicator (clickable) -->
+  <div class="pending-sync-banner hidden" id="pending-banner" onclick="syncManager.syncNow()">
+    <span>🔄</span>
+    <span id="pending-banner-msg">Pending changes — click to sync</span>
+    <span style="margin-left:auto;font-size:11px;opacity:.7">tap to sync now</span>
+  </div>
+
+  <!-- Guest mode warning banner -->
+  <div class="guest-banner hidden" id="guest-banner">
+    <span>👤</span>
+    <span>You're using <strong>Guest Mode</strong>. Data is stored in this browser only — <strong>it will be lost if you clear browser data or close a private window.</strong> <a onclick="uiManager.showAuthFromGuest()">Sign in</a> to sync and keep your data safe.</span>
+    <button class="gbtn" onclick="uiManager.showAuthFromGuest()">Sign In / Register</button>
+  </div>
+
+  <!-- Offline banner -->
+  <div class="offline-banner hidden" id="offline-banner">
+    📡 You're offline — changes saved locally and will sync when reconnected.
+  </div>
+
+  <!-- Data safety banner -->
+  <div class="safety-banner" id="safety-banner">
+    🔒 Your data is stored locally and backed up to the cloud when signed in. Offline changes sync automatically.
+    <button class="dismiss-btn" onclick="uiManager.dismissSafetyBanner()">×</button>
+  </div>
+
+  <!-- Sync disabled banner (Feature #4) -->
+  <div class="sync-disabled-banner hidden" id="sync-disabled-banner">
+    ⚠ <span>Sync is disabled. Changes will not be backed up.</span>
+    <div style="margin-left: auto;">
+      <button class="btn btn-sm" style="background:var(--yellow);color:#fff;border:none;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:11px;font-weight:600" onclick="uiManager.setSyncEnabled(true);document.getElementById('hdr-sync-toggle').checked=true">Enable Sync</button>
+      <button class="btn btn-secondary" style="border-radius:6px;padding:4px 12px;cursor:pointer;font-size:11px;font-weight:600" onclick="uiManager.dismissBanner('sync-disabled-banner')">Close</button>
+    </div>
+  </div>
+
+  <!-- Data safety message when sync is off (Feature #5) -->
+  <div class="sync-off-safety-banner hidden" id="sync-off-safety-banner">
+    ⚠ <span>Your new changes may be lost if browser data is cleared.</span>
+    <button class="btn btn-secondary" style="margin-left:auto;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:11px;font-weight:600" onclick="uiManager.dismissBanner('sync-off-safety-banner')">Close</button>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo" onclick="showDashboard()">
+      <div class="logo-icon">₹</div>
+      <span>SplitEase</span>
+    </div>
+    <div class="header-right">
+      <!-- MOBILE ACTION BAR GROUPING -->
+      <div id="mobile-action-bar">
+        <!-- Sync Toggle + Countdown -->
+        <div id="hdr-sync-area" style="display:flex;align-items:center;gap:12px;margin-right:8px">
+          <div style="display:flex;flex-direction:column;align-items:flex-end">
+            <div class="sync-toggle-label" style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Sync</div>
+            <div id="sync-countdown-ui" style="font-size:9px;color:var(--blue);font-weight:600;margin-top:-2px" class="hidden">Next: 0s</div>
+          </div>
+          <label class="toggle-wrap" style="width:36px;height:20px" data-tip="Enable/Disable Cloud Sync" data-tip-pos="bottom">
+            <input type="checkbox" id="hdr-sync-toggle" checked onchange="uiManager.setSyncEnabled(this.checked)">
+            <span class="toggle-slider" style="border-radius:10px"></span>
+            <style>
+              #hdr-sync-area .toggle-slider::before { width:14px; height:14px; top:3px; left:3px; }
+              #hdr-sync-area input:checked+.toggle-slider::before { transform:translateX(16px); }
+            </style>
+          </label>
+        </div>
+
+        <button id="hdr-sync-now-btn" class="btn-hdr" onclick="syncManager.syncNow(true)" data-tip="Sync Now" data-tip-pos="bottom" aria-label="Sync Now">🔄</button>
+
+        <button class="sync-pill local" id="sync-pill" onclick="openSettingsModal()" data-tip="Sync status — click for settings" data-tip-pos="bottom">
+          <span class="sync-dot"></span>
+          <span id="sync-label">Local only</span>
+        </button>
+      </div>
+
+      <span id="sync-ui-area">
+        <button class="btn-hdr" onclick="openImportExportModal()" data-tip="Import / Export" data-tip-pos="bottom">⇅</button>
+        <button class="btn-hdr" onclick="openSettingsModal()" data-tip="Settings" data-tip-pos="bottom">⚙</button>
+      </span>
+
+      <div class="user-avatar" id="user-avatar" onclick="openSettingsModal()" data-tip="Account settings" data-tip-pos="bottom">?</div>
+      
+      <!-- Guest Logout Button -->
+      <button id="guest-logout-btn" class="btn btn-ghost btn-sm hidden" onclick="authManager.clearGuestSession()" data-tip="Logout Guest Session" data-tip-pos="bottom" style="padding:4px 8px">Logout</button>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div id="view-dashboard" class="view active">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Your Groups</div>
+          <div class="page-subtitle" id="dashboard-subtitle">Manage shared expenses</div>
+        </div>
+        <button class="btn btn-primary" onclick="openCreateGroupModal()">＋ New Group</button>
+      </div>
+      <div id="groups-container"></div>
+    </div>
+
+    <!-- GROUP DETAIL -->
+    <div id="view-group" class="view">
+      <div class="breadcrumb">
+        <a onclick="showDashboard()">← Dashboard</a>
+        <span>/</span>
+        <span id="group-breadcrumb"></span>
+      </div>
+      <div class="group-header">
+        <div>
+          <div class="page-title" id="group-title"></div>
+          <div class="page-subtitle" id="group-subtitle"></div>
+        </div>
+        <div class="group-header-actions">
+          <button class="btn btn-secondary btn-sm" onclick="openManageMembersModal()">👥 Members</button>
+          <button class="btn btn-secondary btn-sm" onclick="downloadReport()">⬇ Report</button>
+          <button class="btn btn-primary btn-sm" onclick="openAddTransactionModal(null)">＋ Add Expense</button>
+        </div>
+      </div>
+      <div class="summary-grid" id="summary-cards"></div>
+      <div class="tabs">
+        <button class="tab active" data-tab="transactions" onclick="switchTab(this)">Transactions</button>
+        <button class="tab" data-tab="balances"     onclick="switchTab(this)">Balances</button>
+        <button class="tab" data-tab="settle"       onclick="switchTab(this)">Settle Up</button>
+        <button class="tab" data-tab="analytics"    onclick="switchTab(this)">Analytics</button>
+      </div>
+      <div id="tab-transactions">
+        <div class="search-row">
+          <div class="search-wrap" style="flex:1">
+            <span class="search-icon">🔍</span>
+            <input class="input" id="tx-search" placeholder="Search transactions…" oninput="renderTransactions()" style="padding-left:36px">
+          </div>
+          <select class="input sort-select" id="tx-sort" onchange="renderTransactions()">
+            <option value="date-desc">Latest First</option>
+            <option value="date-asc">Oldest First</option>
+            <option value="amount-desc">Highest Amount</option>
+            <option value="amount-asc">Lowest Amount</option>
+          </select>
+        </div>
+        <div id="transactions-list"></div>
+      </div>
+      <div id="tab-balances"  class="hidden"><div id="balances-content"></div></div>
+      <div id="tab-settle"    class="hidden"><div id="settle-content"></div></div>
+      <div id="tab-analytics" class="hidden"><div id="analytics-content"></div></div>
+      <button id="mobile-fab" class="mobile-fab" onclick="openAddTransactionModal(null)">＋</button>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+<div id="modal-root"></div>
+
+<script>
+// ============================================================
+//  SERVICE WORKER
+// ============================================================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('../../service-worker.js')
+      .then(reg => console.log('Service Worker registered', reg))
+      .catch(err => console.error('Service Worker registration failed', err));
+  });
+}
+</script>
+
+<script>
+'use strict';

@@ -1,0 +1,13 @@
+/* ================================================================
+   TABS
+   ================================================================ */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:24px}
+.tab{
+  padding:10px 18px;font-size:14px;font-weight:500;color:var(--text2);
+  cursor:pointer;border:none;background:none;
+  border-bottom:2px solid transparent;
+  transition:all var(--tr);font-family:var(--font-body);margin-bottom:-1px;
+}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+

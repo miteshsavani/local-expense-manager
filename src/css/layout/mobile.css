@@ -1,0 +1,95 @@
+/* ================================================================
+   MOBILE PATCHES
+   ================================================================ */
+@media(max-width:768px){
+  .guest-banner,.sync-toggle-bar{padding:10px 14px;}
+  .sync-toggle-bar{flex-wrap:wrap;gap:8px;}
+  [data-tip]::after{font-size:10px;padding:3px 6px;}
+}
+
+/* ================================================================
+   MOBILE UX ENHANCEMENTS
+   ================================================================ */
+.mobile-fab { display: none; }
+@media (max-width: 768px) {
+  /* Restructure Top Navigation */
+  .header-right { flex-direction: row; }
+  
+  /* Mobile Action Bar */
+  #mobile-action-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    width: 100%;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1000;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.05);
+    transition: transform var(--tr);
+  }
+  
+  /* Avoid overlap with footer */
+  body { padding-bottom: calc(70px + env(safe-area-inset-bottom)); }
+  
+  /* FAB */
+  .mobile-fab {
+    display: flex;
+    position: fixed;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    right: 20px;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 28px;
+    align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(200, 75, 49, 0.4);
+    border: none;
+    z-index: 999;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  .mobile-fab:active {
+    transform: scale(0.92);
+    background: var(--accent2);
+  }
+
+  /* Bottom Sheet Modal */
+  .modal {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    border-radius: var(--radius) var(--radius) 0 0;
+    margin: 0;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    animation: slideUpSheet 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes slideUpSheet {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  /* Target improvements */
+  .btn, .tab, .sync-pill { min-height: 44px; }
+  .sync-pill { display: inline-flex; justify-content: center; }
+  
+  /* Hide the desktop Sync Toggle layout tweaks if needed to fit cleanly */
+  #hdr-sync-area { margin-right: 0!important; gap: 8px!important; }
+}
+
+#mobile-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+</style>
+</head>
+<body>
+

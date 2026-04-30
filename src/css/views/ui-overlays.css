@@ -1,0 +1,19 @@
+/* ================================================================
+   FAST TOOLTIP (0ms delay)
+   ================================================================ */
+[data-tip] { position:relative; }
+[data-tip]::after {
+  content:attr(data-tip);
+  position:absolute;bottom:calc(100% + 6px);left:50%;
+  transform:translateX(-50%);
+  background:var(--text);color:var(--bg);
+  font-size:11px;font-weight:500;white-space:nowrap;
+  padding:4px 8px;border-radius:5px;
+  pointer-events:none;opacity:0;
+  transition:opacity .08s ease;
+  z-index:9999;
+}
+[data-tip-pos="bottom"]::after {
+  top:calc(100% + 6px); bottom:auto;
+}
+[data-tip]:hover::after { opacity:1; }

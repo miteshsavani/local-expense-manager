@@ -2,9 +2,9 @@ const CACHE_NAME = "local-expense-manager-v1";
 const urlsToCache = [
   "/",
   "/index.html",
-  "/manifest.json",
-  "/icon-192.png",
-  "/icon-512.png"
+  "/pwa/manifest.json",
+  "/pwa/icons/icon-192.png",
+  "/pwa/icons/icon-512.png"
 ];
 
 self.addEventListener("install", event => {
