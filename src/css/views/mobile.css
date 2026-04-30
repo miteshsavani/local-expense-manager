@@ -1,0 +1,8 @@
+
+
+/* Mobile responsive patches */
+@media(max-width:768px){
+  .sync-error-bar,.pending-sync-banner { padding:8px 14px; }
+  .split-mode-tabs .split-mode-btn { padding:6px 2px;font-size:11px; }
+  .member-tree-item.sub { margin-left:16px; }
+}

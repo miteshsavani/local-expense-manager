@@ -1,0 +1,30 @@
+/* ================================================================
+   BIGGER HEADER ICON BUTTONS
+   ================================================================ */
+.btn-hdr {
+  width:42px;height:42px;padding:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  border-radius:var(--radius2);font-size:20px;
+  background:transparent;color:var(--text2);
+  border:none;cursor:pointer;transition:all var(--tr);
+  position:relative;
+}
+.btn-hdr:hover { background:var(--surface2);color:var(--text); }
+/* Force btn-icon in header to same size */
+.header-right .btn-icon {
+  width:42px!important;height:42px!important;font-size:20px!important;
+}
+/* Bigger group card action buttons */
+.group-card .btn-ghost.btn-icon.btn-sm {
+  width:34px!important;height:34px!important;font-size:18px!important;
+  border:1px solid var(--border);
+}
+.group-card .btn-ghost.btn-icon.btn-sm:hover {
+  background:var(--accent);color:#fff;border-color:var(--accent);
+}
+/* Bigger tx action buttons */
+.transaction-card .btn-ghost.btn-icon.btn-sm,
+.card.transaction-card .btn-ghost.btn-icon.btn-sm {
+  width:34px!important;height:34px!important;font-size:16px!important;
+}
+

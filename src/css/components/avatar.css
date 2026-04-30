@@ -1,0 +1,15 @@
+/* ================================================================
+   USER AVATAR — slightly bigger, shown in header
+   ================================================================ */
+.user-avatar {
+  width:36px;height:36px;border-radius:50%;
+  background:var(--accent);color:#fff;
+  font-size:14px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+/* Guest avatar style */
+.user-avatar.guest {
+  background:var(--text3);font-size:18px;
+}
+

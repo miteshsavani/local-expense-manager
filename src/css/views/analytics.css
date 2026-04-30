@@ -1,0 +1,10 @@
+/* ================================================================
+   ANALYTICS
+   ================================================================ */
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.bar-chart{display:flex;flex-direction:column;gap:8px}
+.bar-row{display:flex;flex-direction:column;gap:4px}
+.bar-label{font-size:13px;font-weight:500;display:flex;justify-content:space-between}
+.bar-track{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .6s ease}
+

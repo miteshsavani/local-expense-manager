@@ -1,0 +1,83 @@
+/* ================================================================
+   NEW FEATURE CSS — isDirty indicators, sub-members, split modes
+   ================================================================ */
+
+/* isDirty / pending indicator on transaction card */
+.tx-dirty-dot {
+  width:8px;height:8px;border-radius:50%;background:var(--yellow);
+  flex-shrink:0;box-shadow:0 0 0 2px var(--yellow-bg);
+  animation:dirtyPulse 2s infinite;
+}
+@keyframes dirtyPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.8)}}
+.tx-card-dirty {border-left:3px solid var(--yellow) !important;}
+
+
+
+/* Sub-member UI */
+.member-tree { display:flex;flex-direction:column;gap:2px;margin-top:6px; }
+.member-tree-item {
+  display:flex;align-items:center;gap:8px;
+  padding:6px 8px;border-radius:var(--radius2);
+  background:var(--surface2);border:1px solid var(--border);
+  font-size:13px;
+}
+.member-tree-item.sub {
+  margin-left:28px;background:var(--blue-bg);
+  border-color:#c7ddf7;font-size:12px;
+}
+.member-tree-item .chip-avatar {
+  width:22px;height:22px;border-radius:50%;color:#fff;
+  font-size:10px;font-weight:700;display:flex;
+  align-items:center;justify-content:center;flex-shrink:0;
+}
+.member-tree-item.sub .chip-avatar { width:18px;height:18px;font-size:9px; }
+.member-tree-item .member-name { flex:1;font-weight:500; }
+.member-tree-item .sub-badge {
+  font-size:9px;background:var(--blue-bg);color:var(--blue);
+  border:1px solid #c7ddf7;border-radius:99px;padding:1px 5px;
+  font-weight:600;
+}
+.add-sub-btn {
+  font-size:11px;color:var(--blue);background:none;border:none;
+  cursor:pointer;padding:0 4px;text-decoration:underline;
+}
+
+/* Split mode tabs */
+.split-mode-tabs { display:flex;gap:4px;margin-bottom:12px; }
+.split-mode-btn {
+  flex:1;padding:7px 4px;font-size:12px;font-weight:600;
+  border:1px solid var(--border);background:var(--surface2);
+  color:var(--text2);border-radius:var(--radius2);cursor:pointer;
+  transition:all var(--tr);font-family:var(--font-body);text-align:center;
+}
+.split-mode-btn.active { background:var(--accent);color:#fff;border-color:var(--accent); }
+.split-member-row {
+  display:flex;align-items:center;gap:8px;
+  padding:6px 0;border-bottom:1px solid var(--border);
+}
+.split-member-row:last-child { border-bottom:none; }
+.split-member-name { flex:1;font-size:13px; }
+.share-btn {
+  padding: 4px 6px; font-size: 11px; font-family: var(--font-body);
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 4px; cursor: pointer; color: var(--text2);
+  transition: all var(--tr); font-weight: 600;
+}
+.share-btn.active {
+  background: var(--accent); color: #fff; border-color: var(--accent);
+}
+.split-input-sm {
+  width:88px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius2);padding:5px 8px;font-size:13px;
+  color:var(--text);text-align:right;outline:none;
+  font-family:var(--font-body);
+}
+.split-input-sm:focus { border-color:var(--accent); }
+.split-preview-box {
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius2);padding:10px 12px;
+  font-size:12px;color:var(--text2);margin-top:8px;
+}
+.split-preview-box strong { color:var(--text); }
+.split-warn { color:var(--accent);font-weight:600; }
+.split-ok   { color:var(--green);font-weight:600; }
