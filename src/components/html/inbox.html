@@ -1,0 +1,32 @@
+<!-- INBOX VIEW -->
+<div id="view-inbox" class="view">
+  <div class="breadcrumb">
+    <a onclick="showDashboard()">← Dashboard</a>
+    <span>/</span>
+    <span>Inbox</span>
+  </div>
+
+  <div class="inbox-header" style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+    <div>
+      <div class="page-title">Activity Feed</div>
+      <div class="page-subtitle">Recent updates from your shared groups</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+      <button class="btn btn-secondary btn-sm" onclick="inboxManager.clearAll()">Clear All</button>
+      <div style="display:flex;gap:8px">
+        <select class="select select-sm" id="inbox-group-filter" onchange="inboxManager.setFilter(this.value)" style="padding:4px;font-size:12px;width:120px">
+          <option value="all">All Groups</option>
+        </select>
+        <select class="select select-sm" onchange="inboxManager.setSort(this.value)" style="padding:4px;font-size:12px;">
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div id="inbox-list" class="inbox-list-container">
+    <!-- Notifications rendered here -->
+  </div>
+  <div id="inbox-pagination"></div>
+</div>

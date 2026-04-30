@@ -47,6 +47,18 @@ window.firebaseService = (() => {
         cb(txs);
       }, err => console.error('Tx listener error:', err));
   }
+  
+  function listenToNotifications(uid, cb) {
+    return _db.collection('notifications')
+      .where('targetUserId', '==', uid)
+      .where('isCleared', '==', false)
+      .onSnapshot(snap => {
+        const notifs = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+        // Manual sort by createdAt as fallback for missing index
+        notifs.sort((a,b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+        cb(notifs);
+      }, err => console.error('Notifications listener error:', err));
+  }
 
   async function joinGroup(uid, shareCode) {
     const snap = await _db.collection('groups').where('shareCode', '==', shareCode).limit(1).get();
@@ -65,6 +77,52 @@ window.firebaseService = (() => {
     });
     
     return groupDoc.id;
+  }
+
+  async function getTransaction(gid, tid) {
+    const snap = await txRef(gid, tid).get();
+    return snap.exists ? { ...snap.data(), id: snap.id } : null;
+  }
+
+  async function createNotifications(group, activityData) {
+    const actorId = _auth.currentUser.uid;
+    const actorName = _auth.currentUser.displayName || _auth.currentUser.email.split('@')[0];
+    const b = _db.batch();
+    
+    // Notify all members including actor
+    const membersToNotify = group.userIds || [];
+    if (!membersToNotify.length) return;
+
+    membersToNotify.forEach(uid => {
+      const isActor = uid === actorId;
+      const ref = _db.collection('notifications').doc();
+      b.set(ref, {
+        groupId: group.id,
+        groupName: group.name,
+        actorId,
+        actorName,
+        targetUserId: uid,
+        ...activityData,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        isRead: isActor, // Already read for the person who did the action
+        isCleared: false
+      });
+    });
+    return b.commit();
+  }
+
+  async function updateNotification(id, data) {
+    return _db.collection('notifications').doc(id).update(data);
+  }
+
+  async function clearAllNotifications(uid) {
+    const snap = await _db.collection('notifications')
+      .where('targetUserId', '==', uid)
+      .where('isCleared', '==', false)
+      .get();
+    const b = _db.batch();
+    snap.docs.forEach(d => b.update(d.ref, { isCleared: true }));
+    return b.commit();
   }
 
   /* ---- INCREMENTAL PULL: (Kept as fallback for non-realtime parts if any) ---- */
@@ -173,6 +231,6 @@ window.firebaseService = (() => {
     return out;
   }
 
-  return { init, signIn, register, signOut, onAuthChange, pullChanges, pushChanges, pullAllData, listenToGroups, listenToTransactions, joinGroup };
+  return { init, signIn, register, signOut, onAuthChange, pullChanges, pushChanges, pullAllData, listenToGroups, listenToTransactions, joinGroup, listenToNotifications, createNotifications, updateNotification, clearAllNotifications, getTransaction };
 })();
 

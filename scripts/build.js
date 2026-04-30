@@ -21,7 +21,9 @@ function write(file, content) {
 // -----------------------------
 const splash = read("src/components/html/splash.html");
 const auth = read("src/components/html/auth.html");
-const main = read("src/components/html/main.html");
+const inbox = read("src/components/html/inbox.html");
+const main = read("src/components/html/main.html")
+              .replace('<div id="view-inbox-container"></div>', inbox);
 
 const combinedHTML = splash + auth + main;
 

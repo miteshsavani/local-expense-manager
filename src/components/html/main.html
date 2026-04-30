@@ -59,6 +59,10 @@
       <span>SplitEase</span>
     </div>
     <div class="header-right">
+      <div class="inbox-btn-container" style="margin-right:12px;position:relative;display:flex;align-items:center">
+        <button class="btn btn-ghost btn-icon" onclick="showInbox()" title="Inbox" style="font-size:1.2rem">📥</button>
+        <div class="inbox-badge"></div>
+      </div>
       <!-- MOBILE ACTION BAR GROUPING -->
       <div id="mobile-action-bar">
         <!-- Sync Toggle + Countdown -->
@@ -137,6 +141,10 @@
       <div id="groups-container"></div>
     </div>
 
+    <!-- INBOX VIEW PLACEHOLDER (will be filled by build) -->
+    <!-- (The build script will inject inbox.html here) -->
+    <div id="view-inbox-container"></div>
+
     <!-- GROUP DETAIL -->
     <div id="view-group" class="view">
       <div class="breadcrumb">
@@ -151,7 +159,7 @@
           <div id="group-member-list" class="mt-8" style="display:flex;align-items:center;gap:4px"></div>
         </div>
         <div class="group-header-actions">
-          <button class="btn btn-secondary btn-sm" id="group-share-btn" onclick="openShareGroupModal()" style="display:none">🔗 Share</button>
+          <button class="btn btn-secondary btn-sm" id="group-share-btn" onclick="openShareGroupModal()" style="display:none">📤 Share</button>
           <button class="btn btn-secondary btn-sm" onclick="openManageMembersModal()">👥 Members</button>
           <button class="btn btn-secondary btn-sm" onclick="downloadReport()">⬇ Report</button>
           <button class="btn btn-primary btn-sm" onclick="openAddTransactionModal(null)">＋ Add Expense</button>

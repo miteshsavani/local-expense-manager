@@ -45,6 +45,7 @@ window.uiManager = (() => {
       `Welcome back, ${user.displayName || user.email.split('@')[0]}`;
     renderDashboard();
     networkManager.init();
+    inboxManager.init();
     backupScheduler.start();
     // Feature #3: Load syncEnabled from Firebase, then initial sync
     uiManager.loadSyncEnabledFromFirebase().then(() => {
