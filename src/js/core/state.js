@@ -16,6 +16,6 @@
   backupInterval: 120,
   isSyncing:      false,
   syncRetries:    0,
-  listeners:      []       // Track active Firestore onSnapshot unsub functions
+  listeners:      [],      // Track active Firestore onSnapshot unsub functions
+  notifications:  []       // Activity feed items
 };
-

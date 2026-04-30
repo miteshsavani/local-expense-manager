@@ -19,6 +19,7 @@ import "./managers/auth.js";
 import "./managers/ui.js";
 import "./managers/members.js";
 import "./managers/report.js";
+import "./managers/inbox.js";
 
 // -----------------------------
 // UTILS

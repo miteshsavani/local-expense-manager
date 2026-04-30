@@ -13,4 +13,5 @@ window.showGroup = id =>  {
   if (syncManager.watchGroupTransactions) syncManager.watchGroupTransactions(id);
   renderGroup(); 
 }
+window.showInbox = () => { showView('inbox'); inboxManager.renderInbox(); }
 

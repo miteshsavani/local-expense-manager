@@ -12,10 +12,14 @@ window.openAddTransactionModal = editId => {
   if (_splitMode === 'share') _splitMode = 'custom'; // Migrate old 'share' to 'custom'
   _customManualState = {}; // Reset manual flags on open
 
-  // If editing a custom split, mark all existing custom amounts as manual
+  // If editing a custom split, restore the multipliers and fixed amounts
   if (tx && tx.splitType === 'custom' && tx.participants) {
     tx.participants.forEach(p => {
-      if (p.customAmount > 0) _customManualState[p.memberId] = { type: 'fixed' };
+      if (p.shareCount === 0.5 || p.shareCount === 2) {
+        _customManualState[p.memberId] = { type: 'multi', value: p.shareCount };
+      } else if (p.shareCount === 0) {
+        _customManualState[p.memberId] = { type: 'fixed' };
+      }
     });
   }
 
@@ -412,7 +416,12 @@ window._submitTx = (editId) => {
       const inp = inputs.find(i => i.dataset.mid === c.value);
       const v = parseFloat(inp?.value)||0;
       total += v;
-      return { memberId: c.value, customAmount: v };
+      const state = _customManualState[c.value];
+      let shareCount = 1;
+      if (state?.type === 'multi') shareCount = state.value;
+      else if (state?.type === 'fixed') shareCount = 0; // 0 means fixed amount
+
+      return { memberId: c.value, customAmount: v, shareCount };
     });
     if (Math.abs(total - amt) > 0.01) {
       showToast(`Custom amounts must sum to ${Utils.fmt(amt)}`, 'error'); return;
