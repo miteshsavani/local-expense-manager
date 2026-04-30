@@ -53,7 +53,6 @@ function openSettingsModal(){
         <div class="settings-section-title">👤 Account</div>
         <div class="settings-row">
           <div><div class="settings-label">${Utils.esc(user?.displayName||'User')}</div><div class="settings-desc">${Utils.esc(user?.email||'')}</div></div>
-          <button class="btn btn-danger btn-sm" onclick="_settingsSignOut()">Sign Out</button>
         </div>
       </div>`;
 
@@ -63,12 +62,6 @@ function openSettingsModal(){
     ${syncSection}
     <div class="settings-section">
       <div class="settings-section-title">🎨 Appearance</div>
-      <div class="settings-row">
-        <div><div class="settings-label">Dark Mode</div><div class="settings-desc">Switch between light and dark themes</div></div>
-        <button class="dark-toggle" onclick="toggleDark()">
-          <div class="dark-toggle-slider"></div>
-        </button>
-      </div>
       <div class="settings-row">
         <div><div class="settings-label">Font Family</div><div class="settings-desc">Change the app's body font</div></div>
         <select class="select" id="font-select" style="width:140px" onchange="window._changeFont(this.value)">

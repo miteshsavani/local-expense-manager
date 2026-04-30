@@ -79,7 +79,7 @@
 
         <button id="hdr-sync-now-btn" class="btn-hdr" onclick="syncManager.syncNow(true)" data-tip="Sync Now" data-tip-pos="bottom" aria-label="Sync Now">🔄</button>
 
-        <button class="sync-pill local" id="sync-pill" onclick="openSettingsModal()" data-tip="Sync status — click for settings" data-tip-pos="bottom">
+        <button class="sync-pill local" id="sync-pill" data-tip="Sync status — click for settings" data-tip-pos="bottom">
           <span class="sync-dot"></span>
           <span id="sync-label">Local only</span>
         </button>
@@ -87,10 +87,35 @@
 
       <span id="sync-ui-area">
         <button class="btn-hdr" onclick="openImportExportModal()" data-tip="Import / Export" data-tip-pos="bottom">⇅</button>
-        <button class="btn-hdr" onclick="openSettingsModal()" data-tip="Settings" data-tip-pos="bottom">⚙</button>
       </span>
 
-      <div class="user-avatar" id="user-avatar" onclick="openSettingsModal()" data-tip="Account settings" data-tip-pos="bottom">?</div>
+      <div class="user-avatar-wrap">
+        <div class="user-avatar" id="user-avatar" onclick="uiManager.toggleAccountDropdown(event)" data-tip="Account" data-tip-pos="bottom">?</div>
+        
+        <div id="account-dropdown" class="account-dropdown hidden">
+          <div class="dropdown-header">
+            <div id="dropdown-user-name" class="dropdown-user-name">User</div>
+            <div id="dropdown-user-email" class="dropdown-user-email">email@example.com</div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" onclick="setDarkMode(false)">
+            <span class="icon">☀️</span> Light Mode
+            <span class="check" id="check-light">✓</span>
+          </button>
+          <button class="dropdown-item" onclick="setDarkMode(true)">
+            <span class="icon">🌙</span> Dark Mode
+            <span class="check" id="check-dark">✓</span>
+          </button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" onclick="uiManager.toggleAccountDropdown(event); openSettingsModal();">
+            <span class="icon">⚙️</span> Settings
+          </button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item text-danger" onclick="authManager.signOut()">
+            <span class="icon">🚪</span> Sign Out
+          </button>
+        </div>
+      </div>
       
       <!-- Guest Logout Button -->
       <button id="guest-logout-btn" class="btn btn-ghost btn-sm hidden" onclick="authManager.clearGuestSession()" data-tip="Logout Guest Session" data-tip-pos="bottom" style="padding:4px 8px">Logout</button>

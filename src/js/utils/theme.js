@@ -1,11 +1,12 @@
 /* ================================================================
    DARK MODE + FONTS
    ================================================================ */
-function toggleDark(){
-  STATE.darkMode=!STATE.darkMode;
-  document.documentElement.classList.toggle('dark',STATE.darkMode);
-  // Save settings for both logged-in users and guests
+
+function setDarkMode(on) {
+  STATE.darkMode = on;
+  document.documentElement.classList.toggle('dark', STATE.darkMode);
   localCacheManager.saveSettings();
+  uiManager.toggleAccountDropdown();
 }
 
 window.applyFont = (val) => {
