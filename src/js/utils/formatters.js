@@ -148,6 +148,15 @@
   normMembers(members) {
     // Normalize to {id, name, parentId} objects
     return members.map(m => typeof m === 'string' ? { id: m, name: m, parentId: null } : m);
+  },
+
+  generateShareCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Avoid O, 0, I, 1
+    let code = '';
+    for (let i = 0; i < 8; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
   }
 };
 

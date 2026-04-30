@@ -81,6 +81,7 @@ window.uiManager = (() => {
 
   function onUserSignedOut() {
     backupScheduler.stop();
+    if (syncManager.stopListeners) syncManager.stopListeners();
     // IMPORTANT: Clear state immediately before showing auth,
     // so there's zero chance of previous data flashing
     STATE.user = null;

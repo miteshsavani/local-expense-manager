@@ -5,12 +5,58 @@ window.renderGroup = () => {
   const g = Groups.active(); if (!g) { showDashboard(); return; }
   const normMembers = memberManager.normalize(g.members);
   const mainMembers = normMembers.filter(m => !m.parentId);
+  const role = g.roles?.[STATE.user?.uid] || 'member';
+  const isOwner = role === 'owner';
+
   document.getElementById('group-breadcrumb').textContent = g.name;
-  document.getElementById('group-title').textContent    = g.name;
+  
+  // Shared badge
+  const sharedBadge = g.shareCode 
+    ? `<span class="badge badge-blue" style="font-size:10px;margin-left:8px">SHARED</span>` 
+    : '';
+  document.getElementById('group-title').innerHTML = `${Utils.esc(g.name)}${sharedBadge}`;
+  
   document.getElementById('group-subtitle').textContent = `${normMembers.length} members (${mainMembers.length} main) · Created ${Utils.date(g.createdAt)}`;
+  
+  // Member avatars in header
+  const membersHtml = (g.userIds || []).slice(0, 8).map(uid => {
+    const role = g.roles?.[uid];
+    const color = role === 'owner' ? 'var(--accent)' : 'var(--text3)';
+    return `<div class="member-avatar-sm" style="background:${color}" title="${role}">${uid.slice(0,1).toUpperCase()}</div>`;
+  }).join('') + (g.userIds?.length > 8 ? `<div class="member-avatar-sm" style="background:var(--border2)">+</div>` : '');
+  document.getElementById('group-member-list').innerHTML = membersHtml;
+
+  // Show/Hide share button
+  const shareBtn = document.getElementById('group-share-btn');
+  if (shareBtn) shareBtn.style.display = isOwner ? 'inline-flex' : 'none';
+
   renderSummaryCards(g);
   renderTransactions();
 }
+
+window.openShareGroupModal = () => {
+  const g = Groups.active();
+  if (!g) return;
+  
+  openModal(`<div class="modal" style="max-width:400px">
+    <div class="modal-header"><div class="modal-title">Share Group</div></div>
+    <div class="form-group" style="text-align:center;padding:20px 0">
+      <div style="font-size:12px;color:var(--text3);text-transform:uppercase;margin-bottom:8px">Group Share Code</div>
+      <div style="font-size:32px;font-weight:700;font-family:var(--font-mono);letter-spacing:4px;color:var(--accent)">${g.shareCode}</div>
+      <button class="btn btn-secondary mt-16" onclick="copyShareCode('${g.shareCode}')">📋 Copy Code</button>
+    </div>
+    <p class="text-sm text-muted" style="text-align:center">Give this code to friends so they can join and split expenses with you in real-time.</p>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal()">Done</button>
+    </div>
+  </div>`);
+};
+
+window.copyShareCode = (code) => {
+  navigator.clipboard.writeText(code).then(() => {
+    showToast('Code copied to clipboard!', 'success');
+  });
+};
 
 window.renderSummaryCards = g => {
   const activeTx = g.transactions.filter(t => !t.deletedFlag);
@@ -87,6 +133,7 @@ window.renderTransactions = () => {
         <div class="tx-desc" style="display:flex;align-items:center;gap:6px">${dirtyIndicator}${Utils.esc(tx.desc)}</div>
         <div class="tx-meta">
           <span>👤 ${Utils.esc(getName(tx.paidBy))}</span>
+          ${tx.updatedByName ? `<span>✍️ Added by ${Utils.esc(tx.updatedByName)}</span>` : ''}
           <span>🗓 ${Utils.dateTime(tx.date)}</span>
         </div>
         <div class="tx-share-pills">${participantDisplay}</div>

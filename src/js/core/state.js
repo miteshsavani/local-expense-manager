@@ -15,6 +15,7 @@
   backupEnabled:  false,
   backupInterval: 120,
   isSyncing:      false,
-  syncRetries:    0
+  syncRetries:    0,
+  listeners:      []       // Track active Firestore onSnapshot unsub functions
 };
 

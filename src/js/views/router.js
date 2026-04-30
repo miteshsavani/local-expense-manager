@@ -6,5 +6,11 @@ window.showView = name => {
   document.getElementById('view-'+name).classList.add('active');
 }
 window.showDashboard = () => { STATE.activeGroupId=null; showView('dashboard'); renderDashboard(); }
-window.showGroup = id =>  { STATE.activeGroupId=id; STATE.activeTab='transactions'; showView('group'); renderGroup(); }
+window.showGroup = id =>  { 
+  STATE.activeGroupId=id; 
+  STATE.activeTab='transactions'; 
+  showView('group'); 
+  if (syncManager.watchGroupTransactions) syncManager.watchGroupTransactions(id);
+  renderGroup(); 
+}
 

@@ -49,6 +49,27 @@ window.openAddTransactionModal = editId => {
       <div id="participants-container"></div>
       <div class="split-preview-box" id="split-preview">Select participants</div>
     </div>
+
+    ${tx ? `
+      <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:16px">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+          <span>✍️ Added by <strong>${Utils.esc(tx.updatedByName || 'Unknown')}</strong></span>
+          <button class="btn btn-ghost btn-sm" onclick="_toggleTxHistory()" style="padding:2px 8px;font-size:11px">📜 View History</button>
+        </div>
+        <div id="tx-history-panel" class="hidden" style="background:var(--surface2);border-radius:var(--radius2);padding:10px;margin-top:8px;max-height:150px;overflow-y:auto;border:1px solid var(--border)">
+          ${(tx.history || []).slice().reverse().map(h => `
+            <div style="font-size:11px;padding:4px 0;border-bottom:1px solid var(--border);last-child { border-bottom:none }">
+              <div style="display:flex;justify-content:space-between">
+                <strong>${Utils.esc(h.by)}</strong>
+                <span style="color:var(--text3)">${Utils.dateTime(h.at)}</span>
+              </div>
+              <div style="color:var(--text2)">${h.action}</div>
+            </div>
+          `).join('') || '<div class="text-muted" style="font-size:11px">No history available</div>'}
+        </div>
+      </div>
+    ` : ''}
+
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn btn-primary" onclick="_submitTx('${editId||''}')">${tx?'Save Changes':'Add Expense'}</button>
@@ -416,4 +437,13 @@ window.confirmDeleteTransaction = id => {
   openConfirm('Delete Expense',`Delete <span class="confirm-hl">"${Utils.esc(tx.desc)}"</span> (${Utils.fmt(tx.amount)})? Cannot be undone.`,
     ()=>{ Transactions.delete(g,id); renderGroup(); showToast('Deleted','default'); });
 }
+
+window._toggleTxHistory = () => {
+  const p = document.getElementById('tx-history-panel');
+  if (p) {
+    const isHidden = p.classList.toggle('hidden');
+    const btn = p.closest('.modal')?.querySelector('button[onclick="_toggleTxHistory()"]');
+    if (btn) btn.textContent = isHidden ? '📜 View History' : '🔼 Hide History';
+  }
+};
 

@@ -16,7 +16,13 @@ window.Transactions = {
       date: now, updatedAt: now,
       emoji: Utils.emoji(data.desc),
       isDirty: true,
-      deletedFlag: false
+      deletedFlag: false,
+      updatedByName: STATE.user?.displayName || STATE.user?.email?.split('@')[0] || 'Unknown',
+      history: [{
+        at: now,
+        by: STATE.user?.displayName || STATE.user?.email?.split('@')[0] || 'Unknown',
+        action: `Created expense (₹${tx.amount})`
+      }]
     };
     group.transactions.unshift(tx);
     group.updatedAt = now;
@@ -35,7 +41,14 @@ window.Transactions = {
       participants: data.participants || null,
       splitBetween: data.splitBetween || [],
       updatedAt: now, emoji: Utils.emoji(data.desc),
-      isDirty: true
+      isDirty: true,
+      updatedByName: STATE.user?.displayName || STATE.user?.email?.split('@')[0] || 'Unknown'
+    });
+    if (!tx.history) tx.history = [];
+    tx.history.push({
+      at: now,
+      by: STATE.user?.displayName || STATE.user?.email?.split('@')[0] || 'Unknown',
+      action: `Updated expense (₹${tx.amount})`
     });
     group.updatedAt = now;
     group.isDirty = true;
