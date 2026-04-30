@@ -253,11 +253,58 @@ const uiManager = (() => {
     banner.classList.add('hidden');
   }
 
+  function toggleAccountDropdown(e) {
+    if (e) e.stopPropagation();
+    const dd = document.getElementById('account-dropdown');
+    if (!dd) return;
+    const isHidden = dd.classList.contains('hidden');
+    
+    if (isHidden) {
+      _updateDropdownContent();
+      dd.classList.remove('hidden');
+      window.addEventListener('click', _closeDropdownOnOutsideClick, { capture: true, once: true });
+    } else {
+      dd.classList.add('hidden');
+    }
+  }
+
+  function _updateDropdownContent() {
+    const user = STATE.user;
+    const nameEl = document.getElementById('dropdown-user-name');
+    const emailEl = document.getElementById('dropdown-user-email');
+    if (!nameEl || !emailEl) return;
+    
+    if (STATE.isGuest) {
+      nameEl.textContent = 'Guest User';
+      emailEl.textContent = 'Local Mode';
+    } else if (user) {
+      nameEl.textContent = user.displayName || 'User';
+      emailEl.textContent = user.email || '';
+    }
+    
+    // Theme checks
+    const cDark = document.getElementById('check-dark');
+    const cLight = document.getElementById('check-light');
+    if (cDark) cDark.classList.toggle('active', STATE.darkMode);
+    if (cLight) cLight.classList.toggle('active', !STATE.darkMode);
+  }
+
+  function _closeDropdownOnOutsideClick(e) {
+    const dd = document.getElementById('account-dropdown');
+    const avatar = document.getElementById('user-avatar');
+    if (dd && !dd.contains(e.target) && !avatar.contains(e.target)) {
+      dd.classList.add('hidden');
+    } else if (dd && !dd.classList.contains('hidden')) {
+      window.addEventListener('click', _closeDropdownOnOutsideClick, { capture: true, once: true });
+    }
+  }
+
   return {
     onUserSignedIn, onGuestSignedIn, onUserSignedOut,
     dismissSafetyBanner, updatePendingBanner,
     showAuthFromGuest, setSyncEnabled, showGuestWarning,
-    loadSyncEnabledFromFirebase, dismissBanner
+    loadSyncEnabledFromFirebase, dismissBanner,
+    toggleAccountDropdown
   };
 })()
 
