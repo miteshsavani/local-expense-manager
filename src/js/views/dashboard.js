@@ -11,9 +11,15 @@ window.renderDashboard = () => {
       <div class="empty-state-title">No groups yet</div>
       <p>Create your first group to start splitting expenses</p><br>
       <button class="btn btn-primary" onclick="openCreateGroupModal()">＋ Create Group</button>
+      <button class="btn btn-secondary" onclick="openJoinGroupModal()" style="margin-top:12px">📥 Join Shared Group</button>
     </div>`; return;
   }
-  c.innerHTML = `<div class="groups-grid">${visibleGroups.map(renderGroupCard).join('')}</div>`;
+  c.innerHTML = `
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px;gap:8px">
+      <button class="btn btn-secondary btn-sm" onclick="openJoinGroupModal()">📥 Join Group</button>
+      <button class="btn btn-primary btn-sm" onclick="openCreateGroupModal()">＋ New Group</button>
+    </div>
+    <div class="groups-grid">${visibleGroups.map(renderGroupCard).join('')}</div>`;
 }
 
 window.renderGroupCard = g => {
@@ -56,4 +62,45 @@ window.renderGroupCard = g => {
     </div>
   </div>`;
 }
+
+window.openJoinGroupModal = () => {
+  openModal(`<div class="modal" style="max-width:400px">
+    <div class="modal-header"><div class="modal-title">Join Shared Group</div></div>
+    <div class="form-group">
+      <label>Enter Share Code</label>
+      <input class="input" id="join-share-code" type="text" placeholder="e.g. ABC123XY" maxlength="10" style="text-transform:uppercase">
+      <p class="text-sm text-muted mt-8">Ask the group owner for the 8-digit code.</p>
+    </div>
+    <div id="join-error" class="auth-error mt-8"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="join-btn" onclick="submitJoinGroup()">Join Group</button>
+    </div>
+  </div>`);
+  document.getElementById('join-share-code').focus();
+};
+
+window.submitJoinGroup = async () => {
+  const code = document.getElementById('join-share-code').value.trim().toUpperCase();
+  if (!code) return;
+  
+  const btn = document.getElementById('join-btn');
+  const err = document.getElementById('join-error');
+  btn.disabled = true;
+  btn.textContent = 'Joining...';
+  err.textContent = '';
+
+  try {
+    const gid = await firebaseService.joinGroup(STATE.user.uid, code);
+    showToast('Joined group successfully!', 'success');
+    closeModal();
+    // No need to manually refresh, listener will handle it
+    if (gid) showGroup(gid);
+  } catch (e) {
+    err.textContent = e.message || 'Failed to join group';
+    err.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = 'Join Group';
+  }
+};
 

@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // 👤 Root user doc
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      // 📂 Groups
+      match /groups/{groupId} {
+        allow read, write: if isOwner(userId);
+
+        // 💸 Transactions inside groups
+        match /transactions/{transactionId} {
+          allow read, write: if isOwner(userId);
+        }
+      }
+    }
+
+    // 🚫 Deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

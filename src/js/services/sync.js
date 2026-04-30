@@ -26,7 +26,7 @@ window.syncManager = (() => {
     }
   }
 
-  /* Main incremental sync — push dirty, pull changed */
+  /* Main incremental sync — push dirty changes */
   async function syncNow(isManual = false) {
     if (STATE.isSyncing) { 
       if (isManual) showToast('Sync already in progress', 'info');
@@ -39,15 +39,13 @@ window.syncManager = (() => {
       return; 
     }
 
-    // Always reset countdown at the start of a sync attempt
     backupScheduler.resetCountdown();
     if (!navigator.onLine) { networkManager.updateSyncPill(); return; }
 
-    // Check if there is anything to sync
     const hasDirty = STATE.groups.some(g => g.isDirty || g.deletedFlag ||
       g.transactions.some(tx => tx.isDirty || tx.deletedFlag));
+    
     if (!hasDirty && !STATE.pendingChanges) {
-      // Nothing to push — still pull to stay current
       STATE.pendingChanges = false;
       networkManager.setSyncStatus('synced');
       return;
@@ -59,42 +57,24 @@ window.syncManager = (() => {
     _hideError();
     networkManager.setSyncStatus('syncing');
 
-    const timeoutPromise = new Promise((_, rej) => {
-      _syncTimeout = setTimeout(() => rej(new Error('SYNC_TIMEOUT')), TIMEOUT_MS);
-    });
-
     try {
-      await Promise.race([_doSync(), timeoutPromise]);
-      clearTimeout(_syncTimeout);
-
-      // Success — clear dirty flags
+      await firebaseService.pushChanges(STATE.user.uid);
       _clearDirtyFlags();
       STATE.pendingChanges = false;
       STATE.lastSyncAt     = new Date().toISOString();
       STATE.syncRetries    = 0;
       localCacheManager.saveGroups();
-      localCacheManager.saveSettings();
       uiManager.updatePendingBanner();
       
-      // Re-render UI to remove localized sync badges
-      if (typeof renderDashboard === 'function' && document.getElementById('view-dashboard')?.classList.contains('active')) renderDashboard();
-      if (typeof renderGroup === 'function' && STATE.activeGroupId) renderGroup();
-      
-      showToast('Synced ✓', 'success', 2000);
+      if (isManual) showToast('Synced ✓', 'success', 2000);
 
     } catch(err) {
-      clearTimeout(_syncTimeout);
-      console.error('[sync error]', err);
+      console.error('[push error]', err);
       STATE.syncRetries++;
-
       if (STATE.syncRetries <= MAX_RETRIES) {
-        const delay = STATE.syncRetries * 5000;
-        _showError(`Sync failed (attempt ${STATE.syncRetries}/${MAX_RETRIES}) — retrying in ${delay/1000}s`);
-        networkManager.setSyncStatus('error');
-        setTimeout(syncNow, delay);
+        setTimeout(syncNow, STATE.syncRetries * 5000);
       } else {
-        STATE.syncRetries = 0;
-        _showError('Sync failed after 3 attempts. Data is safe locally. Click Retry.');
+        _showError('Sync failed. Click Retry.');
         networkManager.setSyncStatus('error');
       }
     } finally {
@@ -104,111 +84,104 @@ window.syncManager = (() => {
     }
   }
 
-  async function _doSync() {
-    const uid = STATE.user.uid;
+  /* Listeners */
+  function startListeners() {
+    if (!STATE.user || STATE.isGuest || !STATE.syncEnabled) return;
+    stopListeners();
 
-    // 1. PUSH dirty local changes first
-    await firebaseService.pushChanges(uid);
+    // 1. Listen to Groups
+    const unsubGroups = firebaseService.listenToGroups(STATE.user.uid, remoteGroups => {
+      _resolveGroups(remoteGroups);
+      renderDashboard();
+    });
+    STATE.listeners.push(unsubGroups);
 
-    // 2. PULL changes from server since last sync
-    const changed = await firebaseService.pullChanges(uid, STATE.lastSyncAt);
-
-    // 3. Merge pulled changes into local state
-    resolveConflicts(changed);
-
-    // 4. Remove locally-deleted groups from state array (they've been pushed)
-    STATE.groups = STATE.groups.filter(g => !g.deletedFlag);
+    // 2. Initial transactions listener if group is active
+    if (STATE.activeGroupId) watchGroupTransactions(STATE.activeGroupId);
   }
 
-  /* Merge remote changes into local state */
-  function resolveConflicts(remoteGroups) {
-    const localMap = new Map(STATE.groups.map(g => [g.id, g]));
+  function stopListeners() {
+    STATE.listeners.forEach(unsub => unsub());
+    STATE.listeners = [];
+  }
 
-    for (const rg of remoteGroups) {
+  function watchGroupTransactions(gid) {
+    // Unsubscribe from previous tx listener if any (except the group listener)
+    if (STATE.listeners.length > 1) {
+      STATE.listeners[1]();
+      STATE.listeners.splice(1, 1);
+    }
+
+    const unsubTx = firebaseService.listenToTransactions(gid, remoteTxs => {
+      _resolveTransactions(gid, remoteTxs);
+      if (STATE.activeGroupId === gid) renderGroup();
+    });
+    STATE.listeners.push(unsubTx);
+  }
+
+  function _resolveGroups(remoteGroups) {
+    const localMap = new Map(STATE.groups.map(g => [g.id, g]));
+    
+    remoteGroups.forEach(rg => {
       if (!localMap.has(rg.id)) {
-        // Brand new group from remote
-        const { _changedTransactions, ...meta } = rg;
-        STATE.groups.push({
-          ...meta,
-          transactions: (_changedTransactions||[]).filter(t => !t.deletedFlag),
-          isDirty: false
-        });
+        // New remote group
+        STATE.groups.push({ ...rg, transactions: [], isDirty: false });
       } else {
         const lg = localMap.get(rg.id);
-
-        // Resolve group metadata: last updatedAt wins
-        const rTs = _toMs(rg.updatedAt);
-        const lTs = _toMs(lg.updatedAt);
-        if (rTs > lTs) {
-          lg.name    = rg.name;
+        if (!lg.isDirty || _toMs(rg.updatedAt) > _toMs(lg.updatedAt)) {
+          // Update metadata only, preserve local transactions
+          lg.name = rg.name;
           lg.members = rg.members;
+          lg.userIds = rg.userIds;
+          lg.roles = rg.roles;
+          lg.shareCode = rg.shareCode;
           lg.updatedAt = rg.updatedAt;
           lg.isDirty = false;
         }
-
-        // Merge transactions
-        const localTxMap = new Map(lg.transactions.map(t => [t.id, t]));
-        for (const rt of (rg._changedTransactions||[])) {
-          if (rt.deletedFlag) {
-            // Remote deletion — remove locally unless local is newer
-            const lt = localTxMap.get(rt.id);
-            if (!lt || _toMs(rt.updatedAt) >= _toMs(lt.updatedAt)) {
-              localTxMap.delete(rt.id);
-            }
-          } else if (!localTxMap.has(rt.id)) {
-            localTxMap.set(rt.id, { ...rt, isDirty: false });
-          } else {
-            const lt = localTxMap.get(rt.id);
-            if (_toMs(rt.updatedAt) > _toMs(lt.updatedAt) && !lt.isDirty) {
-              localTxMap.set(rt.id, { ...rt, isDirty: false });
-            }
-          }
-        }
-        lg.transactions = [...localTxMap.values()]
-          .filter(t => !t.deletedFlag)
-          .sort((a,b) => new Date(b.date||0) - new Date(a.date||0));
       }
-    }
+    });
+
+    // Remove groups that are no longer in remote (unless they are local-only/dirty)
+    const remoteIds = new Set(remoteGroups.map(g => g.id));
+    STATE.groups = STATE.groups.filter(g => remoteIds.has(g.id) || g.isDirty);
+    
+    localCacheManager.saveGroups();
   }
 
-  /* Initial load on sign-in — full pull if no lastSyncAt */
+  function _resolveTransactions(gid, remoteTxs) {
+    const g = STATE.groups.find(g => g.id === gid);
+    if (!g) return;
+
+    const localTxMap = new Map(g.transactions.map(t => [t.id, t]));
+    
+    remoteTxs.forEach(rt => {
+      const isNew = !localTxMap.has(rt.id);
+      const lt = localTxMap.get(rt.id);
+      
+      if (isNew) {
+        localTxMap.set(rt.id, { ...rt, isDirty: false });
+      } else {
+        // Only overwrite if remote is newer and local is NOT dirty
+        if (!lt.isDirty || _toMs(rt.updatedAt) > _toMs(lt.updatedAt)) {
+          localTxMap.set(rt.id, { ...rt, isDirty: false });
+        }
+      }
+    });
+
+    // Handle remote deletions
+    const remoteIds = new Set(remoteTxs.map(t => t.id));
+    g.transactions = [...localTxMap.values()].filter(t => remoteIds.has(t.id) || t.isDirty);
+    
+    localCacheManager.saveGroups();
+  }
+
+  /* Initial load on sign-in */
   async function initialLoad() {
     if (!STATE.user || STATE.isGuest) return;
     if (!STATE.syncEnabled || !navigator.onLine) return;
-    if (STATE.isSyncing) return;
-
-    STATE.isSyncing = true;
-    _setSyncBar(true);
-    networkManager.setSyncStatus('syncing');
-
-    const timeout = new Promise((_, rej) =>
-      setTimeout(() => rej(new Error('SYNC_TIMEOUT')), TIMEOUT_MS));
-
-    try {
-      await Promise.race([
-        (async () => {
-          let groups;
-          if (!STATE.lastSyncAt) {
-            // First ever load — full pull
-            groups = await firebaseService.pullAllData(STATE.user.uid);
-            STATE.groups = groups;
-          } else {
-            // Delta pull
-            const changed = await firebaseService.pullChanges(STATE.user.uid, STATE.lastSyncAt);
-            resolveConflicts(changed);
-          }
-          STATE.lastSyncAt = new Date().toISOString();
-          STATE.pendingChanges = false;
-          localCacheManager.saveGroups();
-          localCacheManager.saveSettings();
-        })(),
-        timeout
-      ]);
-    } finally {
-      STATE.isSyncing = false;
-      _setSyncBar(false);
-      networkManager.updateSyncPill();
-    }
+    
+    startListeners();
+    STATE.pendingChanges = false;
   }
 
   /* After successful sync, clear all isDirty flags */
@@ -238,7 +211,7 @@ window.syncManager = (() => {
     if (bar) bar.classList.add('hidden');
   }
 
-  return { onDataChanged, syncNow, initialLoad, resolveConflicts };
+  return { onDataChanged, syncNow, initialLoad, startListeners, stopListeners, watchGroupTransactions };
 })();
 
 window.backupScheduler = (() => {
