@@ -1,7 +1,7 @@
 /* ================================================================
    REPORT DOWNLOAD
    ================================================================ */
-function downloadReport(){
+window.downloadReport = () => {
   const g=Groups.active(); if(!g) return;
   const activeTx = g.transactions.filter(t=>!t.deletedFlag);
   const total=activeTx.reduce((s,t)=>s+t.amount,0);

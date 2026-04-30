@@ -1,7 +1,7 @@
 /* ================================================================
    TOAST NOTIFICATIONS
    ================================================================ */
-function showToast(msg, type='default', ms=3200) {
+window.showToast = (msg, type='default', ms=3200) => {
   const icons = {success:'✓',error:'✕',warning:'⚠',info:'ℹ',default:'·'};
   const el = Object.assign(document.createElement('div'), {
     className: `toast ${type}`,

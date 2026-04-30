@@ -2,7 +2,7 @@
    TRANSACTIONS CRUD
    Supports new participants[] model and legacy splitBetween[] model
    ================================================================ */
-const Transactions = {
+window.Transactions = {
   add(group, data) {
     const now = new Date().toISOString();
     const tx = {

@@ -1,7 +1,7 @@
 /* ================================================================
    MEMBER CHIP HELPERS (for simple string-based member input)
    ================================================================ */
-function renderChips(cid) {
+window.renderChips = cid => {
   const el = document.getElementById(cid); if(!el) return;
   const members = memberManager.normalize(window._members||[]);
   el.innerHTML = memberManager.renderTree(members, '_removeChip');
@@ -10,7 +10,7 @@ window._removeChip = (id) => {
   window._members = memberManager.removeMember(memberManager.normalize(window._members||[]), id);
   renderChips('mbr-chips');
 };
-function addChip(inputId, cid) {
+window.addChip = (inputId, cid) => {
   const inp = document.getElementById(inputId); const name = inp.value.trim();
   if(!name) return;
   const norm = memberManager.normalize(window._members||[]);
@@ -19,7 +19,7 @@ function addChip(inputId, cid) {
   inp.value=''; renderChips(cid); inp.focus();
 }
 
-function closeAddSubMemberModal() {
+window.closeAddSubMemberModal = () => {
   closeModal();
   if (window._lastModal === 'create') openCreateGroupModal(true);
   else if (window._lastModal === 'edit') openEditGroupModal(window._editGroupId, true);
@@ -35,7 +35,7 @@ window._addSubMember = (parentId) => {
   renderChips('mbr-chips');
 };
 
-function openEditMemberNameModal(id) {
+window.openEditMemberNameModal = id => {
   // Capture current form state if in Create/Edit modal
   if (window._lastModal === 'create') {
     window._tempGrpName = document.getElementById('grp-name')?.value || '';
@@ -77,7 +77,7 @@ window._saveMemberName = (id) => {
   renderChips('mbr-chips');
 };
 
-function openAddSubMemberModal(parentId, parentName) {
+window.openAddSubMemberModal = (parentId, parentName) => {
   // Capture current form state if in Create/Edit modal
   if (window._lastModal === 'create') {
     window._tempGrpName = document.getElementById('grp-name')?.value || '';

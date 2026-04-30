@@ -26,7 +26,7 @@ export function resolveFile(type, category, key) {
 /* ================================================================
    APP BOOTSTRAP
    ================================================================ */
-(function init(){
+window.bootstrap = (function init(){
 
   function $(id) {
     return document.getElementById(id);

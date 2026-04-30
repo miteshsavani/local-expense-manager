@@ -1,7 +1,7 @@
 /* ================================================================
    NETWORK MANAGER
    ================================================================ */
-const networkManager = (() => {
+window.networkManager = (() => {
   let _pillRefreshTimer = null;
 
   function init() {

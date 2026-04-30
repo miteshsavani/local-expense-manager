@@ -1,7 +1,7 @@
 /* ================================================================
    IMPORT / EXPORT
    ================================================================ */
-function openImportExportModal(){
+window.openImportExportModal = () => {
   const activeBtn = STATE.activeGroupId
     ? `<button class="btn btn-secondary" onclick="exportXML('active')">⬇ Current Group (XML)</button>
        <button class="btn btn-secondary" onclick="exportJSON('active')">⬇ Current Group (JSON)</button>` : '';
@@ -30,7 +30,7 @@ function openImportExportModal(){
   </div>`);
 }
 
-function exportJSON(scope){
+window.exportJSON = (scope) => {
   const groups=(scope==='active'?[Groups.active()]:STATE.groups).filter(Boolean).filter(g=>!g.deletedFlag);
   if(!groups.length){showToast('No data to export','warning');return;}
   const a=Object.assign(document.createElement('a'),{
@@ -38,7 +38,7 @@ function exportJSON(scope){
     download:`splitease-${new Date().toISOString().slice(0,10)}.json`
   }); a.click(); showToast('JSON downloaded!','success');
 }
-function importJSON(event){
+window.importJSON = event => {
   const file=event.target.files[0]; if(!file) return;
   const r=new FileReader();
   r.onload=e=>{
@@ -66,7 +66,7 @@ function importJSON(event){
   };
   r.readAsText(file);
 }
-function exportXML(scope){
+window.exportXML = scope =>{
   const groups=(scope==='active'?[Groups.active()]:STATE.groups).filter(Boolean).filter(g=>!g.deletedFlag);
   if(!groups.length){showToast('No data to export','warning');return;}
   let xml='<?xml version="1.0" encoding="UTF-8"?>\n<splitease>\n';
@@ -90,8 +90,9 @@ function exportXML(scope){
     href:URL.createObjectURL(new Blob([xml],{type:'application/xml'})),
     download:`splitease-${new Date().toISOString().slice(0,10)}.xml`
   }); a.click(); showToast('XML exported!','success');
-}
-function importXML(event){
+};
+
+window.importXML = (event) => {
   const file=event.target.files[0]; if(!file) return;
   const r=new FileReader();
   r.onload=e=>{

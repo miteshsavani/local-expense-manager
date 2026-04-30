@@ -1,7 +1,7 @@
 /* ================================================================
    REPORT MANAGER — supports sub-members and custom splits
    ================================================================ */
-const reportManager = {
+window.reportManager = {
   computeBalancesForGroup(group) {
     return Utils.computeBalances(group);
   },

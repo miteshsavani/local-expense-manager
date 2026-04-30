@@ -1,7 +1,7 @@
 /* ================================================================
    APPLICATION STATE
    ================================================================ */
-const STATE = {
+ window.STATE = {
   user:           null,
   isGuest:        false,   // true = guest login mode
   syncEnabled:    true,    // user-controlled sync toggle

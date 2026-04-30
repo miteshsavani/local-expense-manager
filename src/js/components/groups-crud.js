@@ -2,7 +2,7 @@
    GROUPS CRUD
    All mutations set isDirty=true and call syncManager.onDataChanged()
    ================================================================ */
-const Groups = {
+window.Groups = {
   active: () => STATE.groups.find(g => g.id === STATE.activeGroupId),
 
   create(name, members) {

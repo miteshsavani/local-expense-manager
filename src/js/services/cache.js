@@ -2,7 +2,7 @@
    LOCAL CACHE MANAGER
    All LocalStorage I/O. Scoped per user.
    ================================================================ */
-const localCacheManager = (() => {
+window.localCacheManager = (() => {
   // Scope localStorage per user; guests use 'guest' namespace
   const K = s => `se_${STATE.isGuest ? 'guest' : (STATE.user?.uid||'anon')}_${s}`;
 

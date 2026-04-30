@@ -2,7 +2,7 @@
    DARK MODE + FONTS
    ================================================================ */
 
-function setDarkMode(on) {
+window.setDarkMode = on => {
   STATE.darkMode = on;
   document.documentElement.classList.toggle('dark', STATE.darkMode);
   localCacheManager.saveSettings();

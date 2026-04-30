@@ -1,7 +1,7 @@
 /* ================================================================
    FIREBASE SERVICE
    ================================================================ */
-const firebaseService = (() => {
+window.firebaseService = (() => {
   let _db = null, _auth = null;
 
   function init() {

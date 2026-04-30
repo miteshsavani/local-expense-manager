@@ -1,11 +1,11 @@
 /* ================================================================
    ADD / EDIT TRANSACTION MODAL — multi-share + custom split
    ================================================================ */
-let _splitMode = 'custom'; // 'equal' | 'custom' // I have hide the equal option
+window._splitMode = 'custom'; // 'equal' | 'custom' // I have hide the equal option
 /* Feature #1: Track custom multipliers or manual specific amounts */
-let _customManualState = {}; // Tracks manual amounts or multipliers
+window._customManualState = {}; // Tracks manual amounts or multipliers
 
-function openAddTransactionModal(editId){
+window.openAddTransactionModal = editId => {
   const g = Groups.active(); if(!g) return;
   const tx = editId ? g.transactions.find(t=>t.id===editId) : null;
   _splitMode = tx?.splitType || _splitMode;
@@ -59,7 +59,7 @@ function openAddTransactionModal(editId){
   _refreshSplitPreview();
 }
 
-function _renderParticipants(tx) {
+window._renderParticipants = tx => {
   const g = Groups.active(); if(!g) return;
   const container = document.getElementById('participants-container'); if(!container) return;
   //const normM = memberManager.normalize(g.members);
@@ -173,7 +173,7 @@ window._resetCustomSplit = () => {
 };
 
 /* Feature #1: Auto-adjust non-manual custom amounts to fill remaining */
-function _autoAdjustCustomSplit_old() {
+window._autoAdjustCustomSplit_old = () => {
   if (_splitMode !== 'custom') return;
   const amt = parseFloat(document.getElementById('tx-amt')?.value) || 0;
   const sel = [...document.querySelectorAll('.pchk')].filter(c => c.checked);
@@ -252,7 +252,7 @@ function _autoAdjustCustomSplit_old() {
   }
 }
 
-function _autoAdjustCustomSplit() {
+window._autoAdjustCustomSplit = () => {
   if (_splitMode !== 'custom') return;
 
   const amt = parseFloat(document.getElementById('tx-amt')?.value) || 0;
@@ -411,7 +411,7 @@ window._submitTx = (editId) => {
   closeModal(); renderGroup();
 };
 
-function confirmDeleteTransaction(id){
+window.confirmDeleteTransaction = id => {
   const g = Groups.active(); const tx = g?.transactions.find(t=>t.id===id); if(!tx) return;
   openConfirm('Delete Expense',`Delete <span class="confirm-hl">"${Utils.esc(tx.desc)}"</span> (${Utils.fmt(tx.amount)})? Cannot be undone.`,
     ()=>{ Transactions.delete(g,id); renderGroup(); showToast('Deleted','default'); });

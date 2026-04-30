@@ -1,7 +1,7 @@
 /* ================================================================
    UI MANAGER
    ================================================================ */
-const uiManager = (() => {
+window.uiManager = (() => {
 
   /* Helper to reveal the main app and hide splash/auth */
   function _showApp() {

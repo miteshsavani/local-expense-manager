@@ -1,7 +1,7 @@
 /* ================================================================
    GROUP VIEW
    ================================================================ */
-function renderGroup() {
+window.renderGroup = () => {
   const g = Groups.active(); if (!g) { showDashboard(); return; }
   const normMembers = memberManager.normalize(g.members);
   const mainMembers = normMembers.filter(m => !m.parentId);
@@ -12,7 +12,7 @@ function renderGroup() {
   renderTransactions();
 }
 
-function renderSummaryCards(g) {
+window.renderSummaryCards = g => {
   const activeTx = g.transactions.filter(t => !t.deletedFlag);
   const total = activeTx.reduce((s,t)=>s+t.amount,0);
   const normMembers = memberManager.normalize(g.members);
@@ -37,7 +37,7 @@ function renderSummaryCards(g) {
     ${dirtyBadge}`;
 }
 
-function renderTransactions() {
+window.renderTransactions = () => {
   const g = Groups.active(); if (!g) return;
   const search = document.getElementById('tx-search').value;
   const sort   = document.getElementById('tx-sort').value;
@@ -103,7 +103,7 @@ function renderTransactions() {
   }).join('')}</div>`;
 }
 
-function renderBalances() {
+window.renderBalances = () => {
   const g = Groups.active(); if (!g) return;
   const b = Utils.computeBalances(g);
   const normM = memberManager.normalize(g.members);
@@ -126,7 +126,7 @@ function renderBalances() {
     }).join('')}</div>`;
 }
 
-function renderSettle() {
+window.renderSettle = () => {
   const g = Groups.active(); if (!g) return;
   const s = Utils.computeSettlements(Utils.computeBalances(g));
   const normM = memberManager.normalize(g.members);
@@ -146,7 +146,7 @@ function renderSettle() {
       : `<div class="card" style="text-align:center;padding:32px;color:var(--text3)">✅ All settled up!</div>`}`;
 }
 
-function renderAnalytics() {
+window.renderAnalytics = () => {
   const g = Groups.active(); if (!g) return;
   const { paid, owed, members } = reportManager.memberStats(g);
   const mainMembers = members.filter(m => !m.parentId);

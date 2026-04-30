@@ -1,7 +1,7 @@
 /* ================================================================
    FIREBASE CONFIGURATION — replace with your project values
    ================================================================ */
-const FIREBASE_CONFIG = {
+window.FIREBASE_CONFIG = {
     apiKey: "AIzaSyAwuI9Hw868h46atsF7zrRoeZ3E9gMX3is",
     authDomain: "react-employee.firebaseapp.com",
     databaseURL: "https://react-employee.firebaseio.com",

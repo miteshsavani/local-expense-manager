@@ -1,7 +1,7 @@
 /* ================================================================
    MEMBER MANAGER — sub-member support
    ================================================================ */
-const memberManager = {
+window.memberManager = {
   /* Convert old string members array to new structured format */
   normalize(members) {
     return members.map(m => typeof m === 'string'
