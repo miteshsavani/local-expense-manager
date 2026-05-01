@@ -23,6 +23,43 @@ input, select, textarea {
 .split-preview{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius2);padding:12px;font-size:13px;color:var(--text2);margin-top:8px}
 .split-preview strong{color:var(--text)}
 .info-text{font-size:12px;color:var(--text3);margin-top:6px}
+.member-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 4px 10px 4px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all var(--tr);
+  flex-shrink: 0;
+}
+.member-pill:hover {
+  background: var(--border);
+  border-color: var(--border2);
+}
+.member-pill .pill-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.member-pill .pill-name {
+  max-width: 65px; /* Roughly 7-8 chars depending on font */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .member-avatar-sm{
   width:26px;height:26px;border-radius:50%;color:#fff;
   font-size:10px;font-weight:700;display:flex;align-items:center;

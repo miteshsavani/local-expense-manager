@@ -21,12 +21,6 @@ window.openManageMembersModal = isResume => {
 
     <div id="mbr-chips" style="margin-top:8px"></div>
     <div class="info-text mt-8">${(canAdd || canRemove) ? 'Use "+ sub" button to add sub-members under a member.' : 'Viewing current group members.'}</div>
-    
-    ${(g.userIds?.length > 1 && (g.ownerId === STATE.user?.uid || g.roles?.[STATE.user?.uid] === 'owner')) ? `
-      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
-        <button class="btn btn-secondary btn-sm" onclick="openSharedMembersDetailModal()">🔍 View Shared Member Activity</button>
-      </div>
-    ` : ''}
 
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>

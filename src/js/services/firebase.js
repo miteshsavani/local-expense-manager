@@ -124,7 +124,7 @@ window.firebaseService = (() => {
     return mRef(gid, uid).onSnapshot(snap => {
       if (snap.exists) cb(snap.data());
       else cb(null);
-    });
+    }, err => console.warn('Member permissions listener error (expected if new):', err));
   }
 
   async function joinGroup(uid, shareCode) {
@@ -296,11 +296,11 @@ window.firebaseService = (() => {
         chunk.forEach(g => {
           const { transactions, isDirty, ...meta } = g;
           
-          // Only initialize metadata if this is a NEW group (no ownerId yet)
-          if (!meta.ownerId) {
-            meta.ownerId = uid;
-            meta.userIds = [uid];
-            meta.roles = { [uid]: 'owner' };
+          // Only initialize metadata if this is a NEW group
+          if (!meta.ownerId || !meta.shareCode) {
+            meta.ownerId = meta.ownerId || uid;
+            meta.userIds = meta.userIds || [uid];
+            meta.roles = meta.roles || { [uid]: 'owner' };
             if (!meta.shareCode) meta.shareCode = Utils.generateShareCode();
             
             // Initialize owner permissions in subcollection

@@ -15,11 +15,6 @@ window.renderDashboard = () => {
     </div>`; return;
   }
   c.innerHTML = `
-    <div style="display:flex;justify-content:flex-end;margin-bottom:16px;gap:8px">
-      <button class="btn btn-secondary btn-sm" onclick="showInbox()">📥 Inbox <span class="inbox-badge" style="position:static;margin-left:4px;display:none;width:16px;height:16px;font-size:9px"></span></button>
-      <button class="btn btn-secondary btn-sm" onclick="openJoinGroupModal()">🔗 Join Group</button>
-      <button class="btn btn-primary btn-sm" onclick="openCreateGroupModal()">＋ New Group</button>
-    </div>
     <div class="groups-grid">${visibleGroups.map(renderGroupCard).join('')}</div>`;
   
   if (window.inboxManager) inboxManager.updateUnreadBadge();

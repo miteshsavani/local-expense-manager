@@ -5,26 +5,52 @@ window.renderGroup = () => {
   const g = Groups.active(); if (!g) { showDashboard(); return; }
   const normMembers = memberManager.normalize(g.members);
   const mainMembers = normMembers.filter(m => !m.parentId);
-  const role = g.roles?.[STATE.user?.uid] || 'member';
-  const isOwner = role === 'owner';
+  const isOwner = g.ownerId === STATE.user?.uid || g.roles?.[STATE.user?.uid] === 'owner';
 
   document.getElementById('group-breadcrumb').textContent = g.name;
   
-  // Shared badge
-  const sharedBadge = g.shareCode 
-    ? `<span class="badge badge-blue" style="font-size:10px;margin-left:8px">SHARED</span>` 
-    : '';
-  document.getElementById('group-title').innerHTML = `${Utils.esc(g.name)}${sharedBadge}`;
+  // Role badge
+  const roleStr = isOwner ? 'OWNER' : ((g.roles?.[STATE.user?.uid] || 'MEMBER').toUpperCase());
+  const roleColor = isOwner ? 'badge-blue' : 'badge-gray';
+  const roleBadge = `<span class="badge ${roleColor}" style="font-size:10px;margin-left:8px;letter-spacing:1px;">You are ${roleStr}</span>`;
+  document.getElementById('group-title').innerHTML = `${Utils.esc(g.name)}${roleBadge}`;
   
   document.getElementById('group-subtitle').textContent = `${normMembers.length} members (${mainMembers.length} main) · Created ${Utils.date(g.createdAt)}`;
   
-  // Member avatars in header
-  const membersHtml = (g.userIds || []).slice(0, 8).map(uid => {
-    const role = g.roles?.[uid];
-    const color = role === 'owner' ? 'var(--accent)' : 'var(--text3)';
-    return `<div class="member-avatar-sm" style="background:${color}" title="${role}">${uid.slice(0,1).toUpperCase()}</div>`;
-  }).join('') + (g.userIds?.length > 8 ? `<div class="member-avatar-sm" style="background:var(--border2)">+</div>` : '');
+  // Member avatars in header (excluding current user)
+  const otherUserIds = (g.userIds || []).filter(uid => uid !== STATE.user?.uid);
+  
+  // Try to use cached member names for better avatars
+  const cachedMembers = STATE.memberDetailsCache[g.id] || [];
+  
+  const membersHtml = otherUserIds.slice(0, 8).map(uid => {
+    // Check cache first, then normMembers (local), then fallback
+    const cached = cachedMembers.find(m => m.uid === uid);
+    const m = cached || normMembers.find(mem => mem.id === uid) || { name: 'User' };
+    
+    const r = g.roles?.[uid] || 'member';
+    const color = r === 'owner' ? 'var(--accent)' : 'var(--text3)';
+    const displayName = m.name || 'User';
+    
+    return `<div class="member-pill" 
+              onclick="openMemberDetailsModal('${uid}', '${Utils.esc(displayName)}')" 
+              title="${Utils.esc(displayName)} (${r})">
+              <div class="pill-avatar" style="background:${color}">${Utils.initials(displayName)}</div>
+              <span class="pill-name">${Utils.esc(displayName)}</span>
+            </div>`;
+  }).join('') + (otherUserIds.length > 8 ? `<div class="member-pill" style="padding:4px 12px;background:var(--border2);color:var(--text3);cursor:default">+${otherUserIds.length-8}</div>` : '');
   document.getElementById('group-member-list').innerHTML = membersHtml;
+
+  // Trigger background fetch if cache is empty to improve UI on next render or modal open
+  if (!STATE.memberDetailsCache[g.id]) {
+    firebaseService.getGroupMemberDetails(g.id).then(details => {
+      STATE.memberDetailsCache[g.id] = details;
+      // Re-render only if still on the same group to update avatar names
+      if (STATE.activeGroupId === g.id) {
+        window.renderGroup();
+      }
+    });
+  }
 
   // Show/Hide share/leave buttons
   const shareBtn = document.getElementById('group-share-btn');
@@ -164,7 +190,7 @@ window.renderTransactions = () => {
           const canEdit = permissionManager.canEditTx(tx);
           const canDelete = permissionManager.canDeleteTx(tx);
           return `
-            <button class="btn btn-ghost btn-icon btn-sm" onclick="openAddTransactionModal('${tx.id}')" title="${canEdit?'Edit':'Permission required'}" ${canEdit?'':'disabled'}>✎</button>
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="openAddTransactionModal('${tx.id}')" title="${canEdit?'Edit':'View Details'}">${canEdit?'✎':'👁'}</button>
             <button class="btn btn-ghost btn-icon btn-sm" onclick="confirmDeleteTransaction('${tx.id}')" title="${canDelete?'Delete':'Permission required'}" ${canDelete?'':'disabled'}>🗑</button>
           `;
         })()}

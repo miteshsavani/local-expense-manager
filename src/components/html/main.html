@@ -114,7 +114,10 @@
           <div class="page-title">Your Groups</div>
           <div class="page-subtitle" id="dashboard-subtitle">Manage shared expenses</div>
         </div>
-        <button class="btn btn-primary" onclick="openCreateGroupModal()">＋ New Group</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="openJoinGroupModal()">🔗 Join Group</button>
+          <button class="btn btn-primary" onclick="openCreateGroupModal()">＋ New Group</button>
+        </div>
       </div>
       <div id="groups-container"></div>
     </div>
