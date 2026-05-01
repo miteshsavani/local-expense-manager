@@ -322,3 +322,12 @@ Implication:
 - No runtime module loader
 - No script ordering dependency
 - Browser loads static dist/ output
+
+---
+
+## DEV TOOLING CONTEXT
+
+- ESLint is used for code quality checks
+- It validates global variable usage (window.* pattern)
+- It runs during development and pre-commit
+- It does NOT affect runtime build output

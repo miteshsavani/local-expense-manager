@@ -2,7 +2,7 @@
    INBOX MANAGER
    ================================================================ */
 window.inboxManager = (() => {
-  let _pageSize = 10;
+  const _pageSize = 10;
   let _currentPage = 1;
   let _sortMode = 'newest';
   let _filterGroupId = 'all';
@@ -170,7 +170,7 @@ window.inboxManager = (() => {
   }
 
   async function editTx(groupId, txId) {
-    let g = STATE.groups.find(g => g.id === groupId);
+    const g = STATE.groups.find(g => g.id === groupId);
     if (!g) {
       showToast('Group not found. Opening dashboard...', 'info');
       showDashboard();

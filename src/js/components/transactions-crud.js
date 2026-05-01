@@ -66,7 +66,6 @@ window.Transactions = {
   update(group, id, data) {
     const tx = group.transactions.find(t => t.id === id); if (!tx) return;
     const oldAmount = tx.amount;
-    const oldDesc = tx.desc;
     const now = new Date().toISOString();
     Object.assign(tx, {
       desc: data.desc, amount: +data.amount,

@@ -11,7 +11,9 @@
     "start": "npm run dev & npm run serve",
     "clean": "rm -rf dist",
     "rebuild": "npm run clean && npm run build",
-    "prepare": "husky"
+    "prepare": "husky",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix"
   },
   "repository": {
     "type": "git",
@@ -28,7 +30,9 @@
     "chokidar": "^5.0.0",
     "clean-css": "^5.3.3",
     "esbuild": "^0.28.0",
+    "eslint": "^8.57.0",
     "express": "^5.2.1",
+    "globals": "^17.5.0",
     "husky": "^9.1.7",
     "ws": "^8.20.0"
   },

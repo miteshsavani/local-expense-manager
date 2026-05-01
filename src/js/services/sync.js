@@ -3,9 +3,7 @@
    ================================================================ */
 window.syncManager = (() => {
   let _debounceTimer = null;
-  let _syncTimeout   = null;
   const DEBOUNCE_MS  = 2500;
-  const TIMEOUT_MS   = 20000;
   const MAX_RETRIES  = 3;
 
   /* Called after every local mutation */
