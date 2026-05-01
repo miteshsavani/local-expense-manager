@@ -1,93 +1,70 @@
-# local-expense-manager
-A lightweight, fully client-side expense sharing application built using pure HTML, CSS, and JavaScript in a single file. This app helps users manage group expenses, track balances, and settle debts—similar to Splitwise, but without any backend or external dependencies.
+# SplitEase - Local Expense Manager
+
+A modern, offline-first expense sharing application designed to help users manage group expenses, track balances, and settle debts—similar to Splitwise. Built with vanilla HTML, CSS, and JavaScript, it offers a fast, responsive, and seamless experience.
 
 ---
 
 ## 🚀 Features
 
-### 👥 Group Management
+### ☁️ Real-time Cloud Sync & Offline Support
+* Real-time synchronization across multiple devices using Firebase.
+* Robust offline-first architecture: make changes while offline, and the app will automatically sync when you reconnect.
+* Guest mode available for entirely local usage without an account.
 
-* Create and manage multiple groups
-* Add or remove members within each group
-* Dashboard view to access, open, or delete groups
+### 👥 Group & Member Management
+* Create and manage multiple expense groups.
+* Share groups via invite codes for others to join instantly.
+* **Sub-members:** Add dependents or non-app users (e.g., kids, pets) under a primary member's account.
+* **Role-Based Access Control (RBAC):** Group owners have granular control over member permissions.
+  * Toggle abilities to: Add Expenses, Edit/Delete Own Expenses, Edit/Delete Others' Expenses, and Manage Members.
 
-### 💸 Transaction Management
+### 💸 Advanced Expense Tracking & Splitting
+* Track expense amount, description, payer, and split details.
+* **Smart Split Modes:**
+  * **Equal Split:** Automatically divide expenses equally among participants.
+  * **Custom Split:** Allocate specific shares (0.5x, 1x, 2x) or exact fixed amounts (₹) to different participants.
+* Automatic recalculation and preview of individual shares before saving.
 
-* Add, edit, and delete expense entries
-* Track:
+### 📊 Balances & Settlements
+* Real-time balance tracking (who owes whom).
+* **Smart Settle Up:** Calculates the fewest number of transactions required to clear all group debts.
+* **Analytics:** Visual breakdown of total group expenditure and individual contributions.
 
-  * Amount
-  * Description
-  * Paid by
-  * Split among members
-  * Timestamp (created & updated)
-* Sort transactions by date or amount
+### 🔔 Activity Feed & Notifications
+* Stay updated with real-time notifications for group activities (new expenses, edits, member joins/leaves).
+* Direct "View Expense" links from the activity feed.
 
-### ⚖️ Expense Splitting
+### 🛡️ Administration & Platform Management
+* Dedicated Admin Panel for platform administrators.
+* Manage user accounts, approve/reject registrations, and enforce platform limits.
+* Monitor system-wide group and transaction metrics.
 
-* Automatically split expenses equally among selected members
-* Clear breakdown of individual shares
-* Real-time balance tracking (who owes whom)
-
-### 🤝 Settle Up
-
-* Simplified debt settlement calculation
-* Shows minimal transactions required to clear balances
-
-### 📊 Insights & Summary
-
-* Total group expenditure
-* Individual contribution tracking
-* Easy-to-read summary section per group
-
-### 💾 Local Storage
-
-* All data is stored in browser LocalStorage
-* No backend required
-* Data persists across sessions
-
-### 📤 Import / Export
-
-* Export all data or specific groups in XML format
-* Import XML files to restore data
-
-### 📄 PDF Download
-
-* Download transaction history as a PDF file
-* Fully client-side generation
+### 📤 Data Portability
+* Export all data or specific groups.
+* Download transaction history as a PDF file (fully client-side generation).
 
 ---
 
 ## 🧱 Tech Stack
 
-* **HTML5**
-* **CSS3 (inline)**
-* **Vanilla JavaScript**
-
-No frameworks, no libraries, no external APIs.
+* **Frontend:** HTML5, CSS3, Vanilla JavaScript
+* **Backend/Database:** Firebase Authentication, Firestore Database
+* **Architecture:** Modular, component-based vanilla JS structure with dedicated managers for State, UI, Network, and Sync.
 
 ---
 
-## 🎯 Design Goals
+## ▶️ Setup & Deployment
 
-* Single-file architecture (easy to share and run)
-* Offline-first experience
-* Clean and minimal UI
-* Fast and responsive interactions
-* No installation required
-
----
-
-## ▶️ How to Use
-
-1. Download or clone the repository
-2. Open the `.html` file in any modern browser
-3. Start creating groups and tracking expenses
+1. Clone the repository.
+2. Ensure you have a Firebase project set up.
+3. Replace the Firebase configuration in `src/js/services/firebase.js` with your project's credentials.
+4. Set up Firestore Security Rules to enforce the RBAC model.
+5. Open `index.html` in any modern browser, or serve it using a local development server (e.g., `npx serve .`).
 
 ---
 
-## 📌 Notes
+## 🎯 Design Philosophy
 
-* This project is intended for learning and lightweight personal use
-* Since it uses LocalStorage, data is browser-specific
-* No cloud sync or multi-device support
+* **Performance First:** No heavy frontend frameworks.
+* **Mobile-Optimized:** Designed to feel like a native app on mobile devices, with bottom-sheet modals, touch-friendly UI, and responsive layouts.
+* **Premium UI/UX:** Clean aesthetics, subtle micro-animations, and intuitive controls.
