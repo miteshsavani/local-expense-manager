@@ -6,7 +6,7 @@ window.memberManager = {
   normalize(members) {
     return members.map(m => typeof m === 'string'
       ? { id: m, name: m, parentId: null }
-      : { id: m.id || m.name, name: m.name, parentId: m.parentId || null }
+      : { id: m.id || m.name, name: m.name, parentId: m.parentId || null, uid: m.uid || null }
     );
   },
 

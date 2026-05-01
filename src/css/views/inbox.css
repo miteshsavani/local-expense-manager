@@ -10,6 +10,7 @@
 .notification-item {
   background: var(--surface);
   border: 1px solid var(--border);
+  border-left: 4px solid transparent; /* Prevent layout shift */
   border-radius: var(--radius2);
   padding: 16px;
   display: flex;
@@ -27,12 +28,13 @@
 
 .notification-item.unread {
   background: var(--surface2);
-  border-left: 4px solid var(--accent);
+  border-left-color: var(--accent);
 }
 
 .notif-indicator {
   width: 8px;
   height: 8px;
+  flex-shrink: 0;
   background: var(--accent);
   border-radius: 50%;
   margin-top: 6px;
@@ -45,6 +47,7 @@
 
 .notif-content {
   flex: 1;
+  min-width: 0;
 }
 
 .notif-text {
@@ -52,6 +55,7 @@
   line-height: 1.5;
   color: var(--text);
   margin-bottom: 6px;
+  word-wrap: break-word;
 }
 
 .notif-footer {

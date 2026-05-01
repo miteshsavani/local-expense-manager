@@ -133,7 +133,7 @@ window.firebaseService = (() => {
     const groupDoc = snap.docs[0];
     const groupData = groupDoc.data();
     
-    if (groupData.userIds.includes(uid)) return groupDoc.id; // Already a member
+    if (groupData.userIds.includes(uid)) return { gid: groupDoc.id, isNew: false, groupData }; // Already a member
 
     // Add user to userIds array and roles map
     const b = _db.batch();
@@ -152,7 +152,14 @@ window.firebaseService = (() => {
     });
 
     await b.commit();
-    return groupDoc.id;
+    return { gid: groupDoc.id, isNew: true, groupData };
+  }
+
+  async function updateGroupMembers(gid, members) {
+    return _db.collection('groups').doc(gid).update({
+      members: members,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
   }
 
   async function getTransaction(gid, tid) {
@@ -404,6 +411,5 @@ window.firebaseService = (() => {
     }, targetUid);
   }
 
-  return { init, signIn, register, signOut, onAuthChange, pullChanges, pushChanges, pullAllData, listenToGroups, listenToTransactions, joinGroup, listenToNotifications, createNotifications, updateNotification, clearAllNotifications, getTransaction, updatePresence, getGroupMemberDetails, listenToMemberPermissions, updateMemberPermissions, fetchUsersList, updateUserAccess };
+  return { init, signIn, register, signOut, onAuthChange, pullChanges, pushChanges, pullAllData, listenToGroups, listenToTransactions, joinGroup, updateGroupMembers, listenToNotifications, createNotifications, updateNotification, clearAllNotifications, getTransaction, updatePresence, getGroupMemberDetails, listenToMemberPermissions, updateMemberPermissions, fetchUsersList, updateUserAccess };
 })();
-

@@ -25,7 +25,7 @@ window.openAddTransactionModal = editId => {
   }
 
   const normM = memberManager.normalize(g.members);
-  const defaultPaidBy = tx ? tx.paidBy : (normM.find(m => m.id === STATE.user?.uid)?.id || normM[0]?.id);
+  const defaultPaidBy = tx ? tx.paidBy : (normM.find(m => m.id === STATE.user?.uid || m.uid === STATE.user?.uid)?.id || normM[0]?.id);
   const paidByOpts = normM.map(m =>
     `<option value="${Utils.esc(m.id)}" ${defaultPaidBy===m.id?'selected':''}>${Utils.esc(m.name)}${m.parentId?' (sub)':''}</option>`
   ).join('');
