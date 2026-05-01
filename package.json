@@ -10,7 +10,8 @@
     "serve": "node scripts/serve.js",
     "start": "npm run dev & npm run serve",
     "clean": "rm -rf dist",
-    "rebuild": "npm run clean && npm run build"
+    "rebuild": "npm run clean && npm run build",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,7 @@
     "clean-css": "^5.3.3",
     "esbuild": "^0.28.0",
     "express": "^5.2.1",
+    "husky": "^9.1.7",
     "ws": "^8.20.0"
   },
   "dependencies": {}

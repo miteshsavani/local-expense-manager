@@ -201,6 +201,7 @@ Implication:
 - settings modal → src/js/components/settings-modal.js
 - admin modal → src/js/components/admin-modal.js
 - members detail modal → src/js/components/members-detail-modal.js
+- permission modal - src/js/components/permission-modal.js
 
 ---
 
