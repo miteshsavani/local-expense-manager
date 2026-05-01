@@ -25,8 +25,9 @@ window.openAddTransactionModal = editId => {
   }
 
   const normM = memberManager.normalize(g.members);
+  const defaultPaidBy = tx ? tx.paidBy : (normM.find(m => m.id === STATE.user?.uid)?.id || normM[0]?.id);
   const paidByOpts = normM.map(m =>
-    `<option value="${Utils.esc(m.id)}" ${tx&&tx.paidBy===m.id?'selected':''}>${Utils.esc(m.name)}${m.parentId?' (sub)':''}</option>`
+    `<option value="${Utils.esc(m.id)}" ${defaultPaidBy===m.id?'selected':''}>${Utils.esc(m.name)}${m.parentId?' (sub)':''}</option>`
   ).join('');
 
   const modalTitle = !canEdit ? 'View Expense' : (tx ? 'Edit Expense' : 'Add Expense');
