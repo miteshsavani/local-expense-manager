@@ -12,7 +12,7 @@ window.Transactions = {
           totalTx += g.transactions.filter(t => !t.deletedFlag).length;
         }
       });
-      const max = STATE.userProfile.limits?.maxTransactions || 100;
+      const max = (STATE.userProfile.limits?.maxTransactions !== null) ? STATE.userProfile.limits.maxTransactions : 100;
       if (max !== 0) {
         if (totalTx >= max) {
           showToast(`Limit reached: You can have up to ${max} total expenses.`, 'error');

@@ -35,10 +35,21 @@ window.uiManager = (() => {
     if (splash) { splash.classList.add('fade-out'); setTimeout(() => splash.remove(), 400); }
   }
 
+  function _showLoadingDashboard() {
+    // Show loading overlay
+    document.getElementById('loading-screen')?.classList.remove('hidden');
+  }
+
+  function _hideLoadingDashboard() {
+    // Hide loading overlay
+    document.getElementById('loading-screen')?.classList.add('hidden');
+  }
+
   function onUserSignedIn(user) {
     // Clear listeners from previous session if any
     if (window._profileUnsub) { window._profileUnsub(); window._profileUnsub = null; }
-    
+    _showLoadingDashboard();
+
     const db = firebase.firestore();
     window._profileUnsub = db.collection('users').doc(user.uid).onSnapshot(doc => {
       if (!doc.exists) {
@@ -64,10 +75,12 @@ window.uiManager = (() => {
       if (profile.status === 'approved' || profile.role === 'admin') {
         _initializeFullApp(user, profile);
       } else {
+        _hideLoadingDashboard();
         _showWaitingScreen(profile.status, profile.rejectionReason);
       }
     }, err => {
       console.error('Profile listener error:', err);
+      _hideLoadingDashboard();
       _showWaitingScreen('pending');
     });
   }
@@ -118,7 +131,11 @@ window.uiManager = (() => {
     backupScheduler.start();
     // Feature #3: Load syncEnabled from Firebase, then initial sync
     uiManager.loadSyncEnabledFromFirebase().then(() => {
-      syncManager.initialLoad().then(renderDashboard);
+      syncManager.initialLoad().then(() => {
+        renderDashboard();
+        // Hide loading overlay after sync initialization
+        _hideLoadingDashboard();
+      });
     });
   }
 
@@ -141,6 +158,7 @@ window.uiManager = (() => {
 
     // Load admin data
     adminManager.refreshUsers();
+    _hideLoadingDashboard();
   }
 
   function onGuestSignedIn() {
