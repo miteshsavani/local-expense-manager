@@ -7,8 +7,8 @@ window.openImportExportModal = () => {
        <button class="btn btn-secondary" onclick="exportJSON('active')">⬇ Current Group (JSON)</button>` : '';
   openModal(`<div class="modal modal-wide">
     <div class="modal-header"><div class="modal-title">Import / Export</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
-    <div class="card" style="background:var(--surface2);margin-bottom:16px">
-      <div class="section-title">Export</div>
+    <div class="card" style="background:var(--surface2);margin-bottom:16px; ${(STATE.userProfile && !STATE.userProfile.permissions?.canUseExport) ? 'opacity:0.6;pointer-events:none' : ''}">
+      <div class="section-title">Export ${(STATE.userProfile && !STATE.userProfile.permissions?.canUseExport) ? '<span style="color:var(--accent);font-size:10px;margin-left:8px">(RESTRICTED)</span>' : ''}</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
         <button class="btn btn-primary" onclick="exportJSON('all')">⬇ All Groups (JSON)</button>
         <button class="btn btn-secondary" onclick="exportXML('all')">⬇ All Groups (XML)</button>
@@ -31,6 +31,10 @@ window.openImportExportModal = () => {
 }
 
 window.exportJSON = (scope) => {
+  if (STATE.userProfile && !STATE.userProfile.permissions?.canUseExport) {
+    showToast('Export is restricted for your account. Contact Admin.', 'error');
+    return;
+  }
   const groups=(scope==='active'?[Groups.active()]:STATE.groups).filter(Boolean).filter(g=>!g.deletedFlag);
   if(!groups.length){showToast('No data to export','warning');return;}
   const a=Object.assign(document.createElement('a'),{
@@ -67,6 +71,10 @@ window.importJSON = event => {
   r.readAsText(file);
 }
 window.exportXML = scope =>{
+  if (STATE.userProfile && !STATE.userProfile.permissions?.canUseExport) {
+    showToast('Export is restricted for your account. Contact Admin.', 'error');
+    return;
+  }
   const groups=(scope==='active'?[Groups.active()]:STATE.groups).filter(Boolean).filter(g=>!g.deletedFlag);
   if(!groups.length){showToast('No data to export','warning');return;}
   let xml='<?xml version="1.0" encoding="UTF-8"?>\n<splitease>\n';

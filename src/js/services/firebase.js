@@ -38,18 +38,57 @@ window.firebaseService = (() => {
     canRemoveMembers: true
   };
 
+  const DEFAULT_USER_LIMITS = {
+    maxGroups: 3,
+    maxTransactions: 100
+  };
+
+  const DEFAULT_USER_PERMS = {
+    canShareGroups: true,
+    canJoinGroups: true,
+    canUseCloudSync: true,
+    canUseExport: true,
+    canUseReports: true
+  };
+
   /* Auth */
   async function signIn(email, pw) { return _auth.signInWithEmailAndPassword(email, pw); }
   async function register(email, pw, name) {
     const c = await _auth.createUserWithEmailAndPassword(email, pw);
     await c.user.updateProfile({ displayName: name });
-    // Refresh STATE.user to ensure displayName is available
+    
+    const userDoc = {
+      email,
+      displayName: name,
+      status: 'pending',
+      role: 'user',
+      limits: DEFAULT_USER_LIMITS,
+      permissions: DEFAULT_USER_PERMS,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    await uRef(c.user.uid).set(userDoc, { merge: true });
     if (window.STATE) window.STATE.user = _auth.currentUser;
-    await uRef(c.user.uid).set({ email, displayName: name, createdAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
     return c;
   }
   async function signOut() { return _auth.signOut(); }
   function onAuthChange(cb) { return _auth.onAuthStateChanged(cb); }
+
+  /* Admin Actions */
+  async function fetchUsersList() {
+    const snap = await _db.collection('users').orderBy('createdAt', 'desc').get();
+    return snap.docs.map(d => ({ ...d.data(), uid: d.id }));
+  }
+
+  async function updateUserAccess(targetUid, data) {
+    // data should contain status, limits, permissions, role, etc.
+    return _db.collection('users').doc(targetUid).update({
+      ...data,
+      approvedBy: _auth.currentUser.uid,
+      approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
 
   /* ---- REAL-TIME LISTENERS ---- */
   function listenToGroups(uid, cb) {
@@ -368,6 +407,6 @@ window.firebaseService = (() => {
     }, targetUid);
   }
 
-  return { init, signIn, register, signOut, onAuthChange, pullChanges, pushChanges, pullAllData, listenToGroups, listenToTransactions, joinGroup, listenToNotifications, createNotifications, updateNotification, clearAllNotifications, getTransaction, updatePresence, getGroupMemberDetails, listenToMemberPermissions, updateMemberPermissions };
+  return { init, signIn, register, signOut, onAuthChange, pullChanges, pushChanges, pullAllData, listenToGroups, listenToTransactions, joinGroup, listenToNotifications, createNotifications, updateNotification, clearAllNotifications, getTransaction, updatePresence, getGroupMemberDetails, listenToMemberPermissions, updateMemberPermissions, fetchUsersList, updateUserAccess };
 })();
 

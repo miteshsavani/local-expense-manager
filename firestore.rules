@@ -1,12 +1,26 @@
-rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // User profile: readable by any signed-in user, but only ownable by the user
+    // Helpers
+    function isApproved() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'approved';
+    }
+    
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // User profile
     match /users/{userId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && (
+        // User can update their own profile EXCEPT for role/status/limits/permissions
+        (request.auth.uid == userId && 
+         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'role', 'limits', 'permissions'])) ||
+        // Admin can update anything
+        isAdmin()
+      );
     }
     
     // Groups
@@ -17,17 +31,17 @@ service cloud.firestore {
                 get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.permissions[perm] == true);
       }
 
-      allow read: if request.auth != null;
+      allow read: if request.auth != null && (isApproved() || isAdmin());
       
-      allow create: if request.auth != null 
+      allow create: if request.auth != null && isApproved()
                     && request.resource.data.ownerId == request.auth.uid;
       
       allow update: if request.auth != null && (
         // 1. Owner has full access
-        resource.data.roles[request.auth.uid] == 'owner' ||
+        (resource.data.roles[request.auth.uid] == 'owner' && isApproved()) ||
         
         // 2. Member with specific permissions
-        (request.auth.uid in resource.data.userIds && (
+        (request.auth.uid in resource.data.userIds && isApproved() && (
           // Add/Edit member names
           (can('canAddMembers') && 
            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members', 'updatedAt', 'updatedBy']) &&
@@ -49,10 +63,10 @@ service cloud.firestore {
 
         // 4. Joining (self-addition)
         (request.resource.data.userIds.hasAll(resource.data.userIds) && 
-         request.resource.data.userIds.hasAll([request.auth.uid]))
+         request.resource.data.userIds.hasAll([request.auth.uid]) && isApproved())
       );
       
-      allow delete: if request.auth != null && resource.data.roles[request.auth.uid] == 'owner';
+      allow delete: if request.auth != null && resource.data.roles[request.auth.uid] == 'owner' && isApproved();
       
       // Member permissions subcollection
       match /members/{userId} {
@@ -62,8 +76,8 @@ service cloud.firestore {
         );
         allow write: if request.auth != null && (
           // 1. User is the owner of the group (works for new and existing groups)
-          getAfter(/databases/$(database)/documents/groups/$(groupId)).data.ownerId == request.auth.uid ||
-          get(/databases/$(database)/documents/groups/$(groupId)).data.ownerId == request.auth.uid ||
+          (getAfter(/databases/$(database)/documents/groups/$(groupId)).data.ownerId == request.auth.uid && isApproved()) ||
+          (get(/databases/$(database)/documents/groups/$(groupId)).data.ownerId == request.auth.uid && isApproved()) ||
           // 2. User is creating their own record as a viewer
           (request.auth.uid == userId && request.resource.data.role == 'viewer')
         );
@@ -73,25 +87,25 @@ service cloud.firestore {
       match /transactions/{txId} {
         allow read: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.userIds;
         
-        allow create: if request.auth != null && can('canAddExpense');
+        allow create: if request.auth != null && isApproved() && can('canAddExpense');
         
-        allow update: if request.auth != null && (
+        allow update: if request.auth != null && isApproved() && (
           can('canEditOthersExpense') ||
           (request.auth.uid == resource.data.createdBy && can('canEditOwnExpense')) ||
           (request.auth.uid != resource.data.createdBy && can('canEditOthersExpense'))
         );
 
-        allow delete: if request.auth != null && (
+        allow delete: if request.auth != null && isApproved() && (
           (request.auth.uid == resource.data.createdBy && can('canDeleteOwnExpense')) ||
           (request.auth.uid != resource.data.createdBy && can('canDeleteOthersExpense'))
         );
       }
     }
 
-    // Notifications: Activity feed for users
+    // Notifications
     match /notifications/{notificationId} {
       allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.targetUserId;
-      allow create: if request.auth != null; // Actor creates for others
+      allow create: if request.auth != null && isApproved();
     }
   }
 }

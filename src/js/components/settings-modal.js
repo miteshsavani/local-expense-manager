@@ -59,6 +59,7 @@ window.openSettingsModal = () => {
   openModal(`<div class="modal modal-wide">
     <div class="modal-header"><div class="modal-title">⚙ Settings</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
     ${accountSection}
+    ${STATE.isGuest ? '' : _renderAccessSection()}
     ${syncSection}
     <div class="settings-section">
       <div class="settings-section-title">🎨 Appearance</div>
@@ -89,7 +90,7 @@ window.openSettingsModal = () => {
       </div>
       <div class="settings-row">
         <div><div class="settings-label">Export Backup</div><div class="settings-desc">Download all data as JSON</div></div>
-        <button class="btn btn-secondary btn-sm" onclick="exportJSON('all');closeModal()">⬇ Backup JSON</button>
+        <button class="btn btn-secondary btn-sm" onclick="${(STATE.userProfile && !STATE.userProfile.permissions?.canUseExport) ? 'showToast(\'Export restricted\',\'error\')' : 'exportJSON(\'all\');closeModal()'}" ${ (STATE.userProfile && !STATE.userProfile.permissions?.canUseExport) ? 'style="opacity:0.5"' : ''}>⬇ Backup JSON</button>
       </div>
     </div>
     <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Close</button></div>
@@ -115,5 +116,85 @@ window._timeAgo = iso => {
   if (s < 86400) return `${Math.floor(s/3600)}h ago`;
   const d = Math.floor(s/86400);
   return d===1 ? 'yesterday' : `${d} days ago`;
+}
+
+function _renderAccessSection() {
+  const p = STATE.userProfile || {};
+  const status = p.status || 'pending';
+  const limits = p.limits || { maxGroups: 3, maxTransactions: 100 };
+  
+  // Calculate Group Usage
+  const currentGroups = STATE.groups.filter(g => g.ownerId === STATE.user?.uid && !g.deletedFlag).length;
+  const isGroupsUnlimited = limits.maxGroups === 0;
+  const groupPerc = isGroupsUnlimited ? 0 : Math.min(100, (currentGroups / limits.maxGroups) * 100);
+  const groupStatus = groupPerc >= 100 ? 'danger' : groupPerc >= 80 ? 'warning' : '';
+
+  // Calculate Transaction Usage
+  let currentTx = 0;
+  STATE.groups.forEach(g => {
+    if (g.ownerId === STATE.user?.uid) {
+      currentTx += g.transactions.filter(t => !t.deletedFlag).length;
+    }
+  });
+  const isTxUnlimited = limits.maxTransactions === 0;
+  const txPerc = isTxUnlimited ? 0 : Math.min(100, (currentTx / limits.maxTransactions) * 100);
+  const txStatus = txPerc >= 100 ? 'danger' : txPerc >= 80 ? 'warning' : '';
+
+  const perms = p.permissions || {};
+  const permList = [
+    { label: 'Create Groups', val: true }, // Logic: if they can see this, they are approved (mostly)
+    { label: 'Add Expenses', val: true },
+    { label: 'Edit Expenses', val: perms.canEditOwnTransactions ?? true },
+    { label: 'Delete Expenses', val: perms.canDeleteOwnTransactions ?? true },
+    { label: 'Share Groups', val: perms.canShareGroups ?? false },
+    { label: 'Join Groups', val: perms.canJoinGroups ?? false },
+    { label: 'Export Data', val: perms.canUseExport ?? false },
+    { label: 'View Reports', val: perms.canUseReports ?? false },
+    { label: 'Cloud Sync', val: perms.canUseCloudSync ?? false }
+  ];
+
+  return `
+    <div class="settings-section">
+      <div class="settings-section-title">🛡️ My Access & Limits</div>
+      <div style="margin-bottom:16px">
+        <span class="user-status-badge status-${status}">${status}</span>
+        ${p.approvedAt ? `<span class="text-xs text-muted" style="margin-left:8px">Approved on ${Utils.date(p.approvedAt.toDate ? p.approvedAt.toDate() : p.approvedAt)}</span>` : ''}
+      </div>
+      
+      <div class="access-grid">
+        <div class="limit-card">
+          <div class="limit-label">Groups Owned</div>
+          <div class="limit-value">${currentGroups} / ${isGroupsUnlimited ? 'Unlimited' : limits.maxGroups}</div>
+          ${isGroupsUnlimited ? '' : `
+            <div class="progress-bg"><div class="progress-fill ${groupStatus}" style="width:${groupPerc}%"></div></div>
+            ${groupPerc >= 80 ? `<div style="font-size:10px;color:var(--${groupStatus==='danger'?'accent':'yellow'});margin-top:4px;font-weight:600">${groupPerc>=100?'Limit reached':'Nearing limit'}</div>` : ''}
+          `}
+        </div>
+        <div class="limit-card">
+          <div class="limit-label">Total Expenses</div>
+          <div class="limit-value">${currentTx} / ${isTxUnlimited ? 'Unlimited' : limits.maxTransactions}</div>
+          ${isTxUnlimited ? '' : `
+            <div class="progress-bg"><div class="progress-fill ${txStatus}" style="width:${txPerc}%"></div></div>
+            ${txPerc >= 80 ? `<div style="font-size:10px;color:var(--${txStatus==='danger'?'accent':'yellow'});margin-top:4px;font-weight:600">${txPerc>=100?'Limit reached':'Nearing limit'}</div>` : ''}
+          `}
+        </div>
+      </div>
+
+      <div class="perm-list">
+        ${permList.map(item => `
+          <div class="perm-item">
+            <span class="perm-dot ${item.val ? 'allow' : 'deny'}"></span>
+            <span style="${item.val ? '' : 'opacity:0.6'}">${item.label}</span>
+          </div>
+        `).join('')}
+      </div>
+      
+      ${p.lastPermissionUpdate ? `
+        <div style="margin-top:12px;font-size:10px;color:var(--text3);text-align:right">
+          Last permission update: ${Utils.date(p.lastPermissionUpdate.toDate ? p.lastPermissionUpdate.toDate() : p.lastPermissionUpdate)}
+        </div>
+      ` : ''}
+    </div>
+    <div class="divider"></div>`;
 }
 

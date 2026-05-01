@@ -89,9 +89,12 @@
 
         const splashHTML = await loadHTML("./src/components/html/splash.html");
         const authHTML = await loadHTML("./src/components/html/auth.html");
+        const statusHTML = await loadHTML("./src/components/html/status.html");
+        const adminHTML = await loadHTML("./src/components/html/admin.html");
         const mainHTML = await loadHTML("./src/components/html/main.html");
+        const dropdownHTML = await loadHTML("./src/components/html/dropdown.html");
 
-        app.innerHTML = splashHTML + authHTML + mainHTML;
+        app.innerHTML = splashHTML + authHTML + statusHTML + adminHTML + mainHTML + dropdownHTML;
 
         // ✅ guaranteed order
         await loadScript("./src/js/core/bootstrap.js");
@@ -146,6 +149,7 @@
   <script src="./src/js/components/transaction-modal.js"></script>
   <script src="./src/js/components/settings-modal.js"></script>
   <script src="./src/js/components/members-detail-modal.js"></script>
+  <script src="./src/js/components/admin-modal.js"></script>
 
   <!-- =========================
        JS: Views
@@ -153,6 +157,7 @@
   <script src="./src/js/views/router.js"></script>
   <script src="./src/js/views/dashboard.js"></script>
   <script src="./src/js/views/group.js"></script>
+  <script src="./src/js/views/admin.js"></script>
 
 </body>
 </html>

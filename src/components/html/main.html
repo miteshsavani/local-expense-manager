@@ -59,6 +59,7 @@
       <span>SplitEase</span>
     </div>
     <div class="header-right">
+      <button id="hdr-admin-btn" class="btn btn-ghost btn-icon hidden" onclick="adminManager.openPanel()" title="Admin Panel" style="font-size:1.2rem;margin-right:8px">🛡️</button>
       <div class="inbox-btn-container" style="margin-right:12px;position:relative;display:flex;align-items:center">
         <button class="btn btn-ghost btn-icon" onclick="showInbox()" title="Inbox" style="font-size:1.2rem">📥</button>
         <div class="inbox-badge"></div>
@@ -90,35 +91,12 @@
       </div>
 
       <span id="sync-ui-area">
-        <button class="btn-hdr" onclick="openImportExportModal()" data-tip="Import / Export" data-tip-pos="bottom">⇅</button>
+        <button class="btn-hdr" onclick="${(STATE.userProfile && !STATE.userProfile.permissions?.canUseExport) ? 'showToast(\'Export restricted\',\'error\')' : 'openImportExportModal()'}" data-tip="Import / Export" data-tip-pos="bottom">⇅</button>
       </span>
 
       <div class="user-avatar-wrap">
         <div class="user-avatar" id="user-avatar" onclick="uiManager.toggleAccountDropdown(event)" data-tip="Account" data-tip-pos="bottom">?</div>
         
-        <div id="account-dropdown" class="account-dropdown hidden">
-          <div class="dropdown-header">
-            <div id="dropdown-user-name" class="dropdown-user-name">User</div>
-            <div id="dropdown-user-email" class="dropdown-user-email">email@example.com</div>
-          </div>
-          <div class="dropdown-divider"></div>
-          <button class="dropdown-item" onclick="setDarkMode(false)">
-            <span class="icon">☀️</span> Light Mode
-            <span class="check" id="check-light">✓</span>
-          </button>
-          <button class="dropdown-item" onclick="setDarkMode(true)">
-            <span class="icon">🌙</span> Dark Mode
-            <span class="check" id="check-dark">✓</span>
-          </button>
-          <div class="dropdown-divider"></div>
-          <button class="dropdown-item" onclick="uiManager.toggleAccountDropdown(event); openSettingsModal();">
-            <span class="icon">⚙️</span> Settings
-          </button>
-          <div class="dropdown-divider"></div>
-          <button class="dropdown-item text-danger" onclick="authManager.signOut()">
-            <span class="icon">🚪</span> Sign Out
-          </button>
-        </div>
       </div>
       
       <!-- Guest Logout Button -->

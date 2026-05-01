@@ -18,5 +18,6 @@
   syncRetries:    0,
   listeners:      [],      // Track active Firestore onSnapshot unsub functions
   notifications:  [],       // Activity feed items
-  userPermissions: {}      // { groupId: { role, permissions: { ... } } }
+  userPermissions: {},     // { groupId: { role, permissions: { ... } } }
+  userProfile:     null    // { status, role, limits: {...}, permissions: {...} }
 };

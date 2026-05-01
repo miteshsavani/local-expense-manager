@@ -7,7 +7,30 @@ window.uiManager = (() => {
   function _showApp() {
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('main-app').classList.remove('hidden');
+    document.getElementById('waiting-screen')?.classList.add('hidden');
+    document.getElementById('rejected-screen')?.classList.add('hidden');
     // Remove splash screen
+    const splash = document.getElementById('splash-screen');
+    if (splash) { splash.classList.add('fade-out'); setTimeout(() => splash.remove(), 400); }
+  }
+
+  function _showWaitingScreen(status, reason = '') {
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('main-app').classList.add('hidden');
+    document.getElementById('waiting-screen')?.classList.add('hidden');
+    document.getElementById('rejected-screen')?.classList.add('hidden');
+    
+    if (status === 'pending') {
+      document.getElementById('waiting-screen')?.classList.remove('hidden');
+    } else if (status === 'rejected' || status === 'suspended') {
+      const screen = document.getElementById('rejected-screen');
+      if (screen) {
+        screen.classList.remove('hidden');
+        document.getElementById('rejection-status').textContent = status === 'suspended' ? 'Account Suspended' : 'Account Rejected';
+        document.getElementById('rejection-msg').textContent = reason || (status === 'suspended' ? 'Your access has been revoked.' : 'Your registration request was not accepted.');
+      }
+    }
+    
     const splash = document.getElementById('splash-screen');
     if (splash) { splash.classList.add('fade-out'); setTimeout(() => splash.remove(), 400); }
   }
@@ -16,17 +39,64 @@ window.uiManager = (() => {
   function _guestKey(s) { return `se_guest_${s}`; }
 
   function onUserSignedIn(user) {
+    // Clear listeners from previous session if any
+    if (window._profileUnsub) { window._profileUnsub(); window._profileUnsub = null; }
+    
+    const db = firebase.firestore();
+    window._profileUnsub = db.collection('users').doc(user.uid).onSnapshot(doc => {
+      if (!doc.exists) {
+        _showWaitingScreen('pending');
+        return;
+      }
+      const profile = doc.data();
+      
+      // Detect changes to show toast and refresh UI
+      const oldStatus = STATE.userProfile?.status;
+      const oldLimits = JSON.stringify(STATE.userProfile?.limits);
+      const oldPerms  = JSON.stringify(STATE.userProfile?.permissions);
+      
+      STATE.userProfile = profile;
+      
+      if (oldStatus && (oldStatus !== profile.status || oldLimits !== JSON.stringify(profile.limits) || oldPerms !== JSON.stringify(profile.permissions))) {
+        showToast('Account permissions updated by admin', 'success');
+        if (document.querySelector('.modal-title')?.textContent.includes('Settings')) {
+          openSettingsModal(); // Refresh open modal
+        }
+      }
+      
+      if (profile.status === 'approved' || profile.role === 'admin') {
+        _initializeFullApp(user, profile);
+      } else {
+        _showWaitingScreen(profile.status, profile.rejectionReason);
+      }
+    }, err => {
+      console.error('Profile listener error:', err);
+      _showWaitingScreen('pending');
+    });
+  }
+
+  function _initializeFullApp(user, profile) {
+    if (profile.role === 'admin') {
+      _initializeAdminApp(user, profile);
+      return;
+    }
     // Clear groups BEFORE showing app to prevent flash of previous user's data
     STATE.groups = [];
     _showApp();
     localCacheManager.loadSettings();
     STATE.groups = localCacheManager.loadGroups();
     if (STATE.darkMode) document.documentElement.classList.add('dark');
+    
+    // Admin Button
+    const adminBtn = document.getElementById('hdr-admin-btn');
+    if (adminBtn) adminBtn.classList.toggle('hidden', profile.role !== 'admin');
+
     const init = (user.displayName || user.email || '?').slice(0,2).toUpperCase();
     const el = document.getElementById('user-avatar');
     el.textContent = init;
-    el.className = 'user-avatar';
-    el.title = user.displayName || user.email;
+    el.className = 'user-avatar' + (profile.role === 'admin' ? ' admin' : '');
+    el.title = (user.displayName || user.email) + (profile.role === 'admin' ? ' (Admin)' : '');
+    
     // Hide guest-only UI
     document.getElementById('guest-banner').classList.add('hidden');
     // Show sync UI
@@ -51,6 +121,27 @@ window.uiManager = (() => {
     uiManager.loadSyncEnabledFromFirebase().then(() => {
       syncManager.initialLoad().then(renderDashboard);
     });
+  }
+
+  function _initializeAdminApp(user, profile) {
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('main-app').classList.add('hidden');
+    document.getElementById('admin-panel').classList.remove('hidden');
+    
+    // Remove splash
+    const splash = document.getElementById('splash-screen');
+    if (splash) { splash.classList.add('fade-out'); setTimeout(() => splash.remove(), 400); }
+
+    // Init admin avatar
+    const init = (user.displayName || user.email || '?').slice(0,2).toUpperCase();
+    const el = document.getElementById('admin-user-avatar');
+    if (el) {
+      el.textContent = init;
+      el.title = (user.displayName || user.email) + ' (Admin)';
+    }
+
+    // Load admin data
+    adminManager.refreshUsers();
   }
 
   function onGuestSignedIn() {
@@ -83,6 +174,7 @@ window.uiManager = (() => {
   function onUserSignedOut() {
     backupScheduler.stop();
     if (syncManager.stopListeners) syncManager.stopListeners();
+    if (window._profileUnsub) { window._profileUnsub(); window._profileUnsub = null; }
     // IMPORTANT: Clear state immediately before showing auth,
     // so there's zero chance of previous data flashing
     STATE.user = null;
@@ -91,13 +183,22 @@ window.uiManager = (() => {
     STATE.lastSyncAt = null;
     STATE.pendingChanges = false;
     document.getElementById('main-app').classList.add('hidden');
+    document.getElementById('admin-panel')?.classList.add('hidden');
     document.getElementById('auth-screen').classList.remove('hidden');
+    document.getElementById('waiting-screen')?.classList.add('hidden');
+    document.getElementById('rejected-screen')?.classList.add('hidden');
     // Remove splash if still visible (shouldn't happen, but safe)
     const splash = document.getElementById('splash-screen');
     if (splash) splash.remove();
     authManager.showSignIn();
     ['signin-email','signin-password','reg-name','reg-email','reg-password','reg-password2']
       .forEach(id => { const e = document.getElementById(id); if(e) e.value = ''; });
+    
+    // Reset auth buttons
+    const signinBtn = document.getElementById('signin-btn');
+    if (signinBtn) { signinBtn.disabled = false; signinBtn.textContent = 'Sign In'; }
+    const registerBtn = document.getElementById('register-btn');
+    if (registerBtn) { registerBtn.disabled = false; registerBtn.textContent = 'Create Account'; }
   }
 
   function dismissSafetyBanner() {
@@ -116,6 +217,11 @@ window.uiManager = (() => {
   /* User-controlled sync master toggle (dashboard) */
   /* Feature #3: Persist syncEnabled to Firebase user profile */
   function setSyncEnabled(on) {
+    if (on && STATE.userProfile && !STATE.userProfile.permissions?.canUseCloudSync) {
+      showToast('Cloud Sync is restricted for your account. Contact Admin.', 'error');
+      document.getElementById('hdr-sync-toggle').checked = false;
+      return;
+    }
     STATE.syncEnabled = on;
     localCacheManager.saveSettings();
     _updateSyncToggleBar();
@@ -289,12 +395,31 @@ window.uiManager = (() => {
     const cLight = document.getElementById('check-light');
     if (cDark) cDark.classList.toggle('active', STATE.darkMode);
     if (cLight) cLight.classList.toggle('active', !STATE.darkMode);
+
+    // Hide theme/settings for admin
+    const isAdmin = STATE.userProfile?.role === 'admin';
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+      const isSignOut = item.onclick?.toString().includes('signOut');
+      if (isAdmin && !isSignOut) {
+        item.style.display = 'none';
+        // Also hide preceding divider if any
+        if (item.previousElementSibling?.classList.contains('dropdown-divider')) {
+          item.previousElementSibling.style.display = 'none';
+        }
+      } else {
+        item.style.display = '';
+        if (item.previousElementSibling?.classList.contains('dropdown-divider')) {
+          item.previousElementSibling.style.display = '';
+        }
+      }
+    });
   }
 
   function _closeDropdownOnOutsideClick(e) {
     const dd = document.getElementById('account-dropdown');
     const avatar = document.getElementById('user-avatar');
-    if (dd && !dd.contains(e.target) && !avatar.contains(e.target)) {
+    const adminAvatar = document.getElementById('admin-user-avatar');
+    if (dd && !dd.contains(e.target) && !avatar?.contains(e.target) && !adminAvatar?.contains(e.target)) {
       dd.classList.add('hidden');
     } else if (dd && !dd.classList.contains('hidden')) {
       window.addEventListener('click', _closeDropdownOnOutsideClick, { capture: true, once: true });
