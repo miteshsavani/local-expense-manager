@@ -8,6 +8,7 @@ window._customManualState = {}; // Tracks manual amounts or multipliers
 window.openAddTransactionModal = editId => {
   const g = Groups.active(); if(!g) return;
   const tx = editId ? g.transactions.find(t=>t.id===editId) : null;
+  const canEdit = tx ? permissionManager.canEditTx(tx) : true;
   _splitMode = tx?.splitType || _splitMode;
   if (_splitMode === 'share') _splitMode = 'custom'; // Migrate old 'share' to 'custom'
   _customManualState = {}; // Reset manual flags on open
@@ -28,12 +29,14 @@ window.openAddTransactionModal = editId => {
     `<option value="${Utils.esc(m.id)}" ${tx&&tx.paidBy===m.id?'selected':''}>${Utils.esc(m.name)}${m.parentId?' (sub)':''}</option>`
   ).join('');
 
+  const modalTitle = !canEdit ? 'View Expense' : (tx ? 'Edit Expense' : 'Add Expense');
+
   openModal(`<div class="modal" style="max-width:560px">
-    <div class="modal-header"><div class="modal-title">${tx?'Edit':'Add'} Expense</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
-    <div class="form-group"><label>Description</label><input class="input" id="tx-desc" placeholder="e.g. Dinner, Cab…" value="${tx?Utils.esc(tx.desc):''}" autofocus></div>
+    <div class="modal-header"><div class="modal-title">${modalTitle}</div><button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button></div>
+    <div class="form-group"><label>Description</label><input class="input" id="tx-desc" placeholder="e.g. Dinner, Cab…" value="${tx?Utils.esc(tx.desc):''}" ${!canEdit ? 'disabled' : ''} autofocus></div>
     <div style="display:flex;gap:10px">
-      <div class="form-group" style="flex:1"><label>Amount (₹)</label><input class="input" id="tx-amt" type="number" placeholder="0.00" min="0" step="0.01" value="${tx?tx.amount:''}" oninput="_refreshSplitPreview()"></div>
-      <div class="form-group" style="flex:1"><label>Paid By</label><select class="select" id="tx-paidby">${paidByOpts}</select></div>
+      <div class="form-group" style="flex:1"><label>Amount (₹)</label><input class="input" id="tx-amt" type="number" placeholder="0.00" min="0" step="0.01" value="${tx?tx.amount:''}" oninput="_refreshSplitPreview()" ${!canEdit ? 'disabled' : ''}></div>
+      <div class="form-group" style="flex:1"><label>Paid By</label><select class="select" id="tx-paidby" ${!canEdit ? 'disabled' : ''}>${paidByOpts}</select></div>
     </div>
     <div class="form-group">
       <!--
@@ -45,7 +48,7 @@ window.openAddTransactionModal = editId => {
       -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
         <label style="margin:0;font-size:11px;color:var(--text2);text-transform:none;letter-spacing:0">Participants</label>
-        <div style="display:flex;gap:6px;align-items:center">
+        <div style="display:flex;gap:6px;align-items:center;display:${canEdit?'flex':'none'}">
           <button class="split-reset-btn" id="custom-reset-btn" onclick="_resetCustomSplit()" style="display:${_splitMode==='custom'?'inline-block':'none'}">↻ Reset Split</button>
           <button class="btn btn-ghost btn-sm" onclick="_toggleAllParticipants()">Toggle All</button>
         </div>
@@ -75,16 +78,20 @@ window.openAddTransactionModal = editId => {
     ` : ''}
 
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="_submitTx('${editId||''}')">${tx?'Save Changes':'Add Expense'}</button>
+      ${canEdit ? `
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="_submitTx('${editId||''}')">${tx?'Save Changes':'Add Expense'}</button>
+      ` : `
+        <button class="btn btn-primary btn-full" onclick="closeModal()">Close</button>
+      `}
     </div>
   </div>`);
 
-  _renderParticipants(tx);
+  _renderParticipants(tx, canEdit);
   _refreshSplitPreview();
 }
 
-window._renderParticipants = tx => {
+window._renderParticipants = (tx, canEdit = true) => {
   const g = Groups.active(); if(!g) return;
   const container = document.getElementById('participants-container'); if(!container) return;
   //const normM = memberManager.normalize(g.members);
@@ -117,7 +124,7 @@ window._renderParticipants = tx => {
 
     if (_splitMode === 'equal') {
       return `<div class="split-member-row" style="${indent}">
-        <input type="checkbox" class="pchk" value="${Utils.esc(m.id)}" data-name="${Utils.esc(m.name)}" ${isChecked?'checked':''} onchange="_refreshSplitPreview()" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer">
+        <input type="checkbox" class="pchk" value="${Utils.esc(m.id)}" data-name="${Utils.esc(m.name)}" ${isChecked?'checked':''} ${!canEdit?'disabled':''} onchange="_refreshSplitPreview()" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer">
         <div class="chip-avatar" style="background:${Utils.memberColor(m.name)};width:22px;height:22px;border-radius:50%;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">${Utils.initials(m.name)}</div>
         <div class="split-member-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${Utils.esc(m.name)}</div>
       </div>`;
@@ -131,14 +138,14 @@ window._renderParticipants = tx => {
       const is1_0 = !isManual; // default is 1x for checked participants
 
       return `<div class="split-member-row" style="${indent}">
-        <input type="checkbox" class="pchk" value="${Utils.esc(m.id)}" data-name="${Utils.esc(m.name)}" ${isChecked?'checked':''} onchange="_onCustomParticipantToggle(this)" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer">
+        <input type="checkbox" class="pchk" value="${Utils.esc(m.id)}" data-name="${Utils.esc(m.name)}" ${isChecked?'checked':''} ${!canEdit?'disabled':''} onchange="_onCustomParticipantToggle(this)" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer">
         <div class="chip-avatar" style="background:${Utils.memberColor(m.name)};width:22px;height:22px;border-radius:50%;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">${Utils.initials(m.name)}</div>
         <div class="split-member-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${Utils.esc(m.name)}</div>
         <div style="display:flex;gap:4px;align-items:center;">
-          <button class="share-btn ${is0_5?'active':''}" onclick="_setCustomMultiplier('${Utils.esc(m.id)}', 0.5)">0.5x</button>
-          <button class="share-btn ${is1_0?'active':''}" onclick="_setCustomMultiplier('${Utils.esc(m.id)}', 1)">1x</button>
-          <button class="share-btn ${is2_0?'active':''}" onclick="_setCustomMultiplier('${Utils.esc(m.id)}', 2)">2x</button>
-          <input class="split-input-sm${manualClass}" type="number" min="0" step="0.01" value="${customVal}" placeholder="₹ amt" data-mid="${Utils.esc(m.id)}" oninput="_onCustomAmountInput(this)" style="width:72px">
+          <button class="share-btn ${is0_5?'active':''}" onclick="_setCustomMultiplier('${Utils.esc(m.id)}', 0.5)" ${!canEdit?'disabled':''}>0.5x</button>
+          <button class="share-btn ${is1_0?'active':''}" onclick="_setCustomMultiplier('${Utils.esc(m.id)}', 1)" ${!canEdit?'disabled':''}>1x</button>
+          <button class="share-btn ${is2_0?'active':''}" onclick="_setCustomMultiplier('${Utils.esc(m.id)}', 2)" ${!canEdit?'disabled':''}>2x</button>
+          <input class="split-input-sm${manualClass}" type="number" min="0" step="0.01" value="${customVal}" placeholder="₹ amt" data-mid="${Utils.esc(m.id)}" oninput="_onCustomAmountInput(this)" style="width:72px" ${!canEdit?'disabled':''}>
         </div>
       </div>`;
     }
@@ -157,7 +164,8 @@ window._setSplitMode = (mode) => {
   const g = Groups.active();
   const editId = document.querySelector('[onclick^="_submitTx"]')?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
   const tx = editId ? g?.transactions.find(t=>t.id===editId) : null;
-  _renderParticipants(tx);
+  const canEdit = tx ? permissionManager.canEditTx(tx) : true;
+  _renderParticipants(tx, canEdit);
   _refreshSplitPreview();
 };
 

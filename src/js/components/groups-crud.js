@@ -27,6 +27,7 @@ window.Groups = {
       id: Utils.uid(), 
       name: name.trim(),
       ownerId: STATE.user?.uid || null,
+      roles: STATE.user ? { [STATE.user.uid]: 'owner' } : {},
       members: normMembers,
       transactions: [],
       createdAt: now, updatedAt: now,

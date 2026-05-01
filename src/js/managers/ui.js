@@ -80,8 +80,10 @@ window.uiManager = (() => {
       _initializeAdminApp(user, profile);
       return;
     }
-    // Clear groups BEFORE showing app to prevent flash of previous user's data
+    // Clear state BEFORE showing app to prevent flash of previous user's data
     STATE.groups = [];
+    STATE.activeGroupId = null;
+    STATE.userPermissions = {};
     _showApp();
     localCacheManager.loadSettings();
     STATE.groups = localCacheManager.loadGroups();
