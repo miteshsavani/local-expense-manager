@@ -35,9 +35,6 @@ window.uiManager = (() => {
     if (splash) { splash.classList.add('fade-out'); setTimeout(() => splash.remove(), 400); }
   }
 
-  /* Helper to setup guest-scoped localStorage */
-  function _guestKey(s) { return `se_guest_${s}`; }
-
   function onUserSignedIn(user) {
     // Clear listeners from previous session if any
     if (window._profileUnsub) { window._profileUnsub(); window._profileUnsub = null; }
@@ -77,7 +74,7 @@ window.uiManager = (() => {
 
   function _initializeFullApp(user, profile) {
     if (profile.role === 'admin') {
-      _initializeAdminApp(user, profile);
+      _initializeAdminApp(user);
       return;
     }
     // Clear state BEFORE showing app to prevent flash of previous user's data
@@ -125,7 +122,7 @@ window.uiManager = (() => {
     });
   }
 
-  function _initializeAdminApp(user, profile) {
+  function _initializeAdminApp(user) {
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('main-app').classList.add('hidden');
     document.getElementById('admin-panel').classList.remove('hidden');

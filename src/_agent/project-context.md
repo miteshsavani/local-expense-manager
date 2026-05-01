@@ -260,3 +260,45 @@ Priority order:
 1. routing-map.md → source of truth (architecture)
 2. routing-map.js → lookup helper (runtime/AI speed)
 3. build system → execution layer (must follow md)
+
+
+## LINTING RULES (ESLINT AWARENESS)
+
+- ESLint is enabled for all src files
+- It enforces:
+  - no undefined globals (no-undef)
+  - consistent variable usage
+  - no accidental undeclared variables
+
+## GLOBAL ARCHITECTURE COMPATIBILITY
+
+Project uses window-based global architecture:
+
+Examples:
+- window.STATE
+- window.Groups
+- window.Utils
+- window.firebaseService
+
+IMPORTANT:
+- These are intentionally global
+- ESLint will flag them unless declared in globals config
+- All global modules must be registered on window explicitly
+
+## DEVELOPMENT RULE
+
+When adding new global module:
+
+1. Attach to window
+   → window.NewModule = {...}
+
+2. Register in ESLint globals (if needed)
+
+3. Ensure routing-map is updated if file is new
+
+## DEBUG RULE
+
+If ESLint reports "no-undef":
+→ check if variable is:
+   - missing window registration OR
+   - missing ESLint globals config

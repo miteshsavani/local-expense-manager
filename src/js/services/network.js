@@ -2,7 +2,6 @@
    NETWORK MANAGER
    ================================================================ */
 window.networkManager = (() => {
-  let _pillRefreshTimer = null;
 
   function init() {
     window.addEventListener('online', () => {
@@ -23,8 +22,6 @@ window.networkManager = (() => {
     document.getElementById('offline-banner').classList.toggle('hidden', navigator.onLine);
     _updateSyncNowButton();
     updateSyncPill();
-    // Refresh "X mins ago" label every minute
-    _pillRefreshTimer = setInterval(updateSyncPill, 60_000);
   }
 
   /* Feature #2: Disable Sync Now button when offline */

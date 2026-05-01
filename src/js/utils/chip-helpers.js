@@ -92,7 +92,6 @@ window.openAddSubMemberModal = (parentId, parentName) => {
     window._tempGrpName = document.getElementById('grp-name-edit')?.value || '';
   }
 
-  const cid = 'mbr-chips';
   openModal(`<div class="modal" style="max-width:360px">
     <div class="modal-header"><div class="modal-title">Add Sub-Member</div><button class="btn btn-ghost btn-icon" onclick="closeAddSubMemberModal()">✕</button></div>
     <p class="text-sm text-muted" style="margin-bottom:14px">Adding a sub-member under <strong>${Utils.esc(parentName)}</strong>. Sub-members can be included in expense splits and their balances are aggregated under their parent.</p>

@@ -118,7 +118,6 @@ window._renderParticipants = (tx, canEdit = true) => {
     } else {
       isChecked = !tx || prevSplit.includes(m.id) || prevSplit.includes(m.name);
     }
-    const shareVal = prevParts?.find(p=>p.memberId===m.id)?.shareCount || 1;
     const customVal = prevParts?.find(p=>p.memberId===m.id)?.customAmount || '';
     const indent = m.parentId ? 'margin-left:24px;' : '';
 
@@ -215,7 +214,7 @@ window._autoAdjustCustomSplit_old = () => {
   
   let baseShare = sel.length > 0 ? amt / sel.length : 0;
   let manualTotal = 0;
-  let autoInputs = [];
+  const autoInputs = [];
 
 
   // re-calcuate the baseShare.
@@ -298,7 +297,7 @@ window._autoAdjustCustomSplit = () => {
   const selectedIds = new Set(selected.map(c => c.value));
 
   let manualTotal = 0;
-  let weightUsers = [];
+  const weightUsers = [];
 
   // STEP 1: CLASSIFY USERS
   inputs.forEach(inp => {
@@ -418,7 +417,6 @@ window._submitTx = (editId) => {
     participants = selEls.map(c => ({ memberId: c.value, shareCount: 1 }));
   } else {
     // custom
-    const selIds = selEls.map(c => c.value);
     let total = 0;
     participants = selEls.map(c => {
       const inp = inputs.find(i => i.dataset.mid === c.value);

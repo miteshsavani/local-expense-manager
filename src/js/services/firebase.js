@@ -15,7 +15,6 @@ window.firebaseService = (() => {
   const uRef   = uid     => _db.collection('users').doc(uid);
   const gRef   = gid     => _db.collection('groups').doc(gid);
   const txRef  = (gid,t) => gRef(gid).collection('transactions').doc(t);
-  const gmRef  = uid     => _db.collection('groupMembers').doc(uid);
   const mRef   = (gid,uid) => gRef(gid).collection('members').doc(uid);
 
   const VIEWER_PERMS = {
@@ -275,7 +274,6 @@ window.firebaseService = (() => {
           [`roles.${uid}`]: firebase.firestore.FieldValue.delete()
         });
         // Notify others
-        const actorName = _auth.currentUser.displayName || _auth.currentUser.email.split('@')[0];
         await createNotifications(g, {
           type: 'member_left',
           message: `left the group`
@@ -294,7 +292,7 @@ window.firebaseService = (() => {
       for (const chunk of chunks) {
         const b = _db.batch();
         chunk.forEach(g => {
-          const { transactions, isDirty, ...meta } = g;
+          const { ...meta } = g;
           
           // Only initialize metadata if this is a NEW group
           if (!meta.ownerId || !meta.shareCode) {
@@ -331,7 +329,7 @@ window.firebaseService = (() => {
           if (tx.deletedFlag) {
             b.delete(ref);
           } else {
-            const { isDirty, ...txData } = tx;
+            const { ...txData } = tx;
             b.set(ref, { 
               ...txData, 
               updatedAt: now, 
@@ -382,7 +380,6 @@ window.firebaseService = (() => {
   }
 
   async function updateMemberPermissions(groupId, targetUid, role, permissions) {
-    const actorName = _auth.currentUser.displayName || _auth.currentUser.email.split('@')[0];
     const b = _db.batch();
     
     b.update(mRef(groupId, targetUid), {
