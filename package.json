@@ -5,7 +5,12 @@
   "main": "service-worker.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node scripts/build.js"
+    "build": "node scripts/build-chokidar.js",
+    "dev": "node scripts/build-chokidar.js --watch",
+    "serve": "node scripts/serve.js",
+    "start": "npm run dev & npm run serve",
+    "clean": "rm -rf dist",
+    "rebuild": "npm run clean && npm run build"
   },
   "repository": {
     "type": "git",
@@ -19,8 +24,11 @@
   },
   "homepage": "https://github.com/miteshsavani/local-expense-manager#readme",
   "devDependencies": {
+    "chokidar": "^5.0.0",
     "clean-css": "^5.3.3",
     "esbuild": "^0.28.0",
-    "javascript-obfuscator": "^5.4.2"
-  }
+    "express": "^5.2.1",
+    "ws": "^8.20.0"
+  },
+  "dependencies": {}
 }

@@ -22,11 +22,14 @@ window.ROUTING_MAP = {
       "avatar": "src/css/components/avatar.css"
     },
     "views": {
+      "admin": "src/css/views/admin.css",
+      "analytics": "src/css/views/analytics.css",
+      "inbox": "src/css/views/inbox.css",
+      "syncIndicators": "src/css/sync-indicators.css",
       "auth": "src/css/views/auth.css",
       "dashboard": "src/css/views/dashboard.css",
       "transactions": "src/css/views/transactions.css",
       "balances": "src/css/views/balances.css",
-      "analytics": "src/css/views/analytics.css",
       "settings": "src/css/views/settings.css",
       "syncStatus": "src/css/views/sync-status.css",
       "mainView": "src/css/views/main.css",
@@ -53,12 +56,15 @@ window.ROUTING_MAP = {
       "auth": "src/js/managers/auth.js",
       "ui": "src/js/managers/ui.js",
       "members": "src/js/managers/members.js",
-      "report": "src/js/managers/report.js"
+      "report": "src/js/managers/report.js",
+      "inbox": "src/js/managers/inbox.js",
+      "permissions": "src/js/managers/permissions.js"
     },
     "views": {
       "router": "src/js/views/router.js",
       "dashboard": "src/js/views/dashboard.js",
-      "group": "src/js/views/group.js"
+      "group": "src/js/views/group.js",
+      "admin": "src/js/views/admin.js"
     },
     "components": {
       "groupsCrud": "src/js/components/groups-crud.js",
@@ -69,7 +75,9 @@ window.ROUTING_MAP = {
       "groupModal": "src/js/components/group-modal.js",
       "membersModal": "src/js/components/members-modal.js",
       "transactionModal": "src/js/components/transaction-modal.js",
-      "settingsModal": "src/js/components/settings-modal.js"
+      "settingsModal": "src/js/components/settings-modal.js",
+      "adminModal": "src/js/components/admin-modal.js",
+      "membersDetailModal": "src/js/components/members-detail-modal.js",
     },
     "utils": {
       "formatters": "src/js/utils/formatters.js",
@@ -85,5 +93,12 @@ window.ROUTING_MAP = {
     "splash": "src/components/html/splash.html",
     "auth": "src/components/html/auth.html",
     "main": "src/components/html/main.html"
+  },
+
+  "entry": {
+    "app": {
+      "path": "src/js/app-entry.js",
+      "description": "Application bootstrap entry point"
+    }
   }
 };
