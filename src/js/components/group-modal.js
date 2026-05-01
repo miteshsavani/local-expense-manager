@@ -3,7 +3,11 @@
    ================================================================ */
 window.openCreateGroupModal = isResume => {
   if (!isResume) {
-    window._members=[];
+    window._members = [];
+    if (STATE.user && !STATE.isGuest) {
+      const ownerName = STATE.user.displayName || STATE.user.email?.split('@')[0] || 'Me';
+      window._members.push({ id: STATE.user.uid, name: ownerName, parentId: null });
+    }
     window._tempGrpName = '';
   }
   window._lastModal = 'create';
@@ -18,6 +22,7 @@ window.openCreateGroupModal = isResume => {
     </div>
     <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="_submitCreateGroup()">Create Group</button></div>
   </div>`);
+  renderChips('mbr-chips');
 }
 window._submitCreateGroup=()=>{
   const name=document.getElementById('grp-name').value.trim();
