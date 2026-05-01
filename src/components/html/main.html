@@ -91,7 +91,7 @@
       </div>
 
       <span id="sync-ui-area">
-        <button class="btn-hdr" onclick="${(STATE.userProfile && !STATE.userProfile.permissions?.canUseExport) ? 'showToast(\'Export restricted\',\'error\')' : 'openImportExportModal()'}" data-tip="Import / Export" data-tip-pos="bottom">⇅</button>
+        <button class="btn-hdr" onclick="if (STATE.userProfile && !STATE.userProfile.permissions?.canUseExport) { showToast('Export restricted','error'); } else { openImportExportModal(); }" data-tip="Import / Export" data-tip-pos="bottom">⇅</button>
       </span>
 
       <div class="user-avatar-wrap">

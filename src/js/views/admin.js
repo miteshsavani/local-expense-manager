@@ -73,7 +73,7 @@ window.adminManager = (() => {
           <div class="user-email">${Utils.esc(u.email)}</div>
           <div class="user-meta" style="margin-top:8px">
             <span class="meta-item">Status: <span class="user-status-badge status-${u.status}">${u.status}</span></span>
-            <span class="meta-item">Groups: <b>${u.limits?.maxGroups || 3}</b></span>
+            <span class="meta-item">Groups: <b>${(u.limits?.maxGroups !== null) ? u.limits.maxGroups : 3}</b></span>
             <span class="meta-item">Joined: <b>${Utils.date(u.createdAt?.toDate ? u.createdAt.toDate() : u.createdAt)}</b></span>
           </div>
         </div>
