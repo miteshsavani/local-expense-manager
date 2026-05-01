@@ -1,0 +1,70 @@
+<!-- ================================================================
+     STATUS SCREENS — Pending / Rejected / Suspended
+     ================================================================ -->
+<div id="waiting-screen" class="screen hidden">
+  <div class="status-card">
+    <div class="status-icon pending">⏳</div>
+    <h1>Approval Pending</h1>
+    <p>Registration successful! Your account is currently pending administrator approval.</p>
+    <p class="text-sm text-muted">You will be notified once access is granted. Please check back later.</p>
+    <div class="status-actions">
+      <button class="btn btn-secondary" onclick="authManager.signOut()">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<div id="rejected-screen" class="screen hidden">
+  <div class="status-card">
+    <div class="status-icon rejected">🚫</div>
+    <h1 id="rejection-status">Account Rejected</h1>
+    <p id="rejection-msg">Your registration request was not accepted.</p>
+    <p class="text-sm text-muted">If you believe this is an error, please contact support.</p>
+    <div class="status-actions">
+      <button class="btn btn-secondary" onclick="authManager.signOut()">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.screen {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+}
+.status-card {
+  background: var(--card-bg);
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: var(--shadow-lg);
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+.status-icon {
+  font-size: 64px;
+  margin-bottom: 24px;
+}
+.status-icon.pending { color: var(--yellow); }
+.status-icon.rejected { color: var(--red); }
+.status-card h1 {
+  font-size: 24px;
+  margin-bottom: 12px;
+  color: var(--text1);
+}
+.status-card p {
+  color: var(--text2);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+.status-actions {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+}
+</style>

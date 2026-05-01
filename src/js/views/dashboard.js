@@ -73,6 +73,10 @@ window.renderGroupCard = g => {
 }
 
 window.openJoinGroupModal = () => {
+  if (STATE.userProfile && !STATE.userProfile.permissions?.canJoinGroups) {
+    showToast('You do not have permission to join groups. Contact Admin.', 'error');
+    return;
+  }
   openModal(`<div class="modal" style="max-width:400px">
     <div class="modal-header"><div class="modal-title">Join Shared Group</div></div>
     <div class="form-group">

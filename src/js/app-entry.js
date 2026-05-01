@@ -45,6 +45,7 @@ import "./components/members-modal.js";
 import "./components/members-detail-modal.js";
 import "./components/transaction-modal.js";
 import "./components/settings-modal.js";
+import "./components/admin-modal.js";
 
 // -----------------------------
 // VIEWS
@@ -52,6 +53,7 @@ import "./components/settings-modal.js";
 import "./views/router.js";
 import "./views/dashboard.js";
 import "./views/group.js";
+import "./views/admin.js";
 
 // -----------------------------
 // BOOTSTRAP (MUST BE LAST)

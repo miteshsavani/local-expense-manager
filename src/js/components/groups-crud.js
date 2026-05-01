@@ -6,10 +6,27 @@ window.Groups = {
   active: () => STATE.groups.find(g => g.id === STATE.activeGroupId),
 
   create(name, members) {
+    // Limit check
+    if (STATE.user && STATE.userProfile) {
+      const ownedCount = STATE.groups.filter(g => g.ownerId === STATE.user.uid && !g.deletedFlag).length;
+      const max = STATE.userProfile.limits?.maxGroups || 3;
+      if (max !== 0) {
+        if (ownedCount >= max) {
+          showToast(`Limit reached: You can own up to ${max} groups.`, 'error');
+          throw new Error('Limit reached');
+        }
+        if (ownedCount >= max * 0.8) {
+          showToast(`Warning: You are using ${ownedCount}/${max} groups.`, 'warning');
+        }
+      }
+    }
+
     const now = new Date().toISOString();
     const normMembers = memberManager.normalize(members);
     const g = {
-      id: Utils.uid(), name: name.trim(),
+      id: Utils.uid(), 
+      name: name.trim(),
+      ownerId: STATE.user?.uid || null,
       members: normMembers,
       transactions: [],
       createdAt: now, updatedAt: now,

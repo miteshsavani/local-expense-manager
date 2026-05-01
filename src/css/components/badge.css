@@ -8,3 +8,34 @@
 .badge-blue  {background:var(--blue-bg);color:var(--blue)}
 .badge-gray  {background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
 
+/* Status Badges (Admin) */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.user-status-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  display: inline-block;
+}
+
+.status-pending   { background: #fffbeb; color: #92400e; border: 1px solid #fef3c7; }
+.status-approved  { background: #ecfdf5; color: #065f46; border: 1px solid #d1fae5; }
+.status-rejected  { background: #fef2f2; color: #991b1b; border: 1px solid #fee2e2; }
+.status-suspended { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
+
+.dark .status-pending   { background: #2d2005; color: #fbbf24; border: 1px solid #453008; }
+.dark .status-approved  { background: #062016; color: #34d399; border: 1px solid #083325; }
+.dark .status-rejected  { background: #2d0a0a; color: #f87171; border: 1px solid #451010; }
+.dark .status-suspended { background: #1f1f1f; color: #9ca3af; border: 1px solid #373737; }

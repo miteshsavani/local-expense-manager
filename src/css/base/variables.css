@@ -2,32 +2,36 @@
    CSS VARIABLES & RESET
    ================================================================ */
 :root {
-  --bg:#f5f3ef; --surface:#fff; --surface2:#faf9f7;
+  --bg:#f5f3ef; --surface:#fff; --surface2:#faf9f7; --card-bg:var(--surface);
   --border:#e8e4dc; --border2:#d4cfc4;
-  --text:#1a1714; --text2:#5c564e; --text3:#9c948a;
-  --accent:#c84b31; --accent2:#e85d43; --accent-bg:#fdf0ed;
+  --text:#1a1714; --text1:var(--text); --text2:#5c564e; --text3:#9c948a;
+  --accent:#c84b31; --accent1:var(--accent); --accent2:#e85d43; --accent-bg:#fdf0ed;
   --green:#2d7a5e; --green-bg:#edf7f3;
   --yellow:#c4860a; --yellow-bg:#fef7e6;
   --blue:#2563a8; --blue-bg:#eef4fb;
   --red:#dc2626; --red-bg:#fee2e2;
   --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
+  --shadow-sm:var(--shadow);
   --shadow2:0 2px 8px rgba(0,0,0,.12),0 8px 32px rgba(0,0,0,.08);
-  --radius:12px; --radius2:8px;
+  --shadow-lg:var(--shadow2);
+  --radius:12px; --radius1:var(--radius); --radius2:8px;
   --font-display:'Playfair Display','Georgia',serif;
   --font-body:'DM Sans','Segoe UI',sans-serif;
   --font-mono:'DM Mono','Courier New',monospace;
   --tr:.18s ease;
 }
 .dark {
-  --bg:#121110; --surface:#1e1c1a; --surface2:#252320;
+  --bg:#121110; --surface:#1e1c1a; --surface2:#252320; --card-bg:var(--surface);
   --border:#2e2b27; --border2:#3d3930;
-  --text:#f0ece4; --text2:#b8b0a6; --text3:#7a7268;
-  --accent:#e05f43; --accent2:#f07055; --accent-bg:#2a1a16;
+  --text:#f0ece4; --text1:var(--text); --text2:#b8b0a6; --text3:#7a7268;
+  --accent:#e05f43; --accent1:var(--accent); --accent2:#f07055; --accent-bg:#2a1a16;
   --green:#3d9a74; --green-bg:#0f2b1f;
   --yellow:#d4960a; --yellow-bg:#251c06;
   --blue:#3d7bc4; --blue-bg:#0e1e36;
   --shadow:0 1px 3px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.2);
+  --shadow-sm:var(--shadow);
   --shadow2:0 2px 8px rgba(0,0,0,.4),0 8px 32px rgba(0,0,0,.3);
+  --shadow-lg:var(--shadow2);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{overflow-x:hidden;width:100%}

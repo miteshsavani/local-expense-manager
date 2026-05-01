@@ -4,6 +4,26 @@
    ================================================================ */
 window.Transactions = {
   add(group, data) {
+    // Limit check
+    if (STATE.user && STATE.userProfile) {
+      let totalTx = 0;
+      STATE.groups.forEach(g => {
+        if (g.ownerId === STATE.user.uid) {
+          totalTx += g.transactions.filter(t => !t.deletedFlag).length;
+        }
+      });
+      const max = STATE.userProfile.limits?.maxTransactions || 100;
+      if (max !== 0) {
+        if (totalTx >= max) {
+          showToast(`Limit reached: You can have up to ${max} total expenses.`, 'error');
+          throw new Error('Limit reached');
+        }
+        if (totalTx >= max * 0.9) {
+          showToast(`Warning: You are using ${totalTx}/${max} expenses.`, 'warning');
+        }
+      }
+    }
+
     const now = new Date().toISOString();
     const tx = {
       id: Utils.uid(),

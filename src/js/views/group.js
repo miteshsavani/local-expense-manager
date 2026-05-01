@@ -49,8 +49,11 @@ window.renderGroup = () => {
 }
 
 window.openShareGroupModal = () => {
-  const g = Groups.active();
-  if (!g) return;
+  if (STATE.userProfile && !STATE.userProfile.permissions?.canShareGroups) {
+    showToast('You do not have permission to share groups. Contact Admin.', 'error');
+    return;
+  }
+  const g = Groups.active(); if (!g) return;
   
   openModal(`<div class="modal" style="max-width:400px">
     <div class="modal-header"><div class="modal-title">Share Group</div></div>

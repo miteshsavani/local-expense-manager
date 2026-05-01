@@ -22,10 +22,12 @@ function write(file, content) {
 const splash = read("src/components/html/splash.html");
 const auth = read("src/components/html/auth.html");
 const inbox = read("src/components/html/inbox.html");
-const main = read("src/components/html/main.html")
-              .replace('<div id="view-inbox-container"></div>', inbox);
+const main = read("src/components/html/main.html").replace('<div id="view-inbox-container"></div>', inbox);
+const admin = read("src/components/html/admin.html");
+const status = read("src/components/html/status.html");
+const dropdown = read("src/components/html/dropdown.html");
 
-const combinedHTML = splash + auth + main;
+const combinedHTML = splash + auth + main + admin + status + dropdown;
 
 // -----------------------------
 // 2. MERGE + MINIFY CSS

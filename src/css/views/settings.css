@@ -28,6 +28,21 @@
   background:var(--accent);color:#fff;
   font-size:13px;font-weight:700;
   display:flex;align-items:center;justify-content:center;
-  cursor:pointer;
 }
+
+/* Access & Limits */
+.access-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+.limit-card { background: var(--surface2); padding: 12px; border-radius: 12px; border: 1px solid var(--border); }
+.limit-label { font-size: 11px; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; }
+.limit-value { font-size: 16px; font-weight: 700; color: var(--text1); margin-bottom: 8px; }
+.progress-bg { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--blue); transition: width .4s ease; }
+.progress-fill.warning { background: var(--yellow); }
+.progress-fill.danger { background: var(--accent); }
+
+.perm-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.perm-item { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; }
+.perm-dot { width: 8px; height: 8px; border-radius: 50%; }
+.perm-dot.allow { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.perm-dot.deny { background: var(--red); opacity: 0.5; }
 
