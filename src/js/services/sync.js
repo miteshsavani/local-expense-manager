@@ -117,6 +117,8 @@ window.syncManager = (() => {
       if (STATE.activeGroupId === gid) renderGroup();
     });
     STATE.listeners.push(unsubTx);
+
+    permissionManager.watchActivePermissions(gid);
   }
 
   function _resolveGroups(remoteGroups) {

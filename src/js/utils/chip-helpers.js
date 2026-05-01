@@ -4,7 +4,14 @@
 window.renderChips = cid => {
   const el = document.getElementById(cid); if(!el) return;
   const members = memberManager.normalize(window._members||[]);
-  el.innerHTML = memberManager.renderTree(members, '_removeChip');
+  
+  const perms = {
+    canAdd:    permissionManager.can('add_member'),
+    canEdit:   permissionManager.can('edit_member'),
+    canRemove: permissionManager.can('remove_member')
+  };
+  
+  el.innerHTML = memberManager.renderTree(members, '_removeChip', perms);
 }
 window._removeChip = (id) => {
   window._members = memberManager.removeMember(memberManager.normalize(window._members||[]), id);

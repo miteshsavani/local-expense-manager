@@ -16,6 +16,27 @@ window.firebaseService = (() => {
   const gRef   = gid     => _db.collection('groups').doc(gid);
   const txRef  = (gid,t) => gRef(gid).collection('transactions').doc(t);
   const gmRef  = uid     => _db.collection('groupMembers').doc(uid);
+  const mRef   = (gid,uid) => gRef(gid).collection('members').doc(uid);
+
+  const VIEWER_PERMS = {
+    canAddExpense: false,
+    canEditOwnExpense: false,
+    canEditOthersExpense: false,
+    canDeleteOwnExpense: false,
+    canDeleteOthersExpense: false,
+    canAddMembers: false,
+    canRemoveMembers: false
+  };
+
+  const OWNER_PERMS = {
+    canAddExpense: true,
+    canEditOwnExpense: true,
+    canEditOthersExpense: true,
+    canDeleteOwnExpense: true,
+    canDeleteOthersExpense: true,
+    canAddMembers: true,
+    canRemoveMembers: true
+  };
 
   /* Auth */
   async function signIn(email, pw) { return _auth.signInWithEmailAndPassword(email, pw); }
@@ -59,6 +80,13 @@ window.firebaseService = (() => {
         cb(notifs);
       }, err => console.error('Notifications listener error:', err));
   }
+  
+  function listenToMemberPermissions(gid, uid, cb) {
+    return mRef(gid, uid).onSnapshot(snap => {
+      if (snap.exists) cb(snap.data());
+      else cb(null);
+    });
+  }
 
   async function joinGroup(uid, shareCode) {
     const snap = await _db.collection('groups').where('shareCode', '==', shareCode).limit(1).get();
@@ -70,12 +98,22 @@ window.firebaseService = (() => {
     if (groupData.userIds.includes(uid)) return groupDoc.id; // Already a member
 
     // Add user to userIds array and roles map
-    await groupDoc.ref.update({
+    const b = _db.batch();
+    b.update(groupDoc.ref, {
       userIds: firebase.firestore.FieldValue.arrayUnion(uid),
-      [`roles.${uid}`]: 'member',
+      [`roles.${uid}`]: 'viewer',
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     
+    // Set default viewer permissions
+    b.set(mRef(groupDoc.id, uid), {
+      role: 'viewer',
+      permissions: VIEWER_PERMS,
+      joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    await b.commit();
     return groupDoc.id;
   }
 
@@ -84,13 +122,13 @@ window.firebaseService = (() => {
     return snap.exists ? { ...snap.data(), id: snap.id } : null;
   }
 
-  async function createNotifications(group, activityData) {
+  async function createNotifications(group, activityData, specificTargetUserId = null) {
     const actorId = _auth.currentUser.uid;
     const actorName = _auth.currentUser.displayName || _auth.currentUser.email.split('@')[0];
     const b = _db.batch();
     
-    // Notify all members including actor
-    const membersToNotify = group.userIds || [];
+    // Notify specified user OR all members
+    const membersToNotify = specificTargetUserId ? [specificTargetUserId] : (group.userIds || []);
     if (!membersToNotify.length) return;
 
     membersToNotify.forEach(uid => {
@@ -104,11 +142,52 @@ window.firebaseService = (() => {
         targetUserId: uid,
         ...activityData,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        isRead: isActor, // Already read for the person who did the action
+        isRead: isActor,
         isCleared: false
       });
     });
     return b.commit();
+  }
+
+  async function updatePresence(groupId) {
+    if (!_auth.currentUser) return;
+    const uid = _auth.currentUser.uid;
+    const now = firebase.firestore.FieldValue.serverTimestamp();
+    return _db.collection('groups').doc(groupId).update({
+      [`lastSeen.${uid}`]: now
+    }).catch(e => console.warn('Presence update failed:', e));
+  }
+
+  async function getGroupMemberDetails(groupId) {
+    const gDoc = await _db.collection('groups').doc(groupId).get();
+    if (!gDoc.exists) return [];
+    const userIds = gDoc.data().userIds || [];
+
+    const details = [];
+    const chunks = _chunk(userIds, 10);
+    for (const chunk of chunks) {
+      // Fetch user profiles
+      const uSnap = await _db.collection('users').where(firebase.firestore.FieldPath.documentId(), 'in', chunk).get();
+      const uMap = new Map(uSnap.docs.map(d => [d.id, d.data()]));
+      
+      // Fetch member role/permissions
+      const mSnap = await gRef(groupId).collection('members').where(firebase.firestore.FieldPath.documentId(), 'in', chunk).get();
+      const mMap = new Map(mSnap.docs.map(d => [d.id, d.data()]));
+
+      chunk.forEach(uid => {
+        const u = uMap.get(uid) || {};
+        const m = mMap.get(uid) || {};
+        details.push({
+          uid,
+          name: u.displayName || 'Unknown',
+          email: u.email || 'N/A',
+          role: m.role || 'viewer',
+          permissions: m.permissions || VIEWER_PERMS,
+          lastSeen: m.lastSeen || null
+        });
+      });
+    }
+    return details;
   }
 
   async function updateNotification(id, data) {
@@ -148,6 +227,27 @@ window.firebaseService = (() => {
   async function pushChanges(uid) {
     const now = firebase.firestore.FieldValue.serverTimestamp();
 
+    // Handle Leaving Groups
+    const leavingGroups = STATE.groups.filter(g => g.leftFlag);
+    for (const g of leavingGroups) {
+      try {
+        await _db.collection('groups').doc(g.id).update({
+          userIds: firebase.firestore.FieldValue.arrayRemove(uid),
+          [`roles.${uid}`]: firebase.firestore.FieldValue.delete()
+        });
+        // Notify others
+        const actorName = _auth.currentUser.displayName || _auth.currentUser.email.split('@')[0];
+        await createNotifications(g, {
+          type: 'member_left',
+          message: `left the group`
+        });
+      } catch (e) {
+        console.error('Leave group error:', e);
+      }
+      // Remove locally immediately after sync
+      STATE.groups = STATE.groups.filter(item => item.id !== g.id);
+    }
+
     // Push dirty groups
     const dirtyGroups = STATE.groups.filter(g => g.isDirty);
     if (dirtyGroups.length > 0) {
@@ -156,11 +256,22 @@ window.firebaseService = (() => {
         const b = _db.batch();
         chunk.forEach(g => {
           const { transactions, isDirty, ...meta } = g;
-          // Ensure meta contains necessary fields for sharing
-          if (!meta.ownerId) meta.ownerId = uid;
-          if (!meta.userIds) meta.userIds = [uid];
-          if (!meta.roles) meta.roles = { [uid]: 'owner' };
-          if (!meta.shareCode) meta.shareCode = Utils.generateShareCode();
+          
+          // Only initialize metadata if this is a NEW group (no ownerId yet)
+          if (!meta.ownerId) {
+            meta.ownerId = uid;
+            meta.userIds = [uid];
+            meta.roles = { [uid]: 'owner' };
+            if (!meta.shareCode) meta.shareCode = Utils.generateShareCode();
+            
+            // Initialize owner permissions in subcollection
+            b.set(mRef(g.id, uid), {
+              role: 'owner',
+              permissions: OWNER_PERMS,
+              joinedAt: now,
+              updatedAt: now
+            }, { merge: true });
+          }
           
           b.set(gRef(g.id), { ...meta, updatedAt: now, updatedBy: uid }, { merge: true });
         });
@@ -231,6 +342,32 @@ window.firebaseService = (() => {
     return out;
   }
 
-  return { init, signIn, register, signOut, onAuthChange, pullChanges, pushChanges, pullAllData, listenToGroups, listenToTransactions, joinGroup, listenToNotifications, createNotifications, updateNotification, clearAllNotifications, getTransaction };
+  async function updateMemberPermissions(groupId, targetUid, role, permissions) {
+    const actorName = _auth.currentUser.displayName || _auth.currentUser.email.split('@')[0];
+    const b = _db.batch();
+    
+    b.update(mRef(groupId, targetUid), {
+      role,
+      permissions,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // Also update role in group doc for legacy compatibility and easy listing
+    b.update(gRef(groupId), {
+      [`roles.${targetUid}`]: role,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    await b.commit();
+
+    // Notify user
+    const group = STATE.groups.find(g => g.id === groupId);
+    return createNotifications(group, {
+      type: 'permission_change',
+      message: `updated your permissions to ${role}`
+    }, targetUid);
+  }
+
+  return { init, signIn, register, signOut, onAuthChange, pullChanges, pushChanges, pullAllData, listenToGroups, listenToTransactions, joinGroup, listenToNotifications, createNotifications, updateNotification, clearAllNotifications, getTransaction, updatePresence, getGroupMemberDetails, listenToMemberPermissions, updateMemberPermissions };
 })();
 
