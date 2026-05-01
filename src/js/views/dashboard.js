@@ -42,6 +42,13 @@ window.renderGroupCard = g => {
   const cornerText = !STATE.syncEnabled ? 'Pending Sync' : 'Syncing';
   const cornerBadge = showPendingCorner
     ? `<span class="card-pending-corner" title="Pending sync">${cornerText}</span>` : '';
+  
+  const isOwner = g.ownerId === STATE.user?.uid || g.roles?.[STATE.user?.uid] === 'owner';
+  const actions = isOwner 
+    ? `<button class="btn btn-ghost btn-icon btn-sm" onclick="openEditGroupModal('${g.id}')" title="Edit">✎</button>
+       <button class="btn btn-ghost btn-icon btn-sm" onclick="confirmDeleteGroup('${g.id}')" title="Delete">🗑</button>`
+    : `<button class="btn btn-ghost btn-icon btn-sm" onclick="confirmLeaveGroup('${g.id}')" title="Leave Group" style="font-size:16px">🚪</button>`;
+
   return `<div class="card card-hover group-card" style="position:relative" onclick="showGroup('${g.id}')">
     ${cornerBadge}
     <div class="group-card-header">
@@ -53,8 +60,7 @@ window.renderGroupCard = g => {
         </div>
       </div>
       <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
-        <button class="btn btn-ghost btn-icon btn-sm" onclick="openEditGroupModal('${g.id}')" title="Edit">✎</button>
-        <button class="btn btn-ghost btn-icon btn-sm" onclick="confirmDeleteGroup('${g.id}')" title="Delete">🗑</button>
+        ${actions}
       </div>
     </div>
     <div style="display:flex;gap:4px">${avatars}${extra}</div>
@@ -105,5 +111,12 @@ window.submitJoinGroup = async () => {
     btn.disabled = false;
     btn.textContent = 'Join Group';
   }
+};
+
+window.confirmLeaveGroup = id => {
+  const g = STATE.groups.find(g => g.id === id);
+  if (!g) return;
+  openConfirm('Leave Group', `Are you sure you want to leave <span class="confirm-hl">"${Utils.esc(g.name)}"</span>? You will lose access to all shared expenses.`,
+    () => { Groups.leave(id); });
 };
 

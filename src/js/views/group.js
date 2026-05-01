@@ -26,12 +26,26 @@ window.renderGroup = () => {
   }).join('') + (g.userIds?.length > 8 ? `<div class="member-avatar-sm" style="background:var(--border2)">+</div>` : '');
   document.getElementById('group-member-list').innerHTML = membersHtml;
 
-  // Show/Hide share button
+  // Show/Hide share/leave buttons
   const shareBtn = document.getElementById('group-share-btn');
+  const leaveBtn = document.getElementById('group-leave-btn');
   if (shareBtn) shareBtn.style.display = isOwner ? 'inline-flex' : 'none';
+  if (leaveBtn) leaveBtn.style.display = isOwner ? 'none' : 'inline-flex';
 
   renderSummaryCards(g);
   renderTransactions();
+
+  // Permission-based UI
+  const addTxBtn = document.querySelector('.group-header-actions .btn-primary');
+  if (addTxBtn) {
+    const canAdd = permissionManager.can('add_expense');
+    addTxBtn.disabled = !canAdd;
+    addTxBtn.title = canAdd ? 'Add Expense' : 'Permission required: Add Expense';
+  }
+
+  if (!STATE.isGuest && STATE.syncEnabled) {
+    firebaseService.updatePresence(g.id);
+  }
 }
 
 window.openShareGroupModal = () => {
@@ -143,8 +157,14 @@ window.renderTransactions = () => {
         <div class="tx-per-person">${shareLabel}</div>
       </div>
       <div class="tx-actions">
-        <button class="btn btn-ghost btn-icon btn-sm" onclick="openAddTransactionModal('${tx.id}')" title="Edit">✎</button>
-        <button class="btn btn-ghost btn-icon btn-sm" onclick="confirmDeleteTransaction('${tx.id}')" title="Delete">🗑</button>
+        ${(() => {
+          const canEdit = permissionManager.canEditTx(tx);
+          const canDelete = permissionManager.canDeleteTx(tx);
+          return `
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="openAddTransactionModal('${tx.id}')" title="${canEdit?'Edit':'Permission required'}" ${canEdit?'':'disabled'}>✎</button>
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="confirmDeleteTransaction('${tx.id}')" title="${canDelete?'Delete':'Permission required'}" ${canDelete?'':'disabled'}>🗑</button>
+          `;
+        })()}
       </div>
     </div>`;
   }).join('')}</div>`;
@@ -220,4 +240,9 @@ window.renderAnalytics = () => {
       ).join('')||'<div class="text-muted">No data yet</div>'}</div>
     </div>`;
 }
+
+window.confirmLeaveActiveGroup = () => {
+  const g = Groups.active();
+  if (g) confirmLeaveGroup(g.id);
+};
 

@@ -76,8 +76,10 @@ window.inboxManager = (() => {
       const time = Utils.dateTime(timestamp);
       const isUnread = !n.isRead;
       const displayActor = n.actorId === STATE.user?.uid ? 'You' : n.actorName;
+      const isDM = n.type === 'direct_message';
+      const dmClass = isDM ? 'notif-dm' : '';
       
-      return `<div class="notification-item ${isUnread ? 'unread' : ''}" onclick="inboxManager.markRead('${n.id}')">
+      return `<div class="notification-item ${isUnread ? 'unread' : ''} ${dmClass}" onclick="inboxManager.markRead('${n.id}')">
         <div class="notif-indicator"></div>
         <div class="notif-content">
           <div class="notif-text"><strong>${Utils.esc(displayActor)}</strong> ${n.message}</div>
@@ -88,6 +90,7 @@ window.inboxManager = (() => {
         </div>
         <div class="notif-actions" style="display:flex;flex-direction:column;gap:8px;align-items:center">
           ${(n.txId && n.type !== 'expense_deleted') ? `<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); inboxManager.editTx('${n.groupId}', '${n.txId}')" style="padding:4px 8px;font-size:11px;color:var(--blue)">✎ Edit</button>` : ''}
+          ${isDM ? `<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); inboxManager.replyToDM('${n.groupId}', '${n.actorId}', '${Utils.esc(n.actorName)}')" style="padding:4px 8px;font-size:11px;color:var(--accent)">↩ Reply</button>` : ''}
           <button class="notif-clear-btn" onclick="event.stopPropagation(); inboxManager.clear('${n.id}')" title="Clear">✕</button>
         </div>
       </div>`;
@@ -194,5 +197,13 @@ window.inboxManager = (() => {
     openAddTransactionModal(txId);
   }
 
-  return { init, renderInbox, markRead, clear, clearAll, updateUnreadBadge, editTx, setPage, setSort, setFilter };
+  function replyToDM(groupId, actorId, actorName) {
+    // We need to ensure the group is active for the DM modal to work correctly
+    STATE.activeGroupId = groupId;
+    if (window.openDirectMessageModal) {
+      openDirectMessageModal(actorId, actorName);
+    }
+  }
+
+  return { init, renderInbox, markRead, clear, clearAll, updateUnreadBadge, editTx, setPage, setSort, setFilter, replyToDM };
 })();

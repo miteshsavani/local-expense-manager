@@ -3,32 +3,88 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // User profile: only the user can read/write their own profile
+    // User profile: readable by any signed-in user, but only ownable by the user
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
     
-    // Groups: Metadata is readable by any signed-in user (to allow finding by share code)
-    // but actual transactions are protected below.
+    // Groups
     match /groups/{groupId} {
+      function can(perm) {
+        return get(/databases/$(database)/documents/groups/$(groupId)).data.roles[request.auth.uid] == 'owner' ||
+               (exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)) && 
+                get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.permissions[perm] == true);
+      }
+
       allow read: if request.auth != null;
       
-      // Allow creation if the creator sets themselves as owner
       allow create: if request.auth != null 
                     && request.resource.data.ownerId == request.auth.uid;
       
-      // Allow update if member, OR if joining (adding own UID to userIds)
       allow update: if request.auth != null && (
-        request.auth.uid in resource.data.userIds || 
+        // 1. Owner has full access
+        resource.data.roles[request.auth.uid] == 'owner' ||
+        
+        // 2. Member with specific permissions
+        (request.auth.uid in resource.data.userIds && (
+          // Add/Edit member names
+          (can('canAddMembers') && 
+           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members', 'updatedAt', 'updatedBy']) &&
+           request.resource.data.members.size() >= resource.data.members.size()) ||
+          
+          // Remove member names or users
+          (can('canRemoveMembers') && 
+           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members', 'userIds', 'roles', 'updatedAt', 'updatedBy']))
+        )) ||
+
+        // 3. Member updating presence or leaving
+        (request.auth.uid in resource.data.userIds && (
+          // Presence update
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastSeen', 'updatedAt', 'updatedBy']) ||
+          // Leaving (self-removal)
+          (request.resource.data.userIds.size() == resource.data.userIds.size() - 1 &&
+           !request.resource.data.userIds.hasAny([request.auth.uid]))
+        )) ||
+
+        // 4. Joining (self-addition)
         (request.resource.data.userIds.hasAll(resource.data.userIds) && 
          request.resource.data.userIds.hasAll([request.auth.uid]))
       );
       
       allow delete: if request.auth != null && resource.data.roles[request.auth.uid] == 'owner';
       
+      // Member permissions subcollection
+      match /members/{userId} {
+        allow read: if request.auth != null && (
+          request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.userIds ||
+          request.auth.uid in getAfter(/databases/$(database)/documents/groups/$(groupId)).data.userIds
+        );
+        allow write: if request.auth != null && (
+          // 1. User is the owner of the group (works for new and existing groups)
+          getAfter(/databases/$(database)/documents/groups/$(groupId)).data.ownerId == request.auth.uid ||
+          get(/databases/$(database)/documents/groups/$(groupId)).data.ownerId == request.auth.uid ||
+          // 2. User is creating their own record as a viewer
+          (request.auth.uid == userId && request.resource.data.role == 'viewer')
+        );
+      }
+
       // Transactions subcollection
       match /transactions/{txId} {
-        allow read, write: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.userIds;
+        allow read: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.userIds;
+        
+        allow create: if request.auth != null && can('canAddExpense');
+        
+        allow update: if request.auth != null && (
+          can('canEditOthersExpense') ||
+          (request.auth.uid == resource.data.createdBy && can('canEditOwnExpense')) ||
+          (request.auth.uid != resource.data.createdBy && can('canEditOthersExpense'))
+        );
+
+        allow delete: if request.auth != null && (
+          (request.auth.uid == resource.data.createdBy && can('canDeleteOwnExpense')) ||
+          (request.auth.uid != resource.data.createdBy && can('canDeleteOthersExpense'))
+        );
       }
     }
 

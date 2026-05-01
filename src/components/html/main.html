@@ -83,7 +83,7 @@
 
         <button id="hdr-sync-now-btn" class="btn-hdr" onclick="syncManager.syncNow(true)" data-tip="Sync Now" data-tip-pos="bottom" aria-label="Sync Now">🔄</button>
 
-        <button class="sync-pill local" id="sync-pill" data-tip="Sync status — click for settings" data-tip-pos="bottom">
+        <button class="sync-pill local" id="sync-pill" data-tip="Sync status" data-tip-pos="bottom">
           <span class="sync-dot"></span>
           <span id="sync-label">Local only</span>
         </button>
@@ -160,6 +160,7 @@
         </div>
         <div class="group-header-actions">
           <button class="btn btn-secondary btn-sm" id="group-share-btn" onclick="openShareGroupModal()" style="display:none">📤 Share</button>
+          <button class="btn btn-secondary btn-sm" id="group-leave-btn" onclick="confirmLeaveActiveGroup()" style="display:none">🚪 Leave</button>
           <button class="btn btn-secondary btn-sm" onclick="openManageMembersModal()">👥 Members</button>
           <button class="btn btn-secondary btn-sm" onclick="downloadReport()">⬇ Report</button>
           <button class="btn btn-primary btn-sm" onclick="openAddTransactionModal(null)">＋ Add Expense</button>

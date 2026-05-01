@@ -17,6 +17,8 @@ window.Transactions = {
       emoji: Utils.emoji(data.desc),
       isDirty: true,
       deletedFlag: false,
+      createdBy: STATE.user?.uid,
+      updatedBy: STATE.user?.uid,
       updatedByName: STATE.user?.displayName || STATE.user?.email?.split('@')[0] || 'Unknown',
       history: [{
         at: now,

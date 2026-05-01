@@ -20,6 +20,7 @@ import "./managers/ui.js";
 import "./managers/members.js";
 import "./managers/report.js";
 import "./managers/inbox.js";
+import "./managers/permissions.js";
 
 // -----------------------------
 // UTILS
@@ -41,6 +42,7 @@ import "./components/groups-crud.js";
 import "./components/transactions-crud.js";
 import "./components/group-modal.js";
 import "./components/members-modal.js";
+import "./components/members-detail-modal.js";
 import "./components/transaction-modal.js";
 import "./components/settings-modal.js";
 

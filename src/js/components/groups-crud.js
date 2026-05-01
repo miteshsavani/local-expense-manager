@@ -37,6 +37,16 @@ window.Groups = {
       Object.assign(g, patch, { updatedAt: new Date().toISOString(), isDirty: true });
     }
     syncManager.onDataChanged();
+  },
+
+  leave(id) {
+    const g = STATE.groups.find(g => g.id === id);
+    if (g) {
+      g.leftFlag = true; // Mark as left
+      g.isDirty = true;
+    }
+    syncManager.onDataChanged();
+    renderDashboard();
   }
 };
 
