@@ -99,11 +99,15 @@ window.submitJoinGroup = async () => {
   err.textContent = '';
 
   try {
-    const gid = await firebaseService.joinGroup(STATE.user.uid, code);
+    const { gid, isNew, groupData } = await firebaseService.joinGroup(STATE.user.uid, code);
     showToast('Joined group successfully!', 'success');
     closeModal();
-    // No need to manually refresh, listener will handle it
-    if (gid) showGroup(gid);
+    if (isNew) {
+      if (window.openLinkMemberModal) openLinkMemberModal(gid, groupData);
+      else showGroup(gid);
+    } else {
+      if (gid) showGroup(gid);
+    }
   } catch (e) {
     err.textContent = e.message || 'Failed to join group';
     err.classList.add('show');

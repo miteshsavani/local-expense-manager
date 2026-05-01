@@ -6,7 +6,7 @@ window.openCreateGroupModal = isResume => {
     window._members = [];
     if (STATE.user && !STATE.isGuest) {
       const ownerName = STATE.user.displayName || STATE.user.email?.split('@')[0] || 'Me';
-      window._members.push({ id: STATE.user.uid, name: ownerName, parentId: null });
+      window._members.push({ id: STATE.user.uid, name: ownerName, parentId: null, uid: STATE.user.uid });
     }
     window._tempGrpName = '';
   }

@@ -151,6 +151,7 @@ Implication:
 - guest banner → src/css/views/guest.css
 - loading/splash overlays → src/css/views/loading.css
 - UI overlays/tooltips → src/css/views/ui-overlays.css
+- inbox view - src/css/views/inbox.css
 
 ---
 

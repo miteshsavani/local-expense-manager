@@ -4,9 +4,18 @@ module.exports = {
     es2021: true
   },
 
+   overrides: [
+    {
+      files: [".eslintrc.cjs", "scripts/**/*.js"],
+      env: {
+        node: true
+      }
+    }
+  ],
+
   parserOptions: {
     ecmaVersion: "latest",
-    sourceType: "module"   // ✅ FIX HERE
+    sourceType: "module"
   },
 
   globals: {
@@ -64,7 +73,8 @@ module.exports = {
     openCreateGroupModal: "readonly",
     openEditGroupModal: "readonly",
     openManageMembersModal: "readonly",
-    closeAddSubMemberModal: "readonly"
+    closeAddSubMemberModal: "readonly",
+    openLinkMemberModal: "readonly"
   },
 
   rules: {
