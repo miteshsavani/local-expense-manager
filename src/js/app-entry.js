@@ -46,6 +46,7 @@ import "./components/members-detail-modal.js";
 import "./components/transaction-modal.js";
 import "./components/settings-modal.js";
 import "./components/admin-modal.js";
+import "./components/permission-modal.js";
 
 // -----------------------------
 // VIEWS

@@ -114,7 +114,8 @@
           <div class="page-title">Your Groups</div>
           <div class="page-subtitle" id="dashboard-subtitle">Manage shared expenses</div>
         </div>
-        <div style="display:flex;gap:8px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-secondary" onclick="openAppPermissionModal()" title="View your app-level permissions and account limits">🛡️ App Permissions</button>
           <button class="btn btn-secondary" onclick="openJoinGroupModal()">🔗 Join Group</button>
           <button class="btn btn-primary" onclick="openCreateGroupModal()">＋ New Group</button>
         </div>
@@ -144,6 +145,7 @@
           <button class="btn btn-secondary btn-sm" id="group-leave-btn" onclick="confirmLeaveActiveGroup()" style="display:none">🚪 Leave</button>
           <button class="btn btn-secondary btn-sm" onclick="openManageMembersModal()">👥 Members</button>
           <button class="btn btn-secondary btn-sm" onclick="downloadReport()">⬇ Report</button>
+          <button class="btn btn-secondary btn-sm" id="group-perm-btn" onclick="openPermissionModal()" title="View your permissions in this group">🔐 My Permissions</button>
           <button class="btn btn-primary btn-sm" onclick="openAddTransactionModal(null)">＋ Add Expense</button>
         </div>
       </div>

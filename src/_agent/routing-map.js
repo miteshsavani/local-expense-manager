@@ -78,6 +78,7 @@ window.ROUTING_MAP = {
       "settingsModal": "src/js/components/settings-modal.js",
       "adminModal": "src/js/components/admin-modal.js",
       "membersDetailModal": "src/js/components/members-detail-modal.js",
+      "permissionModal": "src/js/components/permission-modal.js",
     },
     "utils": {
       "formatters": "src/js/utils/formatters.js",
@@ -92,7 +93,11 @@ window.ROUTING_MAP = {
   "html": {
     "splash": "src/components/html/splash.html",
     "auth": "src/components/html/auth.html",
-    "main": "src/components/html/main.html"
+    "main": "src/components/html/main.html",
+    "admin": "src/components/html/admin.html",
+    "dropdown": "src/components/html/dropdown.html",
+    "inbox": "src/components/html/inbox.html",
+    "status": "src/components/html/status.html"
   },
 
   "entry": {
