@@ -8,7 +8,7 @@
     "build": "node scripts/build-chokidar.js",
     "dev": "node scripts/build-chokidar.js --watch",
     "serve": "node scripts/serve.js",
-    "start": "npm run dev & npm run serve",
+    "start": "concurrently \"npm run dev\" \"npm run serve\"",
     "clean": "rm -rf dist",
     "rebuild": "npm run clean && npm run build",
     "prepare": "husky",
@@ -29,6 +29,7 @@
   "devDependencies": {
     "chokidar": "^5.0.0",
     "clean-css": "^5.3.3",
+    "concurrently": "^9.2.1",
     "esbuild": "^0.28.0",
     "eslint": "^8.57.0",
     "express": "^5.2.1",

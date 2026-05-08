@@ -181,3 +181,20 @@ if (isDev) {
 } else {
   buildAll();
 }
+
+
+function shutdown() {
+  console.log("🛑 Shutting down...");
+
+  if (wss) {
+    wss.close(() => {
+      console.log("🔌 WebSocket closed");
+      process.exit(0);
+    });
+  } else {
+    process.exit(0);
+  }
+}
+
+process.on("SIGINT", shutdown);   // Ctrl+C
+process.on("SIGTERM", shutdown);  // kill command

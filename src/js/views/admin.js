@@ -62,26 +62,33 @@ window.adminManager = (() => {
       return;
     }
 
-    listEl.innerHTML = filtered.map(u => `
-      <div class="admin-user-row">
-        <div class="user-avatar" style="background:${Utils.memberColor(u.displayName || u.email)}">${Utils.initials(u.displayName || u.email)}</div>
-        <div class="user-info">
-          <div class="user-name">
-            ${Utils.esc(u.displayName || 'Unnamed User')}
-            ${u.role === 'admin' ? '<span class="status-badge" style="background:var(--blue);color:#fff;font-size:9px">ADMIN</span>' : ''}
+    listEl.innerHTML = filtered.map(u => {
+      try {
+        return `
+          <div class="admin-user-row">
+            <div class="user-avatar" style="background:${Utils.memberColor(u.displayName || u.email)}">${Utils.initials(u.displayName || u.email)}</div>
+            <div class="user-info">
+              <div class="user-name">
+                ${Utils.esc(u.displayName || 'Unnamed User')}
+                ${u.role === 'admin' ? '<span class="status-badge" style="background:var(--blue);color:#fff;font-size:9px">ADMIN</span>' : ''}
+              </div>
+              <div class="user-email">${Utils.esc(u.email)}</div>
+              <div class="user-meta" style="margin-top:8px">
+                <span class="meta-item">Status: <span class="user-status-badge status-${u.status}">${u.status}</span></span>
+                <span class="meta-item">Groups: <b>${u.limits?.maxGroups ?? 3}</b></span>
+                <span class="meta-item">Joined: <b>${Utils.date(u.createdAt?.toDate ? u.createdAt.toDate() : u.createdAt)}</b></span>
+              </div>
+            </div>
+            <div class="admin-actions">
+              <button class="btn btn-secondary btn-sm" onclick="adminModal.openEdit('${u.uid}')">Manage</button>
+            </div>
           </div>
-          <div class="user-email">${Utils.esc(u.email)}</div>
-          <div class="user-meta" style="margin-top:8px">
-            <span class="meta-item">Status: <span class="user-status-badge status-${u.status}">${u.status}</span></span>
-            <span class="meta-item">Groups: <b>${(u.limits?.maxGroups !== null) ? u.limits.maxGroups : 3}</b></span>
-            <span class="meta-item">Joined: <b>${Utils.date(u.createdAt?.toDate ? u.createdAt.toDate() : u.createdAt)}</b></span>
-          </div>
-        </div>
-        <div class="admin-actions">
-          <button class="btn btn-secondary btn-sm" onclick="adminModal.openEdit('${u.uid}')">Manage</button>
-        </div>
-      </div>
-    `).join('');
+        `;
+      } catch (err) {
+        console.error('Failed to render user:', u.uid, err);
+        return `<div class="admin-user-row error" style="color:var(--red);font-size:12px;padding:10px">⚠️ Error rendering user ${u.email || u.uid}</div>`;
+      }
+    }).join('');
   }
 
   return { openPanel, closePanel, refreshUsers, setFilter, renderUsers };
