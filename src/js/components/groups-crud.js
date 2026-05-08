@@ -9,7 +9,7 @@ window.Groups = {
     // Limit check
     if (STATE.user && STATE.userProfile) {
       const ownedCount = STATE.groups.filter(g => g.ownerId === STATE.user.uid && !g.deletedFlag).length;
-      const max = (STATE.userProfile.limits?.maxGroups !== null) ? STATE.userProfile.limits.maxGroups : 3;
+      const max = STATE.userProfile.limits?.maxGroups ?? 3;
       if (max !== 0) {
         if (ownedCount >= max) {
           showToast(`Limit reached: You can own up to ${max} groups.`, 'error');

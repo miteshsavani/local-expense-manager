@@ -7,10 +7,16 @@ window.adminModal = (() => {
     const user = (await firebaseService.fetchUsersList()).find(u => u.uid === uid);
     if (!user) return;
 
-    const limits = user.limits || { maxGroups: 3, maxTransactions: 100 };
-    const perms  = user.permissions || { 
-      canShareGroups: true, canJoinGroups: true, canUseCloudSync: true, 
-      canUseExport: true, canUseReports: true 
+    const limits = {
+      maxGroups: user.limits?.maxGroups ?? 3,
+      maxTransactions: user.limits?.maxTransactions ?? 100
+    };
+    const perms = {
+      canShareGroups: user.permissions?.canShareGroups ?? true,
+      canJoinGroups: user.permissions?.canJoinGroups ?? true,
+      canUseCloudSync: user.permissions?.canUseCloudSync ?? true,
+      canUseExport: user.permissions?.canUseExport ?? true,
+      canUseReports: user.permissions?.canUseReports ?? true
     };
 
     openModal(`<div class="modal" style="max-width:500px">
